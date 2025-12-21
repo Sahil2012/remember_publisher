@@ -5,11 +5,12 @@ export interface RevampResponse {
 }
 
 export const RevampService = {
-    revampText: async (text: string, tone: string): Promise<string> => {
+    revampText: async (text: string, tone: string, category: "Memoir" | "Business"): Promise<string> => {
         try {
             const response = await api.post<RevampResponse>("/revamp", {
                 text,
                 tone,
+                category,
             });
             return response.data.revamped;
         } catch (error) {

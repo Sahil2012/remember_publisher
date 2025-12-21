@@ -1,23 +1,21 @@
 import { motion } from "framer-motion";
-import { Check, type LucideIcon, User, Coffee, Sparkles, Lightbulb, Zap } from "lucide-react";
+import { Check, type LucideIcon } from "lucide-react";
 
-export type Tone = "Professional" | "Casual" | "Enthusiastic" | "Witty" | "Persuasive";
+export interface ToneOption {
+    id: string;
+    label: string;
+    icon: LucideIcon;
+    description: string;
+}
 
 interface ToneSelectorProps {
-    selectedTone: Tone;
-    onSelect: (tone: Tone) => void;
+    selectedTone: string;
+    onSelect: (tone: string) => void;
+    tones: ToneOption[];
     disabled?: boolean;
 }
 
-const tones: { id: Tone; label: string; icon: LucideIcon }[] = [
-    { id: "Professional", label: "Professional", icon: User },
-    { id: "Casual", label: "Casual", icon: Coffee },
-    { id: "Enthusiastic", label: "Enthusiastic", icon: Sparkles },
-    { id: "Witty", label: "Witty", icon: Lightbulb },
-    { id: "Persuasive", label: "Persuasive", icon: Zap },
-];
-
-export function ToneSelector({ selectedTone, onSelect, disabled }: ToneSelectorProps) {
+export function ToneSelector({ selectedTone, onSelect, tones, disabled }: ToneSelectorProps) {
     return (
         <div className="flex flex-wrap gap-2">
             {tones.map((tone) => {
@@ -30,13 +28,13 @@ export function ToneSelector({ selectedTone, onSelect, disabled }: ToneSelectorP
                         onClick={() => onSelect(tone.id)}
                         disabled={disabled}
                         className={`
-              group relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all
-              ${isSelected
+                            group relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all
+                            ${isSelected
                                 ? "bg-[#D97736] text-white shadow-md hover:bg-[#c66a2e] ring-2 ring-[#D97736]/20"
                                 : "bg-white dark:bg-card border border-border/50 text-muted-foreground hover:border-[#D97736]/50 hover:text-foreground"
                             }
-              ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-            `}
+                            ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                        `}
                     >
                         <Icon className={`h-4 w-4 ${isSelected ? "text-white" : "opacity-70 group-hover:text-[#D97736] group-hover:opacity-100"}`} />
                         {tone.label}

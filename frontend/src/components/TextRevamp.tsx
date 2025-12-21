@@ -1,19 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Loader2, Wand2, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ToneSelector, type Tone } from "./ToneSelector";
+import { ToneSelector } from "./ToneSelector";
 import { Editor } from "./Editor";
+import { CategorySelector, type Category } from "./CategorySelector";
+import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
 
 import { RevampService } from "@/services/revamp";
 
 export function TextRevamp() {
     const [inputText, setInputText] = useState("");
     const [outputText, setOutputText] = useState("");
-    const [selectedTone, setSelectedTone] = useState<Tone>("Professional");
+
+    // Default to Memoir
+    const [selectedCategory, setSelectedCategory] = useState<Category>("Memoir");
+    // Default tone: First one of the list
+    const [selectedTone, setSelectedTone] = useState<string>(MEMOIR_TONES[0].id);
+
     const [isLoading, setIsLoading] = useState(false);
     const [showOutput, setShowOutput] = useState(false);
     const [copied, setCopied] = useState(false);
+
+    // Get active tones based on category
+    const activeTones = selectedCategory === "Memoir" ? MEMOIR_TONES : BUSINESS_TONES;
+
+    // Reset tone when category changes
+    useEffect(() => {
+        setSelectedTone(activeTones[0].id);
+    }, [selectedCategory]);
 
     const handleRevamp = async () => {
         if (!inputText.trim()) return;
@@ -22,7 +37,7 @@ export function TextRevamp() {
         setShowOutput(false);
 
         try {
-            const result = await RevampService.revampText(inputText, selectedTone);
+            const result = await RevampService.revampText(inputText, selectedTone, selectedCategory);
             setOutputText(result);
             setShowOutput(true);
         } catch (error) {
@@ -45,13 +60,17 @@ export function TextRevamp() {
 
             <div className="mx-auto max-w-5xl space-y-8">
                 {/* Header */}
-                <div className="flex flex-col items-start gap-2 border-b border-border/40 pb-6 mb-8">
-                    <h1 className="text-3xl font-semibold tracking-tight text-foreground/90">
-                        Editor
-                    </h1>
-                    <p className="text-muted-foreground text-sm">
-                        Write your draft and let AI refine the tone.
-                    </p>
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/40 pb-6 mb-8">
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-semibold tracking-tight text-foreground/90">
+                            Editor
+                        </h1>
+                        <p className="text-muted-foreground text-sm">
+                            Write your draft and let AI refine the tone.
+                        </p>
+                    </div>
+                    {/* Category Selector placed in Header */}
+                    <CategorySelector selectedCategory={selectedCategory} onSelect={setSelectedCategory} disabled={isLoading} />
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-8 items-stretch h-[600px]">
@@ -59,6 +78,7 @@ export function TextRevamp() {
                     <div className="flex flex-col gap-4 h-full">
                         <div className="flex items-center justify-between h-6">
                             <label className="text-xs font-bold text-[#D97736] uppercase tracking-wider">Original Draft</label>
+                            <span className="text-xs text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">{selectedCategory} Mode</span>
                         </div>
 
                         <div className="flex-1 flex flex-col gap-4">
@@ -66,7 +86,7 @@ export function TextRevamp() {
                                 <Editor
                                     value={inputText}
                                     onChange={setInputText}
-                                    placeholder="Start writing or paste your text here..."
+                                    placeholder={`Start writing your ${selectedCategory.toLowerCase()}...`}
                                     className="h-full border-none"
                                 />
                             </div>
@@ -76,7 +96,12 @@ export function TextRevamp() {
                                 <div className="flex items-center justify-between gap-4">
                                     <div className="space-y-1.5 flex-1">
                                         <label className="text-xs font-medium text-muted-foreground ml-1">Tone Preference</label>
-                                        <ToneSelector selectedTone={selectedTone} onSelect={setSelectedTone} disabled={isLoading} />
+                                        <ToneSelector
+                                            selectedTone={selectedTone}
+                                            onSelect={setSelectedTone}
+                                            tones={activeTones}
+                                            disabled={isLoading}
+                                        />
                                     </div>
                                     <div className="self-end pb-0.5">
                                         <Button
