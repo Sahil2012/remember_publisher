@@ -15,12 +15,14 @@
     "@google/generative-ai": "^0.24.1",
     "@langchain/google-genai": "^2.1.2",
     "axios": "^1.13.2",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "langchain": "^1.2.2",
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.3",
     "nodemon": "^3.1.11",
