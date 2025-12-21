@@ -9,6 +9,39 @@ import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
 
 import { RevampService } from "@/services/revamp";
 
+const LOADING_MESSAGES = [
+    "Analyzing your tone...",
+    "Brainstorming creative angles...",
+    "Polishing the prose...",
+    "Crafting the perfect phrasing...",
+    "Enhancing clarity and flow...",
+    "Applying the finishing touches...",
+];
+
+function LoadingMessage() {
+    const [index, setIndex] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+        }, 2000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <motion.p
+            key={index}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className="text-sm font-medium text-muted-foreground animate-in fade-in"
+        >
+            {LOADING_MESSAGES[index]}
+        </motion.p>
+    );
+}
+
+
 export function TextRevamp() {
     const [inputText, setInputText] = useState("");
     const [outputText, setOutputText] = useState("");
@@ -50,7 +83,12 @@ export function TextRevamp() {
     };
 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(outputText.replace(/<[^>]*>?/gm, ""));
+        // Create a temporary element to decode HTML entities (like &nbsp;)
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = outputText;
+        const cleanText = tempDiv.textContent || tempDiv.innerText || "";
+
+        navigator.clipboard.writeText(cleanText);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -81,13 +119,13 @@ export function TextRevamp() {
                             <span className="text-xs text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">{selectedCategory} Mode</span>
                         </div>
 
-                        <div className="flex-1 flex flex-col gap-4">
-                            <div className="flex-1 group rounded-2xl border border-border/60 bg-white dark:bg-card shadow-sm transition-all focus-within:ring-2 focus-within:ring-[#D97736]/10 hover:border-[#D97736]/30 overflow-hidden">
+                        <div className="flex-1 flex flex-col gap-4 min-h-0 relative">
+                            <div className="flex-1 group rounded-2xl border border-border/60 bg-white dark:bg-card shadow-sm transition-all focus-within:ring-2 focus-within:ring-[#D97736]/10 hover:border-[#D97736]/30 overflow-hidden relative min-h-0">
                                 <Editor
                                     value={inputText}
                                     onChange={setInputText}
                                     placeholder={`Start writing your ${selectedCategory.toLowerCase()}...`}
-                                    className="h-full border-none"
+                                    className="absolute inset-0 border-none"
                                 />
                             </div>
 
@@ -167,14 +205,42 @@ export function TextRevamp() {
                             ) : (
                                 <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground/40 p-8 text-center space-y-4">
                                     {isLoading ? (
-                                        <motion.div
-                                            animate={{ rotate: 360 }}
-                                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                            className="relative"
-                                        >
-                                            <div className="absolute inset-0 rounded-full blur-md bg-[#D97736]/30" />
-                                            <Loader2 className="h-10 w-10 text-[#D97736] relative z-10" />
-                                        </motion.div>
+                                        <div className="flex flex-col items-center justify-center w-full h-full gap-8 pb-12">
+                                            {/* Animated Skeleton */}
+                                            <div className="w-full max-w-md space-y-4 px-8">
+                                                <motion.div
+                                                    className="h-4 bg-[#D97736]/20 rounded-md w-3/4"
+                                                    animate={{ opacity: [0.4, 1, 0.4] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                                />
+                                                <motion.div
+                                                    className="h-4 bg-[#D97736]/20 rounded-md w-full"
+                                                    animate={{ opacity: [0.4, 1, 0.4] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.2, ease: "easeInOut" }}
+                                                />
+                                                <motion.div
+                                                    className="h-4 bg-[#D97736]/20 rounded-md w-5/6"
+                                                    animate={{ opacity: [0.4, 1, 0.4] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.4, ease: "easeInOut" }}
+                                                />
+                                                <motion.div
+                                                    className="h-4 bg-[#D97736]/20 rounded-md w-4/6"
+                                                    animate={{ opacity: [0.4, 1, 0.4] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.6, ease: "easeInOut" }}
+                                                />
+                                            </div>
+
+                                            {/* Rotating Loading Messages */}
+                                            <div className="flex flex-col items-center gap-2">
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                                >
+                                                    <Loader2 className="h-6 w-6 text-[#D97736]" />
+                                                </motion.div>
+                                                <LoadingMessage />
+                                            </div>
+                                        </div>
                                     ) : (
                                         <>
                                             <div className="h-16 w-16 rounded-full bg-[#D97736]/10 flex items-center justify-center mb-2">

@@ -44,23 +44,27 @@ export function Editor({ value, onChange, placeholder, readOnly, className }: Ed
                 placeholder={placeholder}
                 readOnly={readOnly}
                 className={cn(
-                    "flex flex-col h-full overflow-y-auto scroll-m-0", // Root takes full height
-                    // Ensure container takes remaining height relative to toolbar
-                    "[&_.ql-container]:flex-1 [&_.ql-container]:overflow-hidden [&_.ql-container]:relative",
-                    // Editor takes full height of container and handles scrolling
-                    "[&_.ql-editor]:h-full [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:text-base",
+                    "flex flex-col h-full",
 
-                    // Old styles adapted
-                    // Border styling
-                    "[&_.ql-toolbar]:border-none [&_.ql-container]:border-none",
-                    "[&_.ql-toolbar]:bg-muted/40 [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-border/40",
+                    // Toolbar
+                    "[&_.ql-toolbar]:shrink-0 [&_.ql-toolbar]:border-none [&_.ql-toolbar]:bg-muted/40 [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-border/40 [&_.ql-toolbar]:rounded-t-lg",
 
-                    // Radius - handled by parent but good to ensure
-                    "[&_.ql-toolbar]:rounded-t-lg [&_.ql-container]:rounded-b-lg",
+                    // Container: Force it to take exactly the remaining space and act as the scroll boundary if needed, 
+                    // though usually the editor handles scroll.
+                    // IMPORTANT: overflow-hidden on container prevents it from growing beyond flex bounds.
+                    "[&_.ql-container]:flex-1 [&_.ql-container]:overflow-hidden [&_.ql-container]:relative [&_.ql-container]:border-none [&_.ql-container]:rounded-b-lg",
 
-                    // Read only specific styles
+                    // Editor: Absolute fill or 100% height to ensure it fills container.
+                    // overflow-y-auto enables the scrollbar.
+                    "[&_.ql-editor]:h-full [&_.ql-editor]:overflow-y-auto [&_.ql-editor]:px-4 [&_.ql-editor]:py-3",
+                    // Scrollbar styling
+                    "[&_.ql-editor::-webkit-scrollbar]:w-1.5",
+                    "[&_.ql-editor::-webkit-scrollbar-track]:bg-transparent",
+                    "[&_.ql-editor::-webkit-scrollbar-thumb]:bg-muted-foreground/20",
+                    "[&_.ql-editor::-webkit-scrollbar-thumb]:rounded-full",
+                    "[&_.ql-editor::-webkit-scrollbar-thumb:hover]:bg-muted-foreground/40",
+
                     readOnly && "[&_.ql-container]:border-none [&_.ql-toolbar]:hidden [&_.ql-editor]:px-0"
-
                 )}
             />
         </div>
