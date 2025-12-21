@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ToneSelector, type Tone } from "./ToneSelector";
 import { Editor } from "./Editor";
 
+import { RevampService } from "@/services/revamp";
+
 export function TextRevamp() {
     const [inputText, setInputText] = useState("");
     const [outputText, setOutputText] = useState("");
@@ -19,20 +21,17 @@ export function TextRevamp() {
         setIsLoading(true);
         setShowOutput(false);
 
-        // Simulate backend API call
-        setTimeout(() => {
-            const responses: Record<Tone, string> = {
-                Professional: `Here is a professionally revised version of your text:\n\n${inputText.replace(/<[^>]*>?/gm, "")} \n\nThis version communicates your message with clarity and authority, suitable for business correspondence.`,
-                Casual: `Hey there! Here's a more chill version:\n\n${inputText.replace(/<[^>]*>?/gm, "")} \n\nHope this vibes well with what you're trying to say!`,
-                Enthusiastic: `Wow! Here is an incredible rewrite for you:\n\n${inputText.replace(/<[^>]*>?/gm, "")} \n\nThis is absolutely amazing and full of energy!`,
-                Witty: `Here's a clever spin on your words:\n\n${inputText.replace(/<[^>]*>?/gm, "")} \n\nShort, sharp, and maybe a little cheeky.`,
-                Persuasive: `Compelling argument loading... done:\n\n${inputText.replace(/<[^>]*>?/gm, "")} \n\nThis ensures your reader will be convinced immediately.`,
-            };
-
-            setOutputText(responses[selectedTone]);
-            setIsLoading(false);
+        try {
+            const result = await RevampService.revampText(inputText, selectedTone);
+            setOutputText(result);
             setShowOutput(true);
-        }, 2000);
+        } catch (error) {
+            console.error("Failed to revamp text:", error);
+            // Optional: Add toast notification here
+            alert("Failed to generate text. Please check the backend connection.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const copyToClipboard = () => {
