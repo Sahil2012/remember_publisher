@@ -23,13 +23,14 @@ export class RevampService implements IRevampService {
     }
 
     async revampText(data: RevampRequest): Promise<string> {
-        const { text, context, tone } = data;
-        const contextSection = context ? `CONTEXT: ${context}` : '';
+        const { text, category, tone } = data;
+        const contextSection = ''; // Not used currently, or could be used if we re-add context to schema
 
         try {
             const result = await this.chain.invoke({
                 text: text,
-                tone: tone || 'professional',
+                tone: tone || 'Professional',
+                category: data.category || 'Memoir',
                 context_section: contextSection
             });
             return result.trim();
