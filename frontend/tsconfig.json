@@ -9,6 +9,8 @@
     }
   ],
   "compilerOptions": {
+    // TODO : this is for dev build remove once go live
+    "noUnusedLocals": false,
     "baseUrl": ".",
     "paths": {
       "@/*": [
