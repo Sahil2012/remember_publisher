@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@theme {
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+
+  /* Minimalist Radius */
+  --radius-lg: 1.25rem;
+  /* 20px - Softer, Apple-like */
+  --radius-md: 1rem;
+  --radius-sm: 0.5rem;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  /* Custom Utilities for Typography */
+  --tracking-tightest: -0.04em;
+  --tracking-tighter: -0.02em;
+}
+
+:root {
+  /* Apple-style 'Off-White' / 'Ceramic' Feel */
+  --background: 0 0% 100%;
+  /* Pure White */
+  /* --background: 240 5% 96%; Alternative: Soft Light Gray #F5F5F7 for sections */
+
+  /* Rich Black (Almost Charcoal) */
+  --foreground: 0 0% 11%;
+
+
+  /* Muted Text (Metadata/Subtitles) */
+  --muted: 240 5% 96%;
+  --muted-foreground: 0 0% 55%;
+  /* #86868b */
+
+  /* Action Color - Blue or Monochrome */
+  --primary: 0 0% 11%;
+  /* Black buttons */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 240 5% 96%;
+  /* #F5F5F7 */
+  --secondary-foreground: 0 0% 11%;
+
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+
+  --radius: 1rem;
+}
+
+.dark {
+  /* Dark Mode: Deep Gray/Black */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 96%;
+  /* #F5F5F7 */
+
+  --muted: 240 4% 16%;
+  --muted-foreground: 240 5% 65%;
+
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 9%;
+
+  --secondary: 240 4% 16%;
+  --secondary-foreground: 0 0% 98%;
+
+  --border: 240 4% 16%;
+  --input: 240 4% 16%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    /* Apple font implementation detail: distinct font smoothing */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    @apply backdrop-blur-xl bg-white/70 dark:bg-black/70 border border-white/20;
+  }
+}
