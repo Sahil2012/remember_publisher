@@ -21,23 +21,24 @@ export function Navbar() {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border/40 py-4" : "bg-transparent py-6"
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-md border-b border-border/40 py-4 shadow-sm" : "bg-transparent py-6"
                 }`}
         >
             <div className="container mx-auto px-6 md:px-8 max-w-7xl flex items-center justify-between">
 
+                {/* Brand - Now in Serif */}
                 {/* Brand */}
-                <Link href="/" className="text-xl font-semibold tracking-tight text-foreground">
-                    Life Scribe
+                <Link href="/" className="relative w-40 h-10">
+                    <img src="/remember-press.png" alt="Remember Press" className="object-contain w-full h-full object-left" />
                 </Link>
 
-                {/* Desktop Nav - Centered & Minimal */}
+                {/* Desktop Nav */}
                 <nav className="hidden md:flex items-center space-x-8">
                     {footer.links.map((link) => (
                         <Link
                             key={link.label}
                             href={link.href}
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            className="text-sm font-sans font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
                             {link.label}
                         </Link>
@@ -46,10 +47,8 @@ export function Navbar() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-4">
-                    <Link href="#" className="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                        Log in
-                    </Link>
-                    <Button size="sm" className="rounded-full px-5 h-9 font-medium text-sm bg-foreground text-background hover:bg-foreground/90 transition-colors">
+
+                    <Button size="sm" className="rounded-full px-6 h-10 font-sans font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors shadow-md">
                         Get Started
                     </Button>
                 </div>

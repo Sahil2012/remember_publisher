@@ -3,103 +3,113 @@
 @plugin "tailwindcss-animate";
 
 @theme {
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-playfair);
+    --font-sans: "Inter", sans-serif;
+    --font-serif: "Fraunces", serif;
 
-  /* Minimalist Radius */
-  --radius-lg: 1.25rem;
-  /* 20px - Softer, Apple-like */
-  --radius-md: 1rem;
-  --radius-sm: 0.5rem;
+    --radius-lg: 1.5rem;
+    --radius-md: 1rem;
+    --radius-sm: 0.75rem;
 
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
+    --color-muted: hsl(var(--muted));
+    --color-muted-foreground: hsl(var(--muted-foreground));
 
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
+    --color-border: hsl(var(--border));
+    --color-input: hsl(var(--input));
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+    --color-primary: hsl(var(--primary));
+    --color-primary-foreground: hsl(var(--primary-foreground));
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+    --color-secondary: hsl(var(--secondary));
+    --color-secondary-foreground: hsl(var(--secondary-foreground));
 
-  /* Custom Utilities for Typography */
-  --tracking-tightest: -0.04em;
-  --tracking-tighter: -0.02em;
+    /* Vintage Ink Colors - Subtle & Muted */
+    --color-marker-blue: hsl(var(--marker-blue));
+    /* Archive Blue */
+    --color-pencil-red: hsl(var(--pencil-red));
+    /* Sepia/Brick */
+
+    --tracking-tightest: -0.04em;
+    --tracking-tighter: -0.02em;
 }
 
 :root {
-  /* Apple-style 'Off-White' / 'Ceramic' Feel */
-  --background: 0 0% 100%;
-  /* Pure White */
-  /* --background: 240 5% 96%; Alternative: Soft Light Gray #F5F5F7 for sections */
+    /* Warm Off-White "Paper" Tone */
+    --background: 40 20% 97%;
 
-  /* Rich Black (Almost Charcoal) */
-  --foreground: 0 0% 11%;
+    /* Soft Charcoal (Ink-like) */
+    --foreground: 220 10% 15%;
 
+    --muted: 40 10% 94%;
+    --muted-foreground: 220 5% 45%;
 
-  /* Muted Text (Metadata/Subtitles) */
-  --muted: 240 5% 96%;
-  --muted-foreground: 0 0% 55%;
-  /* #86868b */
+    --primary: 220 10% 15%;
+    --primary-foreground: 40 20% 97%;
 
-  /* Action Color - Blue or Monochrome */
-  --primary: 0 0% 11%;
-  /* Black buttons */
-  --primary-foreground: 0 0% 100%;
+    --secondary: 40 10% 92%;
+    --secondary-foreground: 220 10% 15%;
 
-  --secondary: 240 5% 96%;
-  /* #F5F5F7 */
-  --secondary-foreground: 0 0% 11%;
+    --border: 220 5% 90%;
+    --input: 220 5% 90%;
 
-  --border: 240 6% 90%;
-  --input: 240 6% 90%;
+    /* Desaturated "Archive" Colors */
+    --marker-blue: 215 30% 50%;
+    /* #597393 - Faded Navy */
+    --pencil-red: 15 20% 50%;
+    /* #997B73 - Muted Sepia */
 
-  --radius: 1rem;
+    --radius: 1rem;
 }
 
 .dark {
-  /* Dark Mode: Deep Gray/Black */
-  --background: 0 0% 0%;
-  --foreground: 0 0% 96%;
-  /* #F5F5F7 */
+    --background: 220 10% 10%;
+    --foreground: 40 20% 94%;
 
-  --muted: 240 4% 16%;
-  --muted-foreground: 240 5% 65%;
+    --muted: 220 10% 15%;
+    --muted-foreground: 220 5% 65%;
 
-  --primary: 0 0% 98%;
-  --primary-foreground: 0 0% 9%;
+    --primary: 40 20% 94%;
+    --primary-foreground: 220 10% 10%;
 
-  --secondary: 240 4% 16%;
-  --secondary-foreground: 0 0% 98%;
+    --secondary: 220 10% 15%;
+    --secondary-foreground: 40 20% 94%;
 
-  --border: 240 4% 16%;
-  --input: 240 4% 16%;
+    --border: 220 10% 20%;
+    --input: 220 10% 20%;
+
+    --marker-blue: 215 40% 60%;
+    --pencil-red: 15 30% 60%;
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+    * {
+        @apply border-border;
+    }
 
-  body {
-    @apply bg-background text-foreground antialiased;
-    /* Apple font implementation detail: distinct font smoothing */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+    body {
+        @apply bg-background text-foreground antialiased;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+    .text-balance {
+        text-wrap: balance;
+    }
 
-  .glass {
-    @apply backdrop-blur-xl bg-white/70 dark:bg-black/70 border border-white/20;
-  }
+    /* Elegant, slow draw animation */
+    .scribble-drawn {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: graceful-draw 2s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+    }
+
+    @keyframes graceful-draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
 }

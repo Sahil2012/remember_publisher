@@ -8,50 +8,72 @@ export function HowItWorks() {
     const { howItWorks } = content;
 
     return (
-        <section id="how-it-works" className="py-32 bg-background">
-            <div className="container px-6 md:px-8 mx-auto max-w-4xl">
+        <section id="process" className="py-32 bg-background relative overflow-hidden">
 
-                <div className="text-center mb-24">
-                    <span className="text-sm font-semibold tracking-widest uppercase text-muted-foreground mb-4 block">
+            <div className="container px-6 md:px-8 mx-auto max-w-4xl relative z-10">
+
+                <div className="text-center mb-32">
+                    <span className="text-sm font-sans font-semibold tracking-widest uppercase text-muted-foreground mb-4 block">
                         The Process
                     </span>
-                    <h2 className="text-4xl md:text-5xl font-semibold tracking-tighter text-foreground">
+                    <h2 className="text-4xl md:text-6xl font-serif font-medium tracking-tight text-foreground">
                         {howItWorks.heading}
                     </h2>
                 </div>
 
-                <div className="space-y-24 relative before:absolute before:left-[19px] md:before:left-1/2 before:top-4 before:bottom-4 before:w-[2px] before:bg-border/50 before:-translate-x-1/2">
+                <div className="space-y-36">
                     {howItWorks.steps.map((item, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                            className={`relative flex flex-col md:flex-row gap-8 md:gap-16 items-start md:items-center ${index % 2 === 0 ? "md:flex-row-reverse text-left md:text-right" : "text-left"
-                                }`}
-                        >
-                            {/* Timeline Node */}
-                            <div className="absolute left-[19px] md:left-1/2 top-0 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-10 h-10 bg-background border-[4px] border-secondary rounded-full z-10 flex items-center justify-center">
-                                <div className="w-3 h-3 bg-foreground rounded-full" />
-                            </div>
+                        <div key={index} className="relative group">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.8 }}
+                                className={`flex flex-col md:flex-row gap-8 md:gap-20 items-center ${index % 2 === 1 ? "md:flex-row-reverse" : ""
+                                    }`}
+                            >
+                                {/* Number Circle - Thin Elegant Ring */}
+                                <div className="relative w-28 h-28 flex-shrink-0 flex items-center justify-center">
+                                    <svg className="absolute inset-0 w-full h-full text-marker-blue/30 rotate-45" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                                        <circle cx="50" cy="50" r="48" strokeWidth="1" />
+                                        {/* Inner inconsistent ring for slight handmade feel but very subtle */}
+                                        <path d="M50,10 Q90,10 90,50 T50,90 T10,50 T50,10" strokeWidth="0.5" opacity="0.5" />
+                                    </svg>
+                                    <span className="text-5xl font-serif font-bold text-foreground relative z-10">
+                                        {item.step}
+                                    </span>
+                                </div>
 
-                            {/* Spacer for the other side */}
-                            <div className="hidden md:block w-1/2" />
+                                <div className={`text-center md:text-left ${index % 2 === 1 ? "md:text-right" : ""}`}>
+                                    <h3 className="text-3xl font-serif font-medium text-foreground mb-4">
+                                        {item.title}
+                                    </h3>
+                                    <p className="text-xl text-muted-foreground/90 leading-relaxed font-sans font-light">
+                                        {item.description}
+                                    </p>
+                                </div>
+                            </motion.div>
 
-                            {/* Content */}
-                            <div className="pl-16 md:pl-0 w-full md:w-1/2">
-                                <span className="text-6xl font-semibold text-secondary/40 -ml-1 block mb-2 tracking-tighter">
-                                    0{item.step}
-                                </span>
-                                <h3 className="text-2xl font-semibold text-foreground mb-3 tracking-tight">
-                                    {item.title}
-                                </h3>
-                                <p className="text-lg text-muted-foreground leading-relaxed">
-                                    {item.description}
-                                </p>
-                            </div>
-                        </motion.div>
+                            {/* Graceful Connector Line (Thin) */}
+                            {index < howItWorks.steps.length - 1 && (
+                                <div className={`hidden md:block absolute -bottom-32 w-px h-32 bg-foreground/10 pointer-events-none transform
+                        ${index % 2 === 0 ? "left-1/2" : "left-1/2"}
+                    `}>
+                                    {/* Option B: Simple straight line down middle for structure */}
+                                </div>
+                            )}
+
+                            {/* Alternative Connector: Curved thin line */}
+                            {index < howItWorks.steps.length - 1 && (
+                                <svg className="hidden md:block absolute -bottom-32 left-1/2 -translate-x-1/2 w-48 h-32 text-foreground/10 pointer-events-none" viewBox="0 0 200 100" fill="none" stroke="currentColor">
+                                    {index % 2 === 0
+                                        ? <path d="M100,0 Q150,50 100,100" strokeWidth="1" />
+                                        : <path d="M100,0 Q50,50 100,100" strokeWidth="1" />
+                                    }
+                                </svg>
+                            )}
+
+                        </div>
                     ))}
                 </div>
 

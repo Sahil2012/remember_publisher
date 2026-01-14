@@ -3,6 +3,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { content } from "@/data/content";
 
@@ -10,79 +11,101 @@ export function Hero() {
     const { hero } = content;
 
     return (
-        <section className="relative min-h-[90vh] flex flex-col justify-center items-center overflow-hidden bg-background pt-32 pb-20">
+        <section className="relative min-h-[90vh] flex flex-col justify-center pt-32 pb-20 overflow-hidden bg-background">
 
-            <div className="container px-4 md:px-6 relative z-10 flex flex-col items-center text-center max-w-5xl mx-auto">
+            <div className="container px-6 md:px-8 mx-auto max-w-7xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-                {/* Subtle Social Proof / Label - "Eyebrow" text */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="mb-8"
-                >
-                    <span className="text-sm font-semibold tracking-widest uppercase text-muted-foreground/80">
-                        {hero.socialProof.split('|')[0].trim()}
-                    </span>
-                </motion.div>
+                    {/* Left Column: Power Content */}
+                    <div className="flex flex-col items-start text-left z-20 order-2 lg:order-1">
 
-                {/* Headline: The Star of the Show */}
-                <motion.h1
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tighter text-foreground mb-8 leading-[1.05] text-balance"
-                >
-                    {hero.headline}
-                </motion.h1>
+                        {/* Minimal Eyebrow - Refined Spacing */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                            className="mb-8 pl-1"
+                        >
+                            <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-muted-foreground/60">
+                                {hero.socialProof}
+                            </span>
+                        </motion.div>
 
-                {/* Subheadline: Large, readable, clean */}
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-xl md:text-2xl text-muted-foreground/90 max-w-2xl mb-12 leading-relaxed font-medium tracking-tight"
-                >
-                    {hero.subheadline}
-                </motion.p>
+                        {/* Headline - STRICT 2 LINES & Power Words */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                            className="mb-8 relative"
+                        >
+                            <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] font-serif font-normal tracking-tighter text-foreground leading-[1] whitespace-pre-line">
+                                {hero.heading.split(',')[0]},
+                                <span className="block text-muted-foreground/80">{hero.heading.split(',')[1].trim()}</span>
+                            </h1>
 
-                {/* CTAs: Simple, pill-shaped */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col sm:flex-row items-center gap-6"
-                >
-                    <Button
-                        size="lg"
-                        className="rounded-full px-8 h-14 text-lg font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-none"
+                            {/* Abstract Scribble Accent on Text - Refined position */}
+                            <div className="absolute -left-16 top-10 w-32 h-32 text-pencil-red/15 -z-10 hidden lg:block rotate-12 opacity-60">
+                                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" className="scribble-drawn">
+                                    <path d="M10,10 Q50,50 10,90 M20,20 Q60,60 20,80" strokeWidth="1" />
+                                </svg>
+                            </div>
+
+                        </motion.div>
+
+                        {/* Subheadline - Emotional Connect */}
+                        <motion.p
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            className="text-lg md:text-2xl text-muted-foreground/80 max-w-lg mb-10 leading-relaxed font-sans font-light tracking-wide"
+                        >
+                            {hero.subheadline}
+                        </motion.p>
+
+                        {/* CTAs - Apple Style Buttons */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                            className="flex flex-col sm:flex-row items-center gap-5 w-full"
+                        >
+                            <Button
+                                size="lg"
+                                className="rounded-full px-10 h-14 text-lg font-medium bg-foreground text-background hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto"
+                            >
+                                {hero.primaryCta}
+                            </Button>
+                            <Button
+                                variant="link"
+                                size="lg"
+                                className="text-lg text-foreground/80 font-medium hover:text-foreground hover:no-underline group w-full sm:w-auto justify-start"
+                            >
+                                {hero.secondaryCta} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                        </motion.div>
+                    </div>
+
+                    {/* Right Column: The Sketch */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                        transition={{ duration: 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="relative w-full h-[50vh] lg:h-[80vh] order-1 lg:order-2 flex items-center justify-center lg:justify-end"
                     >
-                        {hero.primaryCta}
-                    </Button>
-                    <Button
-                        variant="link"
-                        size="lg"
-                        className="text-lg text-primary font-medium hover:no-underline hover:opacity-70 transition-opacity"
-                    >
-                        {hero.secondaryCta} <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                </motion.div>
-            </div>
+                        {/* Sketch Image - Clean & Artistic */}
+                        <div className="relative w-full h-full max-w-xl mx-auto lg:mx-0 lg:ml-auto">
+                            <Image
+                                src="/human-scribble.png"
+                                alt="Sketch of human writing a book"
+                                fill
+                                className="object-contain object-center lg:object-right opacity-85 mix-blend-multiply dark:mix-blend-normal"
+                                priority
+                            />
+                        </div>
+                    </motion.div>
 
-            {/* Hero Image/Graphic Placeholder - Clean and minimal */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.98, y: 40 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-20 w-full max-w-[1200px] px-4 md:px-6"
-            >
-                <div className="aspect-[21/9] bg-secondary/50 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center border border-border/50">
-                    <span className="text-muted-foreground/30 text-lg font-medium tracking-widest uppercase">
-                        Product Interface Placeholder
-                    </span>
                 </div>
-            </motion.div>
-
+            </div>
         </section>
     );
 }

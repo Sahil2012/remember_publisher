@@ -1,70 +1,75 @@
 
 export const content = {
     hero: {
-        headline: "Turn Memories Into Lasting Books",
-        subheadline: "Upload your voice, photos, and words – Life Scribe helps you transform them into beautifully designed storybooks for families, founders, and teams.",
-        primaryCta: "Get Started – Free",
-        secondaryCta: "How It Works",
-        socialProof: "Featured on TechCrunch | Over 10,000 stories preserved"
+        heading: "Your Story,\nBeautifully Bound.",
+        subheadline: "Don't let your life's most precious moments be forgotten. We turn your journey into a timeless family heirloom.",
+        primaryCta: "Start Writing",
+        secondaryCta: "How it works?",
+        socialProof: "THE GIFT OF A LIFETIME"
     },
     offerings: [
         {
             title: "Life Story",
-            description: "Craft a personal memoir or legacy book. Perfect for capturing a lifetime of memories and wisdom to pass down.",
+            description: "A timeless linen-wrapped masterpiece. Perfect for passing down through generations. Includes custom embossing and archival-quality paper.",
             icon: "BookHeart"
         },
         {
             title: "Business Book",
-            description: "Transform your business or career journey into a compelling book – ideal for founders, entrepreneurs, or retiring executives.",
+            description: "Preserve your professional legacy and company history. A definitive account of your career and leadership philosophy.",
             icon: "Briefcase"
         },
         {
-            title: "Yearbook",
-            description: "Create an annual keepsake. Whether it's your family's year or your company's year-in-review, compile highlights in a beautiful yearbook.",
+            title: "Yearly Archive",
+            description: "A beautiful curation of your year's best moments. Turn your digital photos and events into a tangible family keepsake.",
             icon: "Calendar"
         }
     ],
     howItWorks: {
-        heading: "How It Works",
+        heading: "From Chaos to Clarity.",
         steps: [
             {
-                step: 1,
-                title: "Upload Transcripts",
-                description: "Start by uploading transcripts from interviews, videos, or audio recordings of life stories."
+                step: "01",
+                title: "Share Your Story",
+                description: "Upload voice notes, photos, or journals. Our AI writer will fill in the gaps."
             },
             {
-                step: 2,
-                title: "Process & Organize",
-                description: "Our system organizes the content into chapters, enhancing readability while preserving authentic voices."
+                step: "02",
+                title: "We Craft the Narrative",
+                description: "Everything is woven into a cohesive, compelling narrative by professional editors and AI."
             },
             {
-                step: 3,
-                title: "Create Your Book",
-                description: "Edit, refine, and export your manuscript as a beautifully formatted keepsake of cherished memories."
+                step: "03",
+                title: "Review & Refine",
+                description: "You receive a beautiful digital draft. Make edits, add photos, and approve the layout."
+            },
+            {
+                step: "04",
+                title: "A Masterpiece Delivered",
+                description: "Your linen-bound book arrives at your pdf, ready to be cherished."
             }
         ]
     },
     testimonials: [
         {
-            quote: "It was so easy to preserve our family history. The final book is a treasure we will keep forever.",
-            author: "Alice Thompson",
-            role: "Family Archivist"
+            quote: "I never thought my scribbles could look like this. It's not just a book; it's my legacy.",
+            author: "Eleanor P.",
+            role: "Retired Architect"
         },
         {
-            quote: "I never thought writing my memoir could be this simple. Life Scribe did all the heavy lifting.",
-            author: "John Doe",
-            role: "Retired Teacher"
+            quote: "The process was so therapeutic. Seeing my father's life story in print brought me to tears.",
+            author: "Marcus J.",
+            role: "Gift Giver"
         }
     ],
     footer: {
-        brand: "Life Scribe",
+        brand: "Remember Publisher",
+        description: "Preserving stories, one page at a time.",
         links: [
-            { label: "Home", href: "#" },
-            { label: "How It Works", href: "#how-it-works" },
             { label: "Offerings", href: "#offerings" },
-            { label: "Examples", href: "#examples" },
-            { label: "About", href: "#about" }
+            { label: "Process", href: "#process" },
+            { label: "Stories", href: "#stories" },
+            { label: "Pricing", href: "#pricing" }
         ],
-        copyright: "© 2024 Life Scribe. All rights reserved."
+        copyright: "© 2024 Life Scribe Inc. All rights reserved."
     }
-}
+};
