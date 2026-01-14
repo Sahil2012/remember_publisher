@@ -1,4 +1,5 @@
 
+import Link from "next/link";
 import { pricingTiers } from "@/data/content";
 import { Button } from "@/components/ui/button";
 
@@ -56,15 +57,17 @@ export const Pricing = () => {
 
                             {/* CTA */}
                             <div className="pt-4">
-                                <Button
-                                    className={`w-full h-12 text-sm font-medium rounded-full transition-all duration-300 ${tier.mostPopular
-                                        ? "bg-foreground text-background hover:bg-foreground/90 shadow-md"
-                                        : "bg-transparent text-foreground border border-foreground/20 hover:border-foreground hover:bg-transparent"
-                                        }`}
-                                    variant={tier.mostPopular ? "default" : "outline"}
-                                >
-                                    {tier.cta}
-                                </Button>
+                                <Link target="_blank" href="https://remember-publisher.vercel.app/">
+                                    <Button
+                                        className={`w-full h-12 text-sm font-medium rounded-full transition-all duration-300 ${tier.mostPopular
+                                            ? "bg-foreground text-background hover:bg-foreground/90 shadow-md"
+                                            : "bg-transparent text-foreground border border-foreground/20 hover:border-foreground hover:bg-transparent"
+                                            }`}
+                                        variant={tier.mostPopular ? "default" : "outline"}
+                                    >
+                                        {tier.cta}
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     ))}

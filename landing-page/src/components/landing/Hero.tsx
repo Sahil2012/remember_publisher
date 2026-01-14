@@ -1,6 +1,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -69,20 +70,25 @@ export function Hero() {
                             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                             className="flex flex-col sm:flex-row items-center gap-5 w-full"
                         >
-                            <Button
-                                size="lg"
-                                className="rounded-full px-10 h-14 text-lg font-medium bg-foreground text-background hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto"
-                            >
-                                {hero.primaryCta}
-                            </Button>
-                            <Button
-                                variant="link"
-                                size="lg"
-                                className="text-lg text-foreground/80 font-medium hover:text-foreground hover:no-underline group w-full sm:w-auto justify-start"
-                            >
-                                {hero.secondaryCta} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Button>
+                            <Link target="_blank" href="https://remember-publisher.vercel.app/">
+                                <Button
+                                    size="lg"
+                                    className="cursor-pointer rounded-full px-10 h-14 text-lg font-medium bg-foreground text-background hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto"
+                                >
+                                    {hero.primaryCta}
+                                </Button>
+                            </Link>
+                            <Link href="#process">
+                                <Button
+                                    variant="link"
+                                    size="lg"
+                                    className="text-lg text-foreground/80 font-medium hover:text-foreground hover:no-underline group w-full sm:w-auto justify-start"
+                                >
+                                    {hero.secondaryCta} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </Button>
+                            </Link>
                         </motion.div>
+
                     </div>
 
                     {/* Right Column: The Sketch */}
@@ -95,7 +101,7 @@ export function Hero() {
                         {/* Sketch Image - Clean & Artistic */}
                         <div className="relative w-full h-full max-w-xl mx-auto lg:mx-0 lg:ml-auto">
                             <Image
-                                src="/human-scribble.png"
+                                src="/rb-human.png"
                                 alt="Sketch of human writing a book"
                                 fill
                                 className="object-contain object-center lg:object-right opacity-85 mix-blend-multiply dark:mix-blend-normal"

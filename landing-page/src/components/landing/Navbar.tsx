@@ -48,9 +48,11 @@ export function Navbar() {
                 {/* Actions */}
                 <div className="flex items-center gap-4">
 
-                    <Button size="sm" className="rounded-full px-6 h-10 font-sans font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors shadow-md">
-                        Get Started
-                    </Button>
+                    <Link href="https://remember-publisher.vercel.app/">
+                        <Button size="sm" className="cursor-pointer rounded-full px-6 h-10 font-sans font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors shadow-md">
+                            Get Started
+                        </Button>
+                    </Link>
                 </div>
 
             </div>
