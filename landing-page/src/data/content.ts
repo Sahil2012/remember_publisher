@@ -1,4 +1,50 @@
 
+export const pricingTiers = [
+    {
+        name: "The Digital Edition",
+        price: "$99",
+        description: "Perfect for sharing your story online with friends and family.",
+        features: [
+            "Professional Editing & Formatting",
+            "Digital eBook (PDF & ePub)",
+            "Shareable Online Link",
+            "3-Month Backup Retention",
+        ],
+        mostPopular: false,
+        cta: "Start Your Story",
+    },
+    {
+        name: "The Heirloom Edition",
+        price: "$299",
+        description: "A beautifully crafted physical book to hold and cherish forever.",
+        features: [
+            "Everything in Digital Edition",
+            "Hardcover 'Coffee Table' Book",
+            "Premium Acid-Free Paper",
+            "Custom Cover Design",
+            "5 Printed Copies Included",
+        ],
+        mostPopular: true,
+        cta: "Create Your Keepsake",
+    },
+    {
+        name: "The Legacy Collection",
+        price: "$599",
+        description: "The ultimate package for preserving your family history for generations.",
+        features: [
+            "Everything in Heirloom Edition",
+            "Leather-Bound Collector's Edition",
+            "In-Depth Interview Sessions",
+            "Professional Photo Restoration",
+            "10 Printed Copies Included",
+            "Lifetime Digital Archive",
+        ],
+        mostPopular: false,
+        cta: "Preserve Your Legacy",
+    },
+];
+
+
 export const content = {
     hero: {
         heading: "Your Story,\nBeautifully Bound.",
@@ -70,6 +116,6 @@ export const content = {
             { label: "Stories", href: "#stories" },
             { label: "Pricing", href: "#pricing" }
         ],
-        copyright: "© 2024 Life Scribe Inc. All rights reserved."
+        copyright: "© 2026 Remember Publisher. All rights reserved."
     }
 };

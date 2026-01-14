@@ -16,8 +16,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    title: "Life Scribe - Turn Memories Into Lasting Books",
-    description: "Upload your voice, photos, and words – Life Scribe helps you transform them into beautifully designed storybooks.",
+    title: "Remember Publisher - Turn Memories Into Lasting Books",
+    description: "Upload your voice, photos, and words – Remember Publisher helps you transform them into beautifully designed storybooks.",
+    icons: {
+        icon: "/remember-press.png",
+    },
 };
 
 export default function RootLayout({
