@@ -9,6 +9,12 @@ import { content } from "@/data/content";
 
 export function Navbar() {
     const { footer } = content;
+    const navItems = [
+        { label: "Offerings", href: "#offerings" },
+        { label: "Process", href: "#process" },
+        { label: "Stories", href: "#stories" },
+        { label: "Pricing", href: "#pricing" },
+    ];
     const [scrolled, setScrolled] = useState(false);
     const { scrollY } = useScroll();
 
@@ -34,7 +40,7 @@ export function Navbar() {
 
                 {/* Desktop Nav */}
                 <nav className="hidden md:flex items-center space-x-8">
-                    {footer.links.map((link) => (
+                    {navItems.map((link) => (
                         <Link
                             key={link.label}
                             href={link.href}

@@ -9,8 +9,7 @@ export function HowItWorks() {
     return (
         <section id="process" className="py-24 bg-background relative overflow-hidden">
 
-            {/* Background Texture/Noise Optional */}
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 pointer-events-none mix-blend-soft-light"></div>
+
 
             <div className="container px-6 md:px-8 mx-auto max-w-6xl relative z-10">
 
