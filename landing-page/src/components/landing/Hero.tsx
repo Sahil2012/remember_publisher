@@ -45,7 +45,7 @@ export function Hero() {
                             </h1>
 
                             {/* Abstract Scribble Accent on Text - Refined position */}
-                            <div className="absolute -left-16 top-10 w-32 h-32 text-pencil-red/15 -z-10 hidden lg:block rotate-12 opacity-60">
+                            <div className="absolute -left-16 top-10 w-32 h-32 text-luxury-gold/30 -z-10 hidden lg:block rotate-12 opacity-80">
                                 <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" className="scribble-drawn">
                                     <path d="M10,10 Q50,50 10,90 M20,20 Q60,60 20,80" strokeWidth="1" />
                                 </svg>

@@ -68,7 +68,7 @@ export function Features() {
                                     className="flex-1 space-y-8"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="flex items-center justify-center w-12 h-12 bg-primary/5 rounded-2xl text-primary">
+                                        <div className="flex items-center justify-center w-12 h-12 bg-luxury-gold/10 rounded-2xl text-luxury-gold">
                                             <Icon className="w-6 h-6" />
                                         </div>
                                         <span className="text-sm font-bold tracking-widest uppercase text-muted-foreground/60">
@@ -87,10 +87,10 @@ export function Features() {
 
                                     <motion.button
                                         whileHover={{ x: 5 }}
-                                        className="group flex items-center gap-2 text-foreground font-medium border-b border-primary/20 pb-1 hover:border-primary transition-all"
+                                        className="group flex items-center gap-2 text-foreground font-medium border-b border-luxury-gold/30 pb-1 hover:border-luxury-gold transition-all"
                                     >
                                         Explore this format
-                                        <ArrowRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
+                                        <ArrowRight className="w-4 h-4 text-luxury-gold group-hover:translate-x-1 transition-transform" />
                                     </motion.button>
                                 </motion.div>
 

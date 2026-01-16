@@ -34,7 +34,7 @@ export function HowItWorks() {
                             >
                                 {/* Number Circle - Thin Elegant Ring */}
                                 <div className="relative w-28 h-28 flex-shrink-0 flex items-center justify-center">
-                                    <svg className="absolute inset-0 w-full h-full text-marker-blue/30 rotate-45" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                                    <svg className="absolute inset-0 w-full h-full text-luxury-gold/40 rotate-45" viewBox="0 0 100 100" fill="none" stroke="currentColor">
                                         <circle cx="50" cy="50" r="48" strokeWidth="1" />
                                         {/* Inner inconsistent ring for slight handmade feel but very subtle */}
                                         <path d="M50,10 Q90,10 90,50 T50,90 T10,50 T50,10" strokeWidth="0.5" opacity="0.5" />
@@ -65,7 +65,7 @@ export function HowItWorks() {
 
                             {/* Alternative Connector: Curved thin line */}
                             {index < howItWorks.steps.length - 1 && (
-                                <svg className="hidden md:block absolute -bottom-32 left-1/2 -translate-x-1/2 w-48 h-32 text-foreground/10 pointer-events-none" viewBox="0 0 200 100" fill="none" stroke="currentColor">
+                                <svg className="hidden md:block absolute -bottom-32 left-1/2 -translate-x-1/2 w-48 h-32 text-luxury-gold/20 pointer-events-none" viewBox="0 0 200 100" fill="none" stroke="currentColor">
                                     {index % 2 === 0
                                         ? <path d="M100,0 Q150,50 100,100" strokeWidth="1" />
                                         : <path d="M100,0 Q50,50 100,100" strokeWidth="1" />
