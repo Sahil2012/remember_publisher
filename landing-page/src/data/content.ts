@@ -110,6 +110,26 @@ export const content = {
             role: "Gift Giver"
         }
     ],
+    stories: {
+        heading: "Words from the Heart",
+        subheading: "Real stories, real legacies preserved forever.",
+        videos: [
+            {
+                title: "The Vision",
+                subtitle: "Chrissie's Story",
+                description: "Our founder, Chrissie, shares her personal drive to ensure every life story is celebrated and remembered.",
+                // Using direct Google Drive stream link (uc?export=download&id=...)
+                src: ""
+            },
+            {
+                title: "Our Promise",
+                subtitle: "Remember Publisher",
+                description: "We are dedicated to turning your life's journey into a timeless heirloom. Your story matters.",
+                // Using direct Google Drive stream link (uc?export=download&id=...)
+                src: ""
+            }
+        ]
+    },
     footer: {
         brand: "Remember Publisher",
         description: "Preserving stories, one page at a time.",
