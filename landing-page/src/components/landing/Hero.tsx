@@ -45,7 +45,7 @@ export function Hero() {
                             </h1>
 
                             {/* Abstract Scribble Accent on Text - Refined position */}
-                            <div className="absolute -left-16 top-10 w-32 h-32 text-pencil-red/15 -z-10 hidden lg:block rotate-12 opacity-60">
+                            <div className="absolute -left-16 top-10 w-32 h-32 text-luxury-gold/30 -z-10 hidden lg:block rotate-12 opacity-80">
                                 <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" className="scribble-drawn">
                                     <path d="M10,10 Q50,50 10,90 M20,20 Q60,60 20,80" strokeWidth="1" />
                                 </svg>
@@ -91,23 +91,31 @@ export function Hero() {
 
                     </div>
 
-                    {/* Right Column: The Sketch */}
+                    {/* Right Column: The Photo */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
                         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                         transition={{ duration: 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                         className="relative w-full h-[50vh] lg:h-[80vh] order-1 lg:order-2 flex items-center justify-center lg:justify-end"
                     >
-                        {/* Sketch Image - Clean & Artistic */}
-                        <div className="relative w-full h-full max-w-xl mx-auto lg:mx-0 lg:ml-auto">
+                        {/* Image with subtle floating animation */}
+                        <motion.div
+                            className="relative w-full h-full max-w-xl mx-auto lg:mx-0 lg:ml-auto"
+                            animate={{ y: [0, -10, 0] }}
+                            transition={{
+                                duration: 6,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        >
                             <Image
-                                src="/rb-human.png"
-                                alt="Sketch of human writing a book"
+                                src="/julie_reading.png"
+                                alt="Julie hugging a book on the couch"
                                 fill
-                                className="object-contain object-center lg:object-right opacity-85 mix-blend-multiply dark:mix-blend-normal"
+                                className="object-contain object-center lg:object-right rounded-lg shadow-2xl"
                                 priority
                             />
-                        </div>
+                        </motion.div>
                     </motion.div>
 
                 </div>

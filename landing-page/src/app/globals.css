@@ -30,6 +30,8 @@
     /* Archive Blue */
     --color-pencil-red: hsl(var(--pencil-red));
     /* Sepia/Brick */
+    --color-luxury-gold: hsl(var(--luxury-gold));
+    /* Rich Gold Accent */
 
     --tracking-tightest: -0.04em;
     --tracking-tighter: -0.02em;
@@ -59,6 +61,8 @@
     /* #597393 - Faded Navy */
     --pencil-red: 15 20% 50%;
     /* #997B73 - Muted Sepia */
+    --luxury-gold: 45 40% 50%;
+    /* #BFA361 - Rich Gold */
 
     --radius: 1rem;
 }
@@ -81,6 +85,7 @@
 
     --marker-blue: 215 40% 60%;
     --pencil-red: 15 30% 60%;
+    --luxury-gold: 45 50% 60%;
 }
 
 @layer base {

@@ -21,15 +21,15 @@ export function Navbar() {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-md border-b border-border/40 py-4 shadow-sm" : "bg-transparent py-6"
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-md border-b border-border/40 py-2 shadow-sm" : "bg-transparent py-2"
                 }`}
         >
             <div className="container mx-auto px-6 md:px-8 max-w-7xl flex items-center justify-between">
 
                 {/* Brand - Now in Serif */}
                 {/* Brand */}
-                <Link href="/" className="relative w-40 h-10">
-                    <img src="/remember-press.png" alt="Remember Press" className="object-contain w-full h-full object-left" />
+                <Link href="/" className="relative w-50 h-15">
+                    <img src="/rb-press.png" alt="Remember Press" className="object-contain w-full h-full object-left" />
                 </Link>
 
                 {/* Desktop Nav */}
