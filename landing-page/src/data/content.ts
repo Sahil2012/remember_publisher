@@ -55,18 +55,21 @@ export const content = {
     },
     offerings: [
         {
-            title: "Life Story",
-            description: "A timeless linen-wrapped masterpiece. Perfect for passing down through generations. Includes custom embossing and archival-quality paper.",
+            label: "Personal Legacy",
+            title: "LIFE STORY/MEMOIR",
+            description: "Use our system to curate your, your family’s or your business’s best moments for the year. The wins, the challenges, the staff who deserve to be celebrated. What a gift to your customers, your family, your community! Digital photos get lost, but set in a beautiful book? There forever. LEGACY.",
             icon: "BookHeart"
         },
         {
-            title: "Business Book",
-            description: "Preserve your professional legacy and company history. A definitive account of your career and leadership philosophy.",
+            label: "Professional Authority",
+            title: "BUSINESS BOOK",
+            description: "Launch your authority with your book. Share your wisdom, your achievements, and create the best calling card that lasts. The ripple effect is incredible: Key note speaking engagements, consulting, endless possibilities once you are an… AUTHOR!",
             icon: "Briefcase"
         },
         {
-            title: "Yearly Archive",
-            description: "A beautiful curation of your year's best moments. Turn your digital photos and events into a tangible family keepsake.",
+            label: "Annual Milestone",
+            title: "A YEARBOOK",
+            description: "Use our system to curate your, your family’s or your business’s best moments for the year. The wins, the challenges, the staff who deserve to be celebrated. What a gift to your customers, your family, your community! Digital photos get lost, but set in a beautiful book? There forever. LEGACY.",
             icon: "Calendar"
         }
     ],
@@ -76,12 +79,12 @@ export const content = {
             {
                 step: "01",
                 title: "Share Your Story",
-                description: "Upload voice notes, photos, or journals. Our AI writer will fill in the gaps."
+                description: "Upload voice notes, photos, or journals. Our RP Editor will fill in the gaps."
             },
             {
                 step: "02",
                 title: "We Craft the Narrative",
-                description: "Everything is woven into a cohesive, compelling narrative by professional editors and AI."
+                description: "Your inputs are woven into a compelling narrative by our professional RP Editors. Then, choose from our curated selection of cover designs to give your book the look it deserves."
             },
             {
                 step: "03",
@@ -91,7 +94,7 @@ export const content = {
             {
                 step: "04",
                 title: "A Masterpiece Delivered",
-                description: "Your linen-bound book arrives at your pdf, ready to be cherished."
+                description: "Choose your format: a digital Ebook or a beautiful hardbound copy (additional cost). Then, sit back as your masterpiece is prepared and shipped directly to you."
             }
         ]
     },
