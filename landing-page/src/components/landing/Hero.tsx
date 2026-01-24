@@ -12,13 +12,13 @@ export function Hero() {
     const { hero } = content;
 
     return (
-        <section className="relative min-h-[90vh] flex flex-col justify-center pt-32 pb-20 overflow-hidden bg-background">
+        <section className="relative min-h-[90vh] flex flex-col justify-center pt-24 lg:pt-32 pb-20 overflow-hidden bg-background">
 
             <div className="container px-6 md:px-8 mx-auto max-w-7xl">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
 
                     {/* Left Column: Power Content */}
-                    <div className="flex flex-col items-start text-left z-20 order-2 lg:order-1">
+                    <div className="flex flex-col items-start text-left z-20">
 
                         {/* Minimal Eyebrow - Refined Spacing */}
                         <motion.div
@@ -96,11 +96,11 @@ export function Hero() {
                         initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
                         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                         transition={{ duration: 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="relative w-full h-[50vh] lg:h-[80vh] order-1 lg:order-2 flex items-center justify-center lg:justify-end"
+                        className="relative w-full aspect-square flex items-center justify-center lg:justify-end"
                     >
                         {/* Image with subtle floating animation */}
                         <motion.div
-                            className="relative w-full h-full max-w-xl mx-auto lg:mx-0 lg:ml-auto"
+                            className="relative w-full h-full mx-auto lg:mx-0 lg:ml-auto rounded-3xl overflow-hidden shadow-2xl"
                             animate={{ y: [0, -10, 0] }}
                             transition={{
                                 duration: 6,
@@ -112,7 +112,7 @@ export function Hero() {
                                 src="/julie_reading.png"
                                 alt="Julie hugging a book on the couch"
                                 fill
-                                className="object-contain object-center lg:object-right rounded-lg shadow-2xl"
+                                className="object-cover object-center"
                                 priority
                             />
                         </motion.div>

@@ -26,7 +26,7 @@ export function Features() {
             <div className="container px-6 md:px-8 mx-auto max-w-7xl">
 
                 {/* Section Header */}
-                <div className="mb-24 text-center max-w-3xl mx-auto">
+                <div className="mb-12 md:mb-24 text-center max-w-3xl mx-auto">
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -42,7 +42,7 @@ export function Features() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-xl text-muted-foreground font-sans font-light leading-relaxed"
+                        className="hidden md:block text-xl text-muted-foreground font-sans font-light leading-relaxed"
                     >
                         Choose the perfect format for your story. From personal memoirs to corporate legacies, we craft timeless heirlooms.
                     </motion.p>
