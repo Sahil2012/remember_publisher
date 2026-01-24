@@ -8,9 +8,6 @@ export function HowItWorks() {
 
     return (
         <section id="process" className="pt-24 pb-16 bg-background relative overflow-hidden">
-
-
-
             <div className="container px-6 md:px-8 mx-auto max-w-6xl relative z-10">
 
                 <div className="text-center mb-24">
@@ -114,17 +111,3 @@ export function HowItWorks() {
         </section>
     );
 }
-
-// NOTE: 
-// The layout logic above: 
-// Map -> Div [Relative] -> Flex Row
-// DOM Order: [Text Side] [Image Side]
-// Even (0): Flex Row -> [Text - Left] ... [Image - Right]
-// Odd (1): Flex Row Reverse -> [Image - Left] ... [Text - Right]
-// Arrow (Even): From Image (Right) -> Next Image (Left).  Path: Right to Left.
-// Arrow (Odd): From Image (Left) -> Next Image (Right). Path: Left to Right.
-// 
-// Arrow SVG positioning:
-// Even: `top-[60%] right-[10%]`. Starts near Right Image, curves to Left.
-// Odd: `top-[60%] left-[10%]`. Starts near Left Image, curves to Right.
-

@@ -2,27 +2,19 @@
 
 import { motion } from "framer-motion";
 import { content } from "@/data/content";
-import { useState, useRef } from "react";
+import { useState } from "react";
 
 const VideoCard = ({ video, index }: { video: any, index: number }) => {
     const [isPlaying, setIsPlaying] = useState(false);
-    const videoRef = useRef<HTMLVideoElement>(null);
 
-    const handlePlay = () => {
-        if (videoRef.current) {
-            // Smart rewind if at thumbnail frame
-            if (videoRef.current.currentTime < 4) {
-                videoRef.current.currentTime = 0;
-            }
-            videoRef.current.play();
-            setIsPlaying(true);
-        }
+    // Extract YouTube video ID from URL
+    const getYouTubeEmbedUrl = (url: string) => {
+        const videoId = url.split('v=')[1]?.split('&')[0];
+        return `https://www.youtube.com/embed/${videoId}`;
     };
 
-    const handleMetadata = () => {
-        if (videoRef.current) {
-            videoRef.current.currentTime = 3; // Seek to 3s for thumbnail
-        }
+    const handlePlay = () => {
+        setIsPlaying(true);
     };
 
     return (
@@ -33,20 +25,18 @@ const VideoCard = ({ video, index }: { video: any, index: number }) => {
             transition={{ duration: 0.6, delay: index * 0.2 }}
             className="relative bg-black rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-luxury-gold/10 group h-[400px] md:h-[500px]"
         >
-            <video
-                ref={videoRef}
-                className="w-full h-full object-contain"
-                src={video.src} // Use src directly for React to handle updates correcty
-                controls={isPlaying} // only show controls when playing to avoid cluttering the overlay
-                playsInline
-                preload="metadata" // Ensure browser fetches metadata
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => setIsPlaying(false)}
-                onLoadedMetadata={handleMetadata}
-            >
-                Your browser does not support the video tag.
-            </video>
+            {/* YouTube Embed */}
+            {isPlaying ? (
+                <iframe
+                    className="w-full h-full"
+                    src={`${getYouTubeEmbedUrl(video.src)}?autoplay=1&rel=0&modestbranding=1&showinfo=0&controls=1&fs=1&iv_load_policy=3`}
+                    title={video.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                />
+            ) : (
+                <div className="w-full h-full bg-gradient-to-br from-black via-gray-900 to-black" />
+            )}
 
             {/* Overlay Text - Fades out when playing */}
             <motion.div
