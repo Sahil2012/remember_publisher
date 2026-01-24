@@ -16,17 +16,17 @@ export const Pricing = () => {
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-16 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 max-w-5xl mx-auto">
                     {pricingTiers.map((tier) => (
                         <div key={tier.name} className="flex flex-col group">
                             {/* Header */}
-                            <div className="border-t border-foreground/10 pt-6 min-h-[180px]">
+                            <div className={`border-t pt-6 min-h-[180px] ${tier.mostPopular ? "border-luxury-gold/40" : "border-foreground/10"}`}>
                                 <div className="flex justify-between items-baseline mb-4">
                                     <h3 className="text-xl font-serif font-medium text-foreground">
                                         {tier.name}
                                     </h3>
                                     {tier.mostPopular && (
-                                        <span className="text-[10px] uppercase tracking-widest font-bold text-pencil-red">
+                                        <span className="text-[10px] uppercase tracking-widest font-bold text-luxury-gold px-3 py-1 border border-luxury-gold/40 rounded-full">
                                             Recommended
                                         </span>
                                     )}
@@ -48,7 +48,7 @@ export const Pricing = () => {
                                 <ul className="space-y-4">
                                     {tier.features.map((feature) => (
                                         <li key={feature} className="flex items-start text-sm text-foreground/80 font-light">
-                                            <span className="mr-3 text-pencil-red/60">—</span>
+                                            <span className="mr-3 text-luxury-gold">—</span>
                                             <span>{feature}</span>
                                         </li>
                                     ))}
