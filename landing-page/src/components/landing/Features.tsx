@@ -13,7 +13,7 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 const imageMap: Record<number, string> = {
-    0: "/life_story.png",
+    0: "/life_memoir.png",
     1: "/business-book.png",
     2: "/yearbook.png",
 };
