@@ -119,19 +119,19 @@ export const content = {
                 subtitle: "Chrissie's Story",
                 description: "Our founder, Chrissie, shares her personal drive to ensure every life story is celebrated and remembered.",
                 // Using direct Google Drive stream link (uc?export=download&id=...)
-                src: ""
+                src: "/chriss_1.mp4"
             },
             {
                 title: "Our Promise",
                 subtitle: "Remember Publisher",
                 description: "We are dedicated to turning your life's journey into a timeless heirloom. Your story matters.",
                 // Using direct Google Drive stream link (uc?export=download&id=...)
-                src: ""
+                src: "/rb_1.mp4"
             }
         ]
     },
     footer: {
-        brand: "Remember Publisher",
+        brand: "Remember Press",
         description: "Preserving stories, one page at a time.",
         links: [
             { label: "Offerings", href: "#offerings" },
@@ -139,6 +139,6 @@ export const content = {
             { label: "Stories", href: "#stories" },
             { label: "Pricing", href: "#pricing" }
         ],
-        copyright: "© 2026 Remember Publisher. All rights reserved."
+        copyright: "© 2021 Remember Press. All rights reserved."
     }
 };

@@ -7,7 +7,7 @@ export function HowItWorks() {
     const { howItWorks } = content;
 
     return (
-        <section id="process" className="py-24 bg-background relative overflow-hidden">
+        <section id="process" className="pt-24 pb-16 bg-background relative overflow-hidden">
 
 
 
@@ -37,44 +37,6 @@ export function HowItWorks() {
                                 >
                                     {/* VISUAL / NUMBER SIDE */}
                                     <div className="flex-1 flex justify-center md:justify-end">
-                                        {/* If even (Left Text, Right Image) -> This logic is inverse.
-                                            Let's standarize: 
-                                            isEven (Row 0): Text Left, Image Right? 
-                                            The code below puts "Content Side" and "Visual Side".
-                                            If I want Text Left for Row 0, I should have flex-row-reverse? 
-                                            No, default flex-row is Item 1 (Left), Item 2 (Right).
-                                            
-                                            Let's restructure for clarity:
-                                            We want:
-                                            Row 0: Text [Left] --- Image [Right]
-                                            Row 1: Image [Left] --- Text [Right]
-                                            
-                                            So for Row 0 (isEven): order should be Text, Image.
-                                            For Row 1 (isOdd): order should be Image, Text.
-                                            
-                                            We can achieve this by swapping the DOM order or using flex-direction.
-                                            Let's use flex-direction.
-                                            
-                                            Default: Image is first in DOM? Or Text?
-                                            Let's put TEXT first in DOM for semantics? Or Image? 
-                                            Usually visual first is fine too.
-                                            
-                                            Let's write DOM: [Text] [Image].
-                                            Row 0 (Even) -> Text Left, Image Right -> flex-row
-                                            Row 1 (Odd) -> Image Left, Text Right -> flex-row-reverse
-                                         */}
-
-                                        {/* WAIT, I want the TEXT on the LEFT for the first item?
-                                             Let's look at the mapping logic I wrote above:
-                                             `isEven ? "" : "md:flex-row-reverse"`
-                                             If DOM is [A, B].
-                                             Even: [A, B] (A left, B right).
-                                             Odd: [B, A] (B left, A right).
-                                             
-                                             So if I want Text Left on Even, A should be Text.
-                                         */}
-
-                                        {/* TEXT SIDE (A) */}
                                         <div className={`flex-1 text-center ${isEven ? "md:text-left" : "md:text-right"}`}>
                                             <h3 className="text-3xl md:text-5xl font-serif font-medium text-foreground mb-6">
                                                 {item.title}

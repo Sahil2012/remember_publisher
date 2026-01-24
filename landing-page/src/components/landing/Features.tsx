@@ -49,7 +49,7 @@ export function Features() {
                 </div>
 
                 {/* Offerings Zig-Zag Layout */}
-                <div className="space-y-32 md:space-y-48">
+                <div className="space-y-24 md:space-y-24">
                     {offerings.map((offer, index) => {
                         const Icon = iconMap[offer.icon] || BookHeart;
                         const isEven = index % 2 === 0;
@@ -87,7 +87,7 @@ export function Features() {
 
                                     <motion.button
                                         whileHover={{ x: 5 }}
-                                        className="group flex items-center gap-2 text-foreground font-medium border-b border-luxury-gold/30 pb-1 hover:border-luxury-gold transition-all"
+                                        className="cursor-pointer group flex items-center gap-2 text-foreground font-medium border-b border-luxury-gold/30 pb-1 hover:border-luxury-gold transition-all"
                                     >
                                         Explore this format
                                         <ArrowRight className="w-4 h-4 text-luxury-gold group-hover:translate-x-1 transition-transform" />
