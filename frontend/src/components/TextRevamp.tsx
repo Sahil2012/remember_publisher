@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Loader2, Wand2, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ToneSelector } from "./ToneSelector";
 import { Editor } from "./Editor";
 import { CategorySelector, type Category } from "./CategorySelector";
@@ -94,172 +95,162 @@ export function TextRevamp() {
     };
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] dark:bg-black/5 py-12 px-4 font-sans text-foreground">
-
-            <div className="mx-auto max-w-5xl space-y-8">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/40 pb-6 mb-8">
-                    <div className="space-y-2">
-                        <h1 className="text-3xl font-semibold tracking-tight text-foreground/90">
-                            Editor
+        <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 text-foreground selection:bg-foreground/10">
+            <div className="mx-auto max-w-6xl space-y-8">
+                {/* Header Section - Centered & Serif */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-foreground/10 pb-8">
+                    <div className="space-y-4 max-w-2xl">
+                        <div className="inline-flex items-center rounded-full border border-luxury-gold/20 bg-luxury-gold/5 px-3 py-1 text-xs font-medium text-luxury-gold backdrop-blur-sm">
+                            <Wand2 className="mr-2 h-3.5 w-3.5" />
+                            AI Editor
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-foreground">
+                            Refine your story.
                         </h1>
-                        <p className="text-muted-foreground text-sm">
-                            Write your draft and let AI refine the tone.
+                        <p className="text-lg text-muted-foreground/80 font-light max-w-lg">
+                            Paste your rough draft and let us help you find the right words.
                         </p>
                     </div>
-                    {/* Category Selector placed in Header */}
-                    <CategorySelector selectedCategory={selectedCategory} onSelect={setSelectedCategory} disabled={isLoading} />
+
+                    <div className="flex items-center gap-4">
+                        <CategorySelector
+                            selectedCategory={selectedCategory}
+                            onSelect={setSelectedCategory}
+                            disabled={isLoading}
+                        />
+                    </div>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8 items-stretch h-[600px]">
-                    {/* Left Column: Input + Controls */}
-                    <div className="flex flex-col gap-4 h-full">
-                        <div className="flex items-center justify-between h-6">
-                            <label className="text-xs font-bold text-[#D97736] uppercase tracking-wider">Original Draft</label>
-                            <span className="text-xs text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full">{selectedCategory} Mode</span>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 min-h-[600px]">
+                    {/* Left Column: Input */}
+                    <div className="flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-semibold tracking-wide uppercase text-muted-foreground/70">Original Draft</label>
                         </div>
 
-                        <div className="flex-1 flex flex-col gap-4 min-h-0 relative">
-                            <div className="flex-1 group rounded-2xl border border-border/60 bg-white dark:bg-card shadow-sm transition-all focus-within:ring-2 focus-within:ring-[#D97736]/10 hover:border-[#D97736]/30 overflow-hidden relative min-h-0">
+                        <div className="flex-1 flex flex-col gap-4 relative">
+                            {/* Input Card - Paper feel */}
+                            <div className="flex-1 bg-white rounded-2xl border border-foreground/5 shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-luxury-gold/20 transition-all hover:shadow-md relative group">
                                 <Editor
                                     value={inputText}
                                     onChange={setInputText}
-                                    placeholder={`Start writing your ${selectedCategory.toLowerCase()}...`}
-                                    className="absolute inset-0 border-none"
+                                    placeholder="Start typing or paste your content here..."
+                                    className="h-full min-h-[400px]"
                                 />
+
+                                {/* Floating Gradient Border Effect on Focus */}
+                                <div className="absolute inset-0 border-2 border-transparent focus-within:border-luxury-gold/30 pointer-events-none rounded-2xl transition-all" />
                             </div>
 
-                            {/* Action Panel - Fixed Height at bottom of column */}
-                            <div className="rounded-2xl border border-border/60 bg-white/50 dark:bg-card/50 backdrop-blur-sm p-4 shadow-sm flex flex-col gap-4">
-                                <div className="flex items-center justify-between gap-4">
-                                    <div className="space-y-1.5 flex-1">
-                                        <label className="text-xs font-medium text-muted-foreground ml-1">Tone Preference</label>
-                                        <ToneSelector
-                                            selectedTone={selectedTone}
-                                            onSelect={setSelectedTone}
-                                            tones={activeTones}
-                                            disabled={isLoading}
-                                        />
+                            {/* Controls - Floating Panel */}
+                            <div className="bg-background/80 backdrop-blur-md rounded-2xl border border-foreground/10 p-5 shadow-sm space-y-5 bottom-4 z-10">
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-medium text-foreground">Tone</label>
+                                        <span className="text-xs text-muted-foreground italic">Select to apply</span>
                                     </div>
-                                    <div className="self-end pb-0.5">
-                                        <Button
-                                            size="lg"
-                                            onClick={handleRevamp}
-                                            disabled={isLoading || !inputText.trim()}
-                                            className="rounded-full bg-[#D97736] hover:bg-[#b9652d] text-white shadow-lg shadow-[#D97736]/20 px-8 transition-all hover:scale-105 active:scale-95"
-                                        >
-                                            {isLoading ? (
-                                                <>
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                    Running...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Wand2 className="mr-2 h-4 w-4" />
-                                                    Revamp
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
+                                    <ToneSelector
+                                        selectedTone={selectedTone}
+                                        onSelect={setSelectedTone}
+                                        tones={activeTones}
+                                        disabled={isLoading}
+                                    />
                                 </div>
+
+                                <Button
+                                    size="lg"
+                                    onClick={handleRevamp}
+                                    disabled={isLoading || !inputText.trim()}
+                                    className="w-full text-base font-medium rounded-full shadow-lg hover:shadow-xl transition-all active:scale-[0.98] h-12"
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-5 w-5 animate-spin text-luxury-gold" />
+                                            Refining...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Wand2 className="mr-2 h-5 w-5 text-luxury-gold" />
+                                            Revamp Content
+                                        </>
+                                    )}
+                                </Button>
                             </div>
                         </div>
                     </div>
 
                     {/* Right Column: Output */}
-                    <div className="flex flex-col gap-4 h-full">
-                        <div className="flex items-center justify-between h-6">
-                            <label className="text-xs font-bold text-[#D97736] uppercase tracking-wider">AI Suggestion</label>
+                    <div className="flex flex-col gap-6">
+                        <div className="flex items-center justify-between min-h-[24px]">
+                            <label className="text-sm font-semibold tracking-wide uppercase text-foreground">Polished Version</label>
                             {showOutput && (
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-6 px-2 text-xs text-muted-foreground hover:text-[#D97736] hover:bg-[#D97736]/10"
+                                    className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
                                     onClick={copyToClipboard}
                                 >
                                     {copied ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}
-                                    {copied ? "Copied" : "Copy"}
+                                    {copied ? "Copied" : "Copy to clipboard"}
                                 </Button>
                             )}
                         </div>
 
-                        <div className={`
-                          relative flex-1 rounded-2xl border transition-all overflow-hidden flex flex-col
-                          ${showOutput
-                                ? "bg-white dark:bg-card border-border shadow-sm"
-                                : "bg-muted/5 border-dashed border-border hover:border-[#D97736]/30"}
-                      `}>
-                            {showOutput ? (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="flex-1 flex flex-col h-full"
-                                >
-                                    <Editor
-                                        value={outputText}
-                                        onChange={setOutputText}
-                                        readOnly={false}
-                                        className="h-full flex-1"
-                                    />
-                                </motion.div>
-                            ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground/40 p-8 text-center space-y-4">
-                                    {isLoading ? (
-                                        <div className="flex flex-col items-center justify-center w-full h-full gap-8 pb-12">
-                                            {/* Animated Skeleton */}
-                                            <div className="w-full max-w-md space-y-4 px-8">
-                                                <motion.div
-                                                    className="h-4 bg-[#D97736]/20 rounded-md w-3/4"
-                                                    animate={{ opacity: [0.4, 1, 0.4] }}
-                                                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                                                />
-                                                <motion.div
-                                                    className="h-4 bg-[#D97736]/20 rounded-md w-full"
-                                                    animate={{ opacity: [0.4, 1, 0.4] }}
-                                                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.2, ease: "easeInOut" }}
-                                                />
-                                                <motion.div
-                                                    className="h-4 bg-[#D97736]/20 rounded-md w-5/6"
-                                                    animate={{ opacity: [0.4, 1, 0.4] }}
-                                                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.4, ease: "easeInOut" }}
-                                                />
-                                                <motion.div
-                                                    className="h-4 bg-[#D97736]/20 rounded-md w-4/6"
-                                                    animate={{ opacity: [0.4, 1, 0.4] }}
-                                                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.6, ease: "easeInOut" }}
-                                                />
+                        <div className={cn(
+                            "flex-1 rounded-2xl border transition-all overflow-hidden relative min-h-[500px] flex flex-col",
+                            showOutput
+                                ? "bg-white border-foreground/5 shadow-sm"
+                                : "bg-foreground/[0.02] border-dashed border-foreground/10"
+                        )}>
+                            <div className="flex-1 relative p-1">
+                                {showOutput ? (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 0.6, ease: "easeOut" }}
+                                        className="h-full"
+                                    >
+                                        <Editor
+                                            value={outputText}
+                                            onChange={setOutputText}
+                                            readOnly={false}
+                                            className="h-full"
+                                        />
+                                    </motion.div>
+                                ) : (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center">
+                                        {isLoading ? (
+                                            <div className="space-y-8 max-w-xs w-full flex flex-col items-center">
+                                                <div className="relative">
+                                                    {/* Hand-drawn circle effect */}
+                                                    <svg className="absolute -inset-8 w-[200%] h-[200%] text-luxury-gold/10 animate-spin-slow pointer-events-none" viewBox="0 0 100 100">
+                                                        <path d="M50,10 A40,40 0 1,1 49,10" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="5 5" />
+                                                    </svg>
+                                                    <Loader2 className="h-10 w-10 text-luxury-gold/80 animate-spin" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <p className="text-sm font-serif italic text-foreground/80">Thinking...</p>
+                                                    <LoadingMessage />
+                                                </div>
                                             </div>
-
-                                            {/* Rotating Loading Messages */}
-                                            <div className="flex flex-col items-center gap-2">
-                                                <motion.div
-                                                    animate={{ rotate: 360 }}
-                                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                                >
-                                                    <Loader2 className="h-6 w-6 text-[#D97736]" />
-                                                </motion.div>
-                                                <LoadingMessage />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <div className="h-16 w-16 rounded-full bg-[#D97736]/10 flex items-center justify-center mb-2">
-                                                <Wand2 className="h-8 w-8 text-[#D97736]/60" />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium text-foreground/70">Ready to transform</p>
-                                                <p className="text-xs text-muted-foreground/60 max-w-[200px] mx-auto">
-                                                    Select a tone and click revamp to see the magic.
+                                        ) : (
+                                            <div className="space-y-4 max-w-sm opacity-60">
+                                                <div className="w-16 h-16 rounded-full bg-foreground/5 flex items-center justify-center mx-auto mb-4">
+                                                    <Wand2 className="h-6 w-6 text-foreground/40" />
+                                                </div>
+                                                <p className="text-sm font-medium text-foreground/60 leading-relaxed font-serif">
+                                                    "The best writing is rewriting."
+                                                    <br />
+                                                    <span className="text-xs font-sans not-italic text-muted-foreground mt-2 block">- E.B. White</span>
                                                 </p>
                                             </div>
-                                        </>
-                                    )}
-                                </div>
-                            )}
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );
