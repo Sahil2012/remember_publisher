@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum BookStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BookCategory {
+  MEMOIR
+  BUSINESS
+  YEARBOOK
+  OTHER
+}
+
+model AppUser {
+  id              String   @id @default(uuid())
+  authUserId      String   @unique 
+  email           String   @unique
+  name            String?
+  profileImage    String?
+  credits         Int      @default(0) 
+  
+  books           Book[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Book {
+  id              String       @id @default(uuid())
+  title           String
+  description     String?      
+  category        BookCategory @default(OTHER)
+  coverImage      String?      
+  coverColor      String?      
+  status          BookStatus   @default(DRAFT)
+  
+  userId          String
+  user            AppUser         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  chapters        Chapter[]
+  
+  wordCount       Int          @default(0)
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([userId])
+}
+
+model Chapter {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  order           Int      
+  
+  bookId          String
+  book            Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  
+  pages           Page[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([bookId])
+  @@unique([bookId, order]) 
+}
+
+model Page {
+  id              String   @id @default(uuid())
+  content         Json?    
+  textContent     String?  
+  order           Int      
+  
+  chapterId       String
+  chapter         Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([chapterId])
+  @@unique([chapterId, order])
+}
