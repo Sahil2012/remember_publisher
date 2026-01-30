@@ -9,6 +9,7 @@ export interface Book {
     lastEdited: string;
     wordCount: number;
     coverColor?: string;
+    coverImage?: string;
 }
 
 interface BookCardProps {
@@ -27,24 +28,34 @@ export function BookCard({ book, onClick }: BookCardProps) {
             <div className="absolute left-0 top-0 bottom-0 w-3 bg-foreground/5 border-r border-white/20 z-10" />
 
             {/* Cover Area */}
-            <div className={cn(
-                "h-40 p-6 flex flex-col justify-between relative overflow-hidden",
-                book.coverColor || "bg-foreground/5"
-            )}>
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div
+                className={cn(
+                    "h-40 p-6 flex flex-col justify-between relative overflow-hidden bg-cover bg-center transition-all",
+                    !book.coverImage && (book.coverColor || "bg-foreground/5")
+                )}
+                style={book.coverImage ? { backgroundImage: `url(${book.coverImage})` } : undefined}
+            >
+                {/* Overlay for text readability on images */}
+                <div className={cn("absolute inset-0 pointer-events-none transition-opacity",
+                    book.coverImage ? "bg-black/30 group-hover:bg-black/20" : "hidden"
+                )} />
+
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                     <Button variant="ghost" size="icon-sm" className="h-8 w-8 bg-white/50 backdrop-blur hover:bg-white text-foreground">
                         <Edit2 className="h-3.5 w-3.5" />
                     </Button>
                 </div>
 
-                <div className="w-10 h-10 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-                    <BookIcon className="h-5 w-5 text-foreground/70" />
+                <div className="w-10 h-10 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center relative z-10 border border-white/20">
+                    <BookIcon className={cn("h-5 w-5", book.coverImage ? "text-white" : "text-foreground/70")} />
                 </div>
 
-                {/* Decorative Pattern */}
-                <div className="absolute -right-4 -bottom-8 text-foreground/5 rotate-12">
-                    <BookIcon className="w-32 h-32" />
-                </div>
+                {/* Decorative Pattern - Only show if no image */}
+                {!book.coverImage && (
+                    <div className="absolute -right-4 -bottom-8 text-foreground/5 rotate-12">
+                        <BookIcon className="w-32 h-32" />
+                    </div>
+                )}
             </div>
 
             {/* Content Area */}

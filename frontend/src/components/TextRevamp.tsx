@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Loader2, Wand2, Copy, Check } from "lucide-react";
+import { Loader2, Wand2, Copy, Check, ArrowLeft } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ToneSelector } from "./ToneSelector";
@@ -44,6 +45,7 @@ function LoadingMessage() {
 
 
 export function TextRevamp() {
+    const { bookId } = useParams();
     const [inputText, setInputText] = useState("");
     const [outputText, setOutputText] = useState("");
 
@@ -100,10 +102,18 @@ export function TextRevamp() {
                 {/* Header Section - Centered & Serif */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-foreground/10 pb-8">
                     <div className="space-y-4 max-w-2xl">
-                        <div className="inline-flex items-center rounded-full border border-luxury-gold/20 bg-luxury-gold/5 px-3 py-1 text-xs font-medium text-luxury-gold backdrop-blur-sm">
-                            <Wand2 className="mr-2 h-3.5 w-3.5" />
-                            AI Editor
+                        <Link to={`/book/${bookId}`} className="inline-flex items-center text-xs font-medium text-muted-foreground hover:text-foreground transition-colors mb-2 group">
+                            <ArrowLeft className="mr-1 h-3 w-3 group-hover:-translate-x-1 transition-transform" />
+                            Back to Book
+                        </Link>
+
+                        <div className="flex items-center gap-3">
+                            <div className="inline-flex items-center rounded-full border border-luxury-gold/20 bg-luxury-gold/5 px-3 py-1 text-xs font-medium text-luxury-gold backdrop-blur-sm">
+                                <Wand2 className="mr-2 h-3.5 w-3.5" />
+                                AI Editor
+                            </div>
                         </div>
+
                         <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-foreground">
                             Refine your story.
                         </h1>
