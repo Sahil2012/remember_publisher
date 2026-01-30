@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { BookCard, type Book } from "@/components/BookCard";
+import { NewBookModal } from "@/components/NewBookModal";
 
 // Mock Data
 const MOCK_BOOKS: Book[] = [
@@ -15,15 +16,25 @@ const MOCK_BOOKS: Book[] = [
 export function Dashboard() {
     const navigate = useNavigate();
     const [books] = useState<Book[]>(MOCK_BOOKS);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleCreateNew = () => {
-        // In a real app, this would create a ID and then navigate
+    const handleCreateBook = (bookData: any) => {
+        // In a real app, this would send data to backend
+        console.log("Creating book:", bookData);
+
+        // Generate ID and navigate
         const newId = Math.random().toString(36).substr(2, 9);
-        navigate(`/book/${newId}`);
+        navigate(`/book/${newId}?title=${encodeURIComponent(bookData.title)}`);
     };
 
     return (
         <div className="space-y-8">
+            <NewBookModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onCreate={handleCreateBook}
+            />
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
@@ -37,11 +48,11 @@ export function Dashboard() {
 
                 <Button
                     size="lg"
-                    onClick={handleCreateNew}
+                    onClick={() => setIsModalOpen(true)}
                     className="rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all font-medium px-6 h-12 gap-2"
                 >
-                    <div className="w-5 h-5 rounded-full bg-education-gold/20 flex items-center justify-center border border-education-gold/30">
-                        <Plus className="w-3.5 h-3.5 text-education-gold" />
+                    <div className="w-5 h-5 rounded-full bg-luxury-gold/20 flex items-center justify-center border border-luxury-gold/30">
+                        <Plus className="w-3.5 h-3.5 text-luxury-gold" />
                     </div>
                     Start New Book
                 </Button>
