@@ -1,7 +1,7 @@
 import { useClerk } from "@clerk/clerk-react";
 import { useLayoutEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { AuthLayout } from "@/components/auth/AuthLayout";
+import { AuthContent } from "@/components/auth/AuthLayout";
 import { Loader } from "@/components/ui/loader";
 
 const SSOCallbackPage = () => {
@@ -10,19 +10,18 @@ const SSOCallbackPage = () => {
         handleRedirectCallback({});
     }, []);
     return (
-        <AuthLayout
+        <AuthContent
             title="Verifying..."
             subtitle="Please wait while we complete your sign in"
         >
-            <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Loader size="lg" />
-                    <p className="mt-4 text-sm text-muted-foreground">
-                        Redirecting you to the dashboard...
-                    </p>
-                </CardContent>
-            </Card>
-        </AuthLayout>
+            <div className="flex flex-col items-center justify-center py-6">
+                {/* Reusing the loader but maybe slightly larger or text-less */}
+                <Loader size="lg" />
+                <p className="mt-8 text-sm text-muted-foreground font-medium animate-pulse">
+                    Redirecting you to the study...
+                </p>
+            </div>
+        </AuthContent>
     );
 };
 export default SSOCallbackPage;
