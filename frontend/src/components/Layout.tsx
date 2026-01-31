@@ -1,8 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
-import { Book, User, Settings, Library } from "lucide-react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { Library } from "lucide-react";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout() {
     const location = useLocation();
 
     return (
@@ -30,15 +31,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
                             <Library className="w-4 h-4" />
                             Library
                         </Link>
-                        <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                            Account
-                        </button>
+                        <SignedIn>
+                            <UserButton />
+                        </SignedIn>
+                        <SignedOut>
+                            <SignInButton mode="modal">
+                                <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                                    Sign In
+                                </button>
+                            </SignInButton>
+                        </SignedOut>
                     </nav>
                 </div>
             </header>
 
             <main className="flex-1 container mx-auto max-w-6xl px-4 py-8">
-                {children}
+                {<Outlet />}
             </main>
 
             <footer className="border-t border-foreground/5 py-8 mt-auto">
