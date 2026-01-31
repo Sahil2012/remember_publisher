@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { Library } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
+import rbPressLogo from "@/assets/rb-press.png";
 
 export function Layout() {
     const location = useLocation();
@@ -12,12 +13,7 @@ export function Layout() {
             <header className="sticky top-0 z-50 w-full border-b border-foreground/5 bg-background/80 backdrop-blur-md">
                 <div className="container mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
                     <Link to="/" className="flex items-center gap-2 group">
-                        <div className="w-8 h-8 rounded-lg bg-foreground text-background flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                            <span className="font-serif font-bold text-lg">R</span>
-                        </div>
-                        <span className="font-serif font-semibold text-lg tracking-tight hidden sm:block">
-                            Remember
-                        </span>
+                        <img src={rbPressLogo} alt="Remember Press" className="h-14 w-auto object-contain" />
                     </Link>
 
                     <nav className="flex items-center gap-6">
