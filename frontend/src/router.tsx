@@ -1,11 +1,12 @@
 import { useUser } from "@clerk/clerk-react"
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { Dashboard } from "./pages/Dashboard";
-import { SignInPage } from "./pages/sign-in";
-import { SignUpPage } from "./pages/sign-up";
-import SSOCallbackPage from "./pages/sso-callback";
+import { SignInPage } from "./pages/singin/signIn";
+import { SignUpPage } from "./pages/singin/signUp";
+import SSOCallbackPage from "./pages/singin/ssoCallback";
 import { Layout } from "./components/Layout";
 import { Loader } from "./components/ui/loader";
+import { AuthLayout } from "./components/auth/AuthLayout";
 
 function PublicRoute() {
   const { user, isLoaded } = useUser();
@@ -38,21 +39,28 @@ function ProtectedRoute() {
   return <><Outlet /></>
 }
 
+
+
 export const router = createBrowserRouter([
   {
     Component: PublicRoute,
     children: [
       {
-        path: "login",
-        element: <SignInPage />
-      },
-      {
-        path: "signup",
-        element: <SignUpPage />
-      },
-      {
-        path: "sso-callback",
-        element: <SSOCallbackPage />
+        Component: AuthLayout,
+        children: [
+          {
+            path: "login",
+            element: <SignInPage />
+          },
+          {
+            path: "signup",
+            element: <SignUpPage />
+          },
+          {
+            path: "sso-callback",
+            element: <SSOCallbackPage />
+          }
+        ]
       }
     ]
   },
