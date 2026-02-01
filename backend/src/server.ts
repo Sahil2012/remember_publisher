@@ -4,6 +4,8 @@ import { configDotenv } from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import morganMiddleware from './middleware/loggerCollector.js';
 import { clerkMiddleware } from '@clerk/express';
+import errorHandler, { notFoundHandler } from './middleware/errorHandler.js';
+import bookRoutes from './routes/bookRoutes.js';
 
 
 configDotenv();
@@ -17,11 +19,15 @@ app.use(express.json());
 app.use(morganMiddleware);
 
 app.use("/auth", authRoutes);
+app.use("/books", bookRoutes);
 
-// Health Check
 app.get('/health', (req, res) => {
     res.send('Server is healthy');
 });
+
+app.use(notFoundHandler);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     try {

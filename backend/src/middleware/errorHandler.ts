@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { HttpError, InternalServerError } from "../exception/HttpError.js";
-import { ErrorCode, ErrorCodeMetadata } from "../exception/errorCodes.js";
-import { Prisma } from "@prisma/client";
+import { ErrorCode } from "../exception/errorCodes.js";
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { getAuth } from "@clerk/express";
 import logger from "../utils/logger.js";
 
@@ -17,7 +17,7 @@ interface ErrorResponse {
 }
 
 function mapPrismaError(error: any): HttpError {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error instanceof PrismaClientKnownRequestError) {
         switch (error.code) {
             case "P2025":
                 return new HttpError(404, "Resource not found", ErrorCode.RESOURCE_NOT_FOUND, {
@@ -52,7 +52,7 @@ function mapPrismaError(error: any): HttpError {
         }
     }
 
-    if (error instanceof Prisma.PrismaClientValidationError) {
+    if (error instanceof PrismaClientValidationError) {
         return new HttpError(400, "Invalid data format", ErrorCode.VALIDATION_FAILED);
     }
 
@@ -65,7 +65,7 @@ function isOperationalError(error: any): boolean {
         return error.isOperational;
     }
 
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error instanceof PrismaClientKnownRequestError) {
         return true;
     }
 
@@ -108,8 +108,8 @@ export const errorHandler = (
 
     if (err instanceof HttpError) {
         httpError = err;
-    } else if (err instanceof Prisma.PrismaClientKnownRequestError ||
-        err instanceof Prisma.PrismaClientValidationError) {
+    } else if (err instanceof PrismaClientKnownRequestError ||
+        err instanceof PrismaClientValidationError) {
         httpError = mapPrismaError(err);
     } else {
         httpError = new InternalServerError(

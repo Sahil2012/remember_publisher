@@ -1,12 +1,12 @@
 import { clerkClient, getAuth } from "@clerk/express";
 import { Request, Response, NextFunction } from "express";
 import logger from "../utils/logger.js";
-import { InternalServerError } from "../exception/HttpError";
-import { ErrorCode } from "../exception/errorCodes";
+import { InternalServerError, NotFoundError } from "../exception/HttpError.js";
+import { ErrorCode } from "../exception/errorCodes.js";
 import prisma from "../api/prismaClient.js";
 
 
-export const ensureProfileCreated = async (
+export const ensureUserExists = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -32,6 +32,7 @@ export const ensureProfileCreated = async (
                     profileImage: clerkUser.imageUrl,
                 },
             });
+            req.user = appUser;
             logger.info(`User created successfully with ID: ${clerkUser.id}`);
             next();
         } catch (err: any) {
@@ -39,6 +40,28 @@ export const ensureProfileCreated = async (
             return next(new InternalServerError("Failed to initialize the user.", ErrorCode.INTERNAL_SERVER_ERROR));
         }
     }
+    req.user = appUser;
+    next();
+};
 
+
+export const resolveUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    let { userId: clerkUserId } = getAuth(req);
+    logger.info(`Authenticated User ID: ${clerkUserId}`);
+
+    const clerkUser = await clerkClient.users.getUser(clerkUserId || "");
+
+    let appUser = await prisma.appUser.findUnique({
+        where: { authUserId: clerkUserId || "" },
+    });
+
+    if (!appUser) {
+        throw new NotFoundError("User not found", ErrorCode.USER_NOT_FOUND);
+    }
+    req.user = appUser;
     next();
 };
