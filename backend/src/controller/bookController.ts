@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { BookRequest, BookResponse } from "../schema/bookSchema";
-import { createBook, getBookById, getBooksByUserId } from "../services/bookService";
+import { BookRequest, BookResponse, BookUpdateRequest } from "../schema/bookSchema";
+import { createBook, deleteBook, getBookById, getBooksByUserId, updateBook } from "../services/bookService";
 import prisma from "../api/prismaClient";
+import { NotFoundError } from "../exception/HttpError";
 
 // POST /books
 export const createBookHandler = async (
@@ -10,7 +11,7 @@ export const createBookHandler = async (
     next: NextFunction
 ) => {
     const book = await createBook(req.body, req.user?.id || "", prisma);
-    return res.status(200).json(book);
+    return res.status(201).json(book);
 }
 
 // GET /books
@@ -31,23 +32,32 @@ export const fetchBookHandler = async (
     next: NextFunction
 ) => {
     const book = await getBookById(req.params.id, req.user?.id || "", prisma);
+    if (!book) {
+        throw new NotFoundError("Book not found");
+    }
     return res.status(200).json(book);
 }
 
-// export const updateBookHandler = async (
-//     req: Request<{ userId: string }, unknown, BookUpdateRequest>,
-//     res: Response<BookResponse>,
-//     next: NextFunction
-// ) => {
-//     const book = await updateBook(req.params.id, req.body, prisma);
-//     return res.status(200).json(book);
-// }
+export const updateBookHandler = async (
+    req: Request<{ userId: string, id: string }, unknown, BookUpdateRequest>,
+    res: Response<BookResponse>,
+    next: NextFunction
+) => {
+    const book = await updateBook(req.params.id, req.body, req.user?.id || "", prisma);
+    if (!book) {
+        throw new NotFoundError("Book not found");
+    }
+    return res.status(200).json(book);
+}
 
-// export const deleteBookHandler = async (
-//     req: Request<{ userId: string }, unknown, unknown>,
-//     res: Response<BookResponse>,
-//     next: NextFunction
-// ) => {
-//     const book = await deleteBook(req.params.id, prisma);
-//     return res.status(200).json(book);
-// }
+export const deleteBookHandler = async (
+    req: Request<{ userId: string, id: string }, unknown, unknown>,
+    res: Response<BookResponse>,
+    next: NextFunction
+) => {
+    const book = await deleteBook(req.params.id, req.user?.id || "", prisma);
+    if (!book) {
+        throw new NotFoundError("Book not found");
+    }
+    return res.status(200).json(book);
+}

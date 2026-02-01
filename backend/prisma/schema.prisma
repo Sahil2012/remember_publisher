@@ -56,6 +56,7 @@ model Book {
   updatedAt       DateTime     @updatedAt
 
   @@unique([title, userId])
+  @@unique([id, userId])
   @@index([userId])
 }
 
