@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { BookRequest } from "../schema/bookSchema";
+import { BookRequest, BookUpdateRequest } from "../schema/bookSchema";
 import prisma from "../api/prismaClient.js";
 import logger from "../utils/logger.js";
 
@@ -49,5 +49,41 @@ export const getBookById = async (
         },
     });
     logger.info(`Fetched book with ID: ${bookId}`);
+    return book;
+}
+
+export const updateBook = async (
+    bookId: string,
+    bookData: BookUpdateRequest,
+    userId: string,
+    tx?: Prisma.TransactionClient | PrismaClient
+) => {
+    logger.info(`Updating book with ID: ${bookId}`);
+    const db = tx || prisma;
+    const book = await db.book.update({
+        where: {
+            userId,
+            id: bookId,
+        },
+        data: bookData,
+    });
+    logger.info(`Book updated successfully with ID: ${book.id}`);
+    return book;
+}
+
+export const deleteBook = async (
+    bookId: string,
+    userId: string,
+    tx?: Prisma.TransactionClient | PrismaClient
+) => {
+    logger.info(`Deleting book with ID: ${bookId}`);
+    const db = tx || prisma;
+    const book = await db.book.delete({
+        where: {
+            userId,
+            id: bookId,
+        },
+    });
+    logger.info(`Book deleted successfully with ID: ${book.id}`);
     return book;
 }
