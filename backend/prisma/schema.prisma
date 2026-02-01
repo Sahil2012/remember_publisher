@@ -25,7 +25,7 @@ model AppUser {
   email           String   @unique
   name            String?
   profileImage    String?
-  credits         Int      @default(0) 
+  credits         Int      @default(10) 
   
   books           Book[]
   
