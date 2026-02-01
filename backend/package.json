@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@clerk/express": "^1.7.67",
     "@google/generative-ai": "^0.24.1",
     "@langchain/google-genai": "^2.1.2",
     "@prisma/client": "^7.3.0",
@@ -20,6 +21,8 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "langchain": "^1.2.2",
+    "svix": "^1.84.1",
+    "winston": "^3.19.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {
