@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { PageRequest, PageResponse, PageUpdateRequest } from "../schema/pageSchema";
+import { PageReorderRequest, PageRequest, PageResponse, PageUpdateRequest } from "../schema/pageSchema";
 import { createPage, deletePage, getPageById, getPagesByChapterId, updatePage, reorderPages } from "../services/pageService";
 import { NotFoundError } from "../exception/HttpError";
 import prisma from "../api/prismaClient";
@@ -10,7 +10,6 @@ export const createPageHandler = async (
     res: Response<PageResponse>,
     next: NextFunction
 ) => {
-    // TODO: Verify user owns the chapter/book
     const page = await createPage(req.params.chapterId, req.body, prisma);
     return res.status(201).json(page);
 }
@@ -64,13 +63,12 @@ export const deletePageHandler = async (
     return res.status(200).json(page);
 }
 
-// PATCH /chapters/:chapterId/pages/order
+// PATCH /pages/:chapterId/reorder
 export const reorderPagesHandler = async (
-    req: Request<{ chapterId: string }, unknown, { id: string, order: number }[]>,
+    req: Request<{ chapterId: string }, unknown, PageReorderRequest>,
     res: Response<unknown>,
     next: NextFunction
 ) => {
-    // TODO: Verify ownership
     await reorderPages(req.params.chapterId, req.body, prisma);
     return res.status(200).json({ message: "Pages reordered successfully" });
 }
