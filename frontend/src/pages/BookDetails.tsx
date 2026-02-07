@@ -1,15 +1,86 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useBook } from "@/api/books/hooks/useBookData";
-import { ArrowLeft, BookOpen, Clock, FileText, Plus } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, FileText, Plus, Edit2, Trash2, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { ChapterModal } from "@/components/ChapterModal";
+import { DeleteChapterModal } from "@/components/DeleteChapterModal";
+import { useChapterActions } from "@/api/chapters/hooks/useChapterActions";
+import type { Chapter } from "@/api/books/types";
+import { toast } from "sonner";
+import { useIsMutating } from "@tanstack/react-query";
 
 export function BookDetails() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: book, isLoading, error } = useBook(id || "");
+    const { createChapter, updateChapter, deleteChapter } = useChapterActions();
+    const isMutating = useIsMutating();
+    const isGlobalLoading = isMutating > 0;
+
+    const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
+    const [isDeleteChapterModalOpen, setIsDeleteChapterModalOpen] = useState(false);
+    const [selectedChapter, setSelectedChapter] = useState<Chapter | undefined>(undefined);
+
+    const handleAddChapter = () => {
+        setSelectedChapter(undefined);
+        setIsChapterModalOpen(true);
+    };
+
+    const handleEditChapter = (chapter: Chapter) => {
+        setSelectedChapter(chapter);
+        setIsChapterModalOpen(true);
+    };
+
+    const handleDeleteChapter = (chapter: Chapter) => {
+        setSelectedChapter(chapter);
+        setIsDeleteChapterModalOpen(true);
+    };
+
+    const handleSaveChapter = async (chapterData: { title: string; description: string }) => {
+        if (!id) return;
+
+        try {
+            if (selectedChapter) {
+                await updateChapter.mutateAsync({
+                    bookId: id,
+                    id: selectedChapter.id,
+                    payload: chapterData
+                });
+                toast.success("Chapter updated successfully");
+            } else {
+                await createChapter.mutateAsync({
+                    bookId: id,
+                    payload: { ...chapterData, order: (book?.chapters?.length || 0) + 1 }
+                });
+                toast.success("Chapter created successfully");
+            }
+            setIsChapterModalOpen(false);
+        } catch (error) {
+            console.error("Failed to save chapter:", error);
+            toast.error("Failed to save chapter");
+        }
+    };
+
+    const handleConfirmDeleteChapter = async () => {
+        if (!id || !selectedChapter) return;
+
+        try {
+            await deleteChapter.mutateAsync({
+                bookId: id,
+                id: selectedChapter.id
+            });
+            toast.success("Chapter deleted successfully");
+            setIsDeleteChapterModalOpen(false);
+        } catch (error) {
+            console.error("Failed to delete chapter:", error);
+            toast.error("Failed to delete chapter");
+        }
+    };
+
 
     if (isLoading) {
         return (
@@ -95,7 +166,10 @@ export function BookDetails() {
                 <div className="space-y-8">
                     <div className="flex items-center justify-between">
                         <h2 className="font-serif text-3xl font-medium">Chapters</h2>
-                        <Button className="rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all">
+                        <Button
+                            onClick={handleAddChapter}
+                            className="rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all"
+                        >
                             <Plus className="mr-2 h-4 w-4" />
                             New Chapter
                         </Button>
@@ -111,32 +185,55 @@ export function BookDetails() {
                                 <p className="mb-6 max-w-sm text-muted-foreground">
                                     Start writing your book by adding your first chapter.
                                 </p>
-                                <Button variant="outline" className="border-foreground/20 hover:bg-foreground/5">
+                                <Button variant="outline" onClick={handleAddChapter} className="border-foreground/20 hover:bg-foreground/5">
                                     Add Chapter
                                 </Button>
                             </div>
                         ) : (
-                            book.chapters.map((chapter: any, index: number) => (
+                            book.chapters.map((chapter: Chapter, index: number) => (
                                 <motion.div
                                     key={chapter.id}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="group relative flex items-center gap-6 overflow-hidden rounded-xl border border-foreground/5 bg-card p-6 shadow-sm transition-all hover:border-luxury-gold/30 hover:shadow-md cursor-pointer"
+                                    className="group relative flex items-center gap-6 overflow-hidden rounded-xl border border-foreground/5 bg-card p-6 shadow-sm transition-all hover:border-luxury-gold/30 hover:shadow-md"
                                 >
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-foreground/5 font-serif text-xl font-medium text-foreground/60 group-hover:bg-luxury-gold/10 group-hover:text-luxury-gold transition-colors">
                                         {index + 1}
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="mb-1 font-serif text-xl font-medium text-foreground group-hover:text-luxury-gold transition-colors truncate">
+                                    <div className="flex-1 min-w-0" onClick={() => {/* Navigate to chapter content - TODO */ }}>
+                                        <h3 className="mb-1 font-serif text-xl font-medium text-foreground group-hover:text-luxury-gold transition-colors truncate cursor-pointer">
                                             {chapter.title}
                                         </h3>
                                         <p className="text-sm text-muted-foreground line-clamp-1">
                                             {chapter.description || "No description"}
                                         </p>
                                     </div>
-                                    <div className="text-xs text-muted-foreground/60 w-24 text-right">
-                                        {chapter.pages?.length || 0} Pages
+
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-xs text-muted-foreground/60 hidden sm:block">
+                                            {chapter.pages?.length || 0} Pages
+                                        </div>
+
+                                        {/* Actions - visible on hover or persistent on touch */}
+                                        <div className="flex items-center gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 hover:text-foreground hover:bg-foreground/5"
+                                                onClick={(e) => { e.stopPropagation(); handleEditChapter(chapter); }}
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 hover:text-destructive hover:bg-destructive/10 text-muted-foreground"
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteChapter(chapter); }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))
@@ -144,6 +241,22 @@ export function BookDetails() {
                     </div>
                 </div>
             </main>
+
+            <ChapterModal
+                isOpen={isChapterModalOpen}
+                onClose={() => setIsChapterModalOpen(false)}
+                onSubmit={handleSaveChapter}
+                chapter={selectedChapter}
+                isLoading={isGlobalLoading}
+            />
+
+            <DeleteChapterModal
+                isOpen={isDeleteChapterModalOpen}
+                onClose={() => setIsDeleteChapterModalOpen(false)}
+                onConfirm={handleConfirmDeleteChapter}
+                chapter={selectedChapter}
+                isLoading={isGlobalLoading}
+            />
         </div>
     );
 }
