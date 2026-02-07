@@ -26,6 +26,8 @@ export interface UpdateBookPayload {
     description?: string;
     authorName?: string;
     status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+    coverImage?: string;
+    coverColor?: string;
 }
 
 export interface BookParams {

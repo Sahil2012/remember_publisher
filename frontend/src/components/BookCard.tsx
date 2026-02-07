@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Book as BookIcon, Calendar, MoreVertical, Edit2 } from "lucide-react";
+import { Book as BookIcon, Calendar, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -15,9 +15,11 @@ export interface Book {
 interface BookCardProps {
     book: Book;
     onClick: (id: string) => void;
+    onEdit: (e: React.MouseEvent) => void;
+    onDelete: (e: React.MouseEvent) => void;
 }
 
-export function BookCard({ book, onClick }: BookCardProps) {
+export function BookCard({ book, onClick, onEdit, onDelete }: BookCardProps) {
     return (
         <motion.div
             whileHover={{ y: -4 }}
@@ -43,9 +45,28 @@ export function BookCard({ book, onClick }: BookCardProps) {
                     book.coverImage ? "bg-black/30 group-hover:bg-black/20" : "hidden"
                 )} />
 
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                    <Button variant="ghost" size="icon-sm" className="h-8 w-8 bg-white/50 backdrop-blur hover:bg-white text-foreground">
+                <div className="absolute top-4 right-4 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-20 flex gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-8 w-8 bg-white/50 backdrop-blur hover:bg-white text-foreground"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(e);
+                        }}
+                    >
                         <Edit2 className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="h-8 w-8 bg-white/50 backdrop-blur hover:bg-red-50 text-foreground hover:text-red-600"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(e);
+                        }}
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                 </div>
 
