@@ -6,6 +6,7 @@ import morganMiddleware from './middleware/loggerCollector.js';
 import { clerkMiddleware } from '@clerk/express';
 import errorHandler, { notFoundHandler } from './middleware/errorHandler.js';
 import bookRoutes from './routes/bookRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 
 configDotenv();
@@ -18,8 +19,9 @@ app.use(cors());
 app.use(express.json());
 app.use(morganMiddleware);
 
-app.use("/auth", authRoutes);
-app.use("/books", bookRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/books", bookRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get('/health', (req, res) => {
     res.send('Server is healthy');

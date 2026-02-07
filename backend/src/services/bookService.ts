@@ -47,6 +47,13 @@ export const getBookById = async (
             userId,
             id: bookId,
         },
+        include: {
+            chapters: {
+                include: {
+                    pages: true,
+                },
+            },
+        }
     });
     logger.info(`Fetched book with ID: ${bookId}`);
     return book;

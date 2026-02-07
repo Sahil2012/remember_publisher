@@ -7,6 +7,7 @@ import SSOCallbackPage from "./pages/singin/ssoCallback";
 import { Layout } from "./components/Layout";
 import { Loader } from "./components/ui/loader";
 import { AuthLayout } from "./components/auth/AuthLayout";
+import { BookDetails } from "./pages/BookDetails";
 
 function PublicRoute() {
   const { user, isLoaded } = useUser();
@@ -76,6 +77,10 @@ export const router = createBrowserRouter([
         {
           path: "library",
           element: <Dashboard />
+        },
+        {
+          path: "book/:id",
+          element: <BookDetails />
         }
       ]
     }
