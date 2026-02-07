@@ -16,7 +16,9 @@
     "@google/generative-ai": "^0.24.1",
     "@langchain/google-genai": "^2.1.2",
     "@prisma/client": "^6.17.1",
+    "@supabase/supabase-js": "^2.95.3",
     "axios": "^1.13.2",
+    "busboy": "^1.6.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
@@ -27,6 +29,7 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@types/busboy": "^1.5.4",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
