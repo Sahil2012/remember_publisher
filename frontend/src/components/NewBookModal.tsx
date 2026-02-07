@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Book, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useUploadFile } from "@/api/upload/hooks";
 
 interface NewBookModalProps {
     isOpen: boolean;
@@ -18,30 +19,35 @@ const BOOK_TYPES = [
 ];
 
 const COVER_COLORS = [
-    { id: "stone", class: "bg-stone-200", label: "Classic Stone" },
-    { id: "blue", class: "bg-blue-100", label: "Sky Blue" },
-    { id: "amber", class: "bg-amber-100", label: "Warm Amber" },
-    { id: "emerald", class: "bg-emerald-100", label: "Soft Emerald" },
-    { id: "rose", class: "bg-rose-100", label: "Dusty Rose" },
-    { id: "slate", class: "bg-slate-200", label: "Cool Slate" },
+    { id: "stone", hex: "#e7e5e4", label: "Classic Stone" },
+    { id: "blue", hex: "#dbeafe", label: "Sky Blue" },
+    { id: "amber", hex: "#fef3c7", label: "Warm Amber" },
+    { id: "emerald", hex: "#d1fae5", label: "Soft Emerald" },
+    { id: "rose", hex: "#ffe4e6", label: "Dusty Rose" },
+    { id: "slate", hex: "#f1f5f9", label: "Cool Slate" },
 ];
 
 export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [type, setType] = useState(BOOK_TYPES[0].id);
-    const [coverColor, setCoverColor] = useState(COVER_COLORS[0].id);
+    const [coverColor, setCoverColor] = useState(COVER_COLORS[0].hex);
     const [coverImage, setCoverImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Upload Hook
+    const { mutateAsync: uploadFile, isPending: isUploading } = useUploadFile();
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setCoverImage(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            try {
+                const url = await uploadFile(file);
+                setCoverImage(url);
+            } catch (error) {
+                console.error("Upload failed:", error);
+                // TODO: Show toast error
+            }
         }
     };
 
@@ -51,7 +57,7 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
             title,
             description,
             type,
-            coverColor: COVER_COLORS.find(c => c.id === coverColor)?.class || "bg-stone-200",
+            coverColor: coverColor,
             coverImage
         });
     };
@@ -82,9 +88,9 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                 {/* Left visual spine/cover preview */}
                                 <div className={cn(
                                     "w-full md:w-1/3 p-8 flex flex-col justify-between relative transition-all duration-500 bg-cover bg-center",
-                                    !coverImage && COVER_COLORS.find(c => c.id === coverColor)?.class
+                                    !coverImage && "bg-white"
                                 )}
-                                    style={coverImage ? { backgroundImage: `url(${coverImage})` } : undefined}
+                                    style={coverImage ? { backgroundImage: `url(${coverImage})` } : { backgroundColor: coverColor }}
                                 >
                                     <div className={cn("absolute inset-0 pointer-events-none transition-colors",
                                         coverImage ? "bg-black/40" : "bg-gradient-to-tr from-black/5 to-transparent"
@@ -206,7 +212,7 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                                     onClick={() => fileInputRef.current?.click()}
                                                 >
                                                     <Upload className="w-3 h-3 mr-1.5" />
-                                                    {coverImage ? "Change Photo" : "Upload Photo"}
+                                                    {isUploading ? "Uploading..." : (coverImage ? "Change Photo" : "Upload Photo")}
                                                 </Button>
                                             </div>
 
@@ -233,14 +239,14 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                                         <button
                                                             key={c.id}
                                                             type="button"
-                                                            onClick={() => setCoverColor(c.id)}
+                                                            onClick={() => setCoverColor(c.hex)}
                                                             className={cn(
                                                                 "flex-shrink-0 w-8 h-8 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxury-gold/50",
-                                                                c.class,
-                                                                coverColor === c.id
+                                                                coverColor === c.hex
                                                                     ? "ring-2 ring-luxury-gold ring-offset-2 scale-110 shadow-md"
                                                                     : "ring-1 ring-foreground/5 hover:scale-105 hover:shadow-sm"
                                                             )}
+                                                            style={{ backgroundColor: c.hex }}
                                                             title={c.label}
                                                         />
                                                     ))}

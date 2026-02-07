@@ -9,7 +9,7 @@ export interface Book {
     lastEdited: string;
     wordCount: number;
     coverColor?: string;
-    coverImage?: string;
+    coverImage?: string | null;
 }
 
 interface BookCardProps {
@@ -31,9 +31,12 @@ export function BookCard({ book, onClick }: BookCardProps) {
             <div
                 className={cn(
                     "h-40 p-6 flex flex-col justify-between relative overflow-hidden bg-cover bg-center transition-all",
-                    !book.coverImage && (book.coverColor || "bg-foreground/5")
+                    !book.coverImage && "bg-white" // Default fallback if no color/image
                 )}
-                style={book.coverImage ? { backgroundImage: `url(${book.coverImage})` } : undefined}
+                style={{
+                    ...(book.coverImage ? { backgroundImage: `url(${book.coverImage})` } : {}),
+                    ...(book.coverColor && !book.coverImage ? { backgroundColor: book.coverColor } : {})
+                }}
             >
                 {/* Overlay for text readability on images */}
                 <div className={cn("absolute inset-0 pointer-events-none transition-opacity",

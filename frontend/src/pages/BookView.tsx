@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { useBook } from "@/api/books/hooks/useBookData";
+import type { Book } from "@/api/books/types";
+
 // Mock Data for Pages/Chapters
 const MOCK_PAGES = [
     { id: "1", title: "Chapter 1: The Beginning", wordCount: 1200, lastEdited: "2 hours ago" },
@@ -17,13 +20,20 @@ export function BookView() {
     const navigate = useNavigate();
     const [pages] = useState(MOCK_PAGES);
 
-    // Mock Book Title based on ID (In real app, fetch from API)
-    const bookTitle = "The Art of Leaving";
+    const { data: book, isLoading } = useBook(bookId || "");
 
     const handleCreatePage = () => {
         const newPageId = Math.random().toString(36).substr(2, 9);
         navigate(`/book/${bookId}/page/${newPageId}`);
     };
+
+    if (isLoading) {
+        return <div className="p-8 text-center text-muted-foreground">Loading book...</div>;
+    }
+
+    if (!book) {
+        return <div className="p-8 text-center text-muted-foreground">Book not found or error loading.</div>;
+    }
 
     return (
         <div className="space-y-8 max-w-5xl mx-auto">
@@ -37,7 +47,7 @@ export function BookView() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-foreground/10 pb-8">
                     <div className="space-y-2">
                         <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-foreground">
-                            {bookTitle}
+                            {book.title}
                         </h1>
                         <p className="text-muted-foreground font-light">
                             Table of Contents • {pages.length} Pages

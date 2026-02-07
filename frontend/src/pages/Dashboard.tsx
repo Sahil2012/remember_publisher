@@ -1,31 +1,72 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { BookCard, type Book } from "@/components/BookCard";
+import { BookCard, type Book as BookCardType } from "@/components/BookCard";
 import { NewBookModal } from "@/components/NewBookModal";
-
-// Mock Data
-const MOCK_BOOKS: Book[] = [
-    { id: "1", title: "The Art of Leaving", lastEdited: "2 hours ago", wordCount: 12450, coverColor: "bg-stone-200" },
-    { id: "2", title: "Business Strategy 2025", lastEdited: "Yesterday", wordCount: 8900, coverColor: "bg-blue-100" },
-    { id: "3", title: "Memoirs of a Developer", lastEdited: "3 days ago", wordCount: 45000, coverColor: "bg-amber-100" },
-];
+import { useBooks } from "@/api/books/hooks/useBookData";
+import { useBookActions } from "@/api/books/hooks/useBookActions";
+import type { Book } from "@/api/books/types";
 
 export function Dashboard() {
     const navigate = useNavigate();
-    const [books] = useState<Book[]>(MOCK_BOOKS);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleCreateBook = (bookData: any) => {
-        // In a real app, this would send data to backend
-        console.log("Creating book:", bookData);
+    // API Hooks
+    const { data: booksData, isLoading, error } = useBooks();
+    const { createBook } = useBookActions();
 
-        // Generate ID and navigate
-        const newId = Math.random().toString(36).substr(2, 9);
-        navigate(`/book/${newId}?title=${encodeURIComponent(bookData.title)}`);
+    const handleCreateBook = async (bookData: any) => {
+        try {
+            const newBook = await createBook.mutateAsync({
+                title: bookData.title,
+                description: bookData.description || "",
+                authorName: "My Author Name",
+                coverImage: bookData.coverImage || null,
+                coverColor: bookData.coverColor || "",
+                status: "DRAFT"
+            });
+
+            setIsModalOpen(false);
+            navigate(`/book/${newBook.id}`);
+        } catch (err) {
+            console.error("Failed to create book:", err);
+            // TODO: Show toast notification
+        }
     };
+
+    // Map API data to UI format
+    const mapBookToCard = (book: Book): BookCardType => {
+        return {
+            id: book.id,
+            title: book.title,
+            lastEdited: new Date(book.updatedAt).toLocaleDateString(), // Simple formatting
+            wordCount: 0, // Not supported by API yet
+            coverColor: book.coverColor || "#e7e5e4", // Default or random
+            coverImage: book.coverImage
+        };
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[50vh]">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] text-red-500">
+                <p>Error loading books.</p>
+                <Button variant="outline" onClick={() => window.location.reload()} className="mt-4">
+                    Retry
+                </Button>
+            </div>
+        );
+    }
+
+    const books = booksData || [];
 
     return (
         <div className="space-y-8">
@@ -63,10 +104,16 @@ export function Dashboard() {
                 {books.map((book) => (
                     <BookCard
                         key={book.id}
-                        book={book}
+                        book={mapBookToCard(book)}
                         onClick={(id) => navigate(`/book/${id}`)}
                     />
                 ))}
+
+                {books.length === 0 && (
+                    <div className="col-span-full text-center py-20 text-muted-foreground">
+                        No books yet. Create one to get started!
+                    </div>
+                )}
             </div>
         </div>
     );
