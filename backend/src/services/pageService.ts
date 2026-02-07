@@ -105,3 +105,26 @@ export const deletePage = async (
     logger.info(`Page deleted successfully with ID: ${page.id}`);
     return page;
 }
+
+export const reorderPages = async (
+    chapterId: string,
+    pages: { id: string; order: number }[],
+    tx?: Prisma.TransactionClient | PrismaClient
+) => {
+    logger.info(`Reordering pages for chapter: ${chapterId}`);
+    const db = tx || prisma;
+
+    const updates = pages.map((page) =>
+        db.page.update({
+            where: { id: page.id, chapterId }, // Ensure page belongs to chapter
+            data: { order: page.order },
+        })
+    );
+
+    // If we are already in a transaction (tx provided), we just await the updates.
+    // If not, we start a new transaction using the global prisma client.
+    const results = tx ? await Promise.all(updates) : await prisma.$transaction(updates);
+
+    logger.info(`Reordered ${results.length} pages for chapter: ${chapterId}`);
+    return results;
+};

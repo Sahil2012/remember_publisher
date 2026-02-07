@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { PageRequest, PageResponse, PageUpdateRequest } from "../schema/pageSchema";
-import { createPage, deletePage, getPageById, getPagesByChapterId, updatePage } from "../services/pageService";
+import { createPage, deletePage, getPageById, getPagesByChapterId, updatePage, reorderPages } from "../services/pageService";
 import { NotFoundError } from "../exception/HttpError";
 import prisma from "../api/prismaClient";
 
@@ -62,4 +62,15 @@ export const deletePageHandler = async (
         throw new NotFoundError("Page not found");
     }
     return res.status(200).json(page);
+}
+
+// PATCH /chapters/:chapterId/pages/order
+export const reorderPagesHandler = async (
+    req: Request<{ chapterId: string }, unknown, { id: string, order: number }[]>,
+    res: Response<unknown>,
+    next: NextFunction
+) => {
+    // TODO: Verify ownership
+    await reorderPages(req.params.chapterId, req.body, prisma);
+    return res.status(200).json({ message: "Pages reordered successfully" });
 }
