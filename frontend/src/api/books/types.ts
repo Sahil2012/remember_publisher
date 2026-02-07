@@ -1,3 +1,24 @@
+export interface Page {
+    id: string;
+    content: any; // Json type in Prisma
+    textContent?: string;
+    order: number;
+    chapterId: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Chapter {
+    id: string;
+    title: string;
+    description?: string;
+    order: number;
+    bookId: string;
+    pages: Page[];
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Book {
     id: string;
     title: string;
@@ -7,9 +28,10 @@ export interface Book {
     coverColor?: string;
     status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     userId: string;
+    wordCount?: number;
     createdAt: string;
     updatedAt: string;
-    chapters?: unknown[];
+    chapters: Chapter[];
 }
 
 export interface CreateBookPayload {

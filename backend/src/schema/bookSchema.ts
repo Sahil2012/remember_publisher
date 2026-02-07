@@ -8,7 +8,7 @@ export const bookSchema = z.object({
     title: z.string().min(1, "Title is required").max(255, "Title is too long"),
     description: z.string().max(2000, "Description is too long").nullable().optional(),
     category: BookCategoryEnum.default("OTHER"),
-    coverImage: z.string().url("Invalid cover image URL").nullable().optional(),
+    coverImage: z.string().nullable().optional(),
     coverColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/).nullable().optional(),
     status: BookStatusEnum.default("DRAFT"),
 });
