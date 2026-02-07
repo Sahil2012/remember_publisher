@@ -8,6 +8,7 @@ import { Layout } from "./components/Layout";
 import { Loader } from "./components/ui/loader";
 import { AuthLayout } from "./components/auth/AuthLayout";
 import { BookDetails } from "./pages/BookDetails";
+import { ChapterDetails } from "./pages/ChapterDetails";
 
 function PublicRoute() {
   const { user, isLoaded } = useUser();
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
         {
           path: "book/:id",
           element: <BookDetails />
+        },
+        {
+          path: "book/:bookId/chapter/:chapterId",
+          element: <ChapterDetails />
         }
       ]
     }
