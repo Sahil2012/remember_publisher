@@ -75,6 +75,7 @@ model Chapter {
   updatedAt       DateTime @updatedAt
 
   @@index([bookId])
+  @@unique([bookId, title])
   @@unique([bookId, order]) 
 }
 

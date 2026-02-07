@@ -4,6 +4,8 @@ import { ChapterClient } from "../client";
 import type { CreateChapterPayload, UpdateChapterPayload } from "../types";
 import { chapterKeys } from "../queryKeys";
 
+import { bookKeys } from "../../books/queryKeys";
+
 export const useChapterActions = () => {
     const apiClient = useAPIClient();
     const chapterClient = new ChapterClient(apiClient);
@@ -14,6 +16,7 @@ export const useChapterActions = () => {
             chapterClient.createChapter(bookId, payload),
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: chapterKeys.list(variables.bookId) });
+            queryClient.invalidateQueries({ queryKey: bookKeys.detail(variables.bookId) });
         },
     });
 
@@ -23,6 +26,7 @@ export const useChapterActions = () => {
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: chapterKeys.detail(variables.id) });
             queryClient.invalidateQueries({ queryKey: chapterKeys.list(variables.bookId) });
+            queryClient.invalidateQueries({ queryKey: bookKeys.detail(variables.bookId) });
         },
     });
 
@@ -31,6 +35,7 @@ export const useChapterActions = () => {
             chapterClient.deleteChapter(bookId, id),
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: chapterKeys.list(variables.bookId) });
+            queryClient.invalidateQueries({ queryKey: bookKeys.detail(variables.bookId) });
         },
     });
 

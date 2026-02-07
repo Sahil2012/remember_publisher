@@ -11,12 +11,12 @@ export class ChapterClient {
 
     // LIST chapters for a book
     getChapters(bookId: string): Promise<Chapter[]> {
-        return this.client.get(`/books/${bookId}/chapters`).then(r => r.data);
+        return this.client.get(`/chapters/${bookId}`).then(r => r.data);
     }
 
     // CREATE a chapter in a book
     createChapter(bookId: string, payload: CreateChapterPayload): Promise<Chapter> {
-        return this.client.post(`/books/${bookId}/chapters`, payload).then(r => r.data);
+        return this.client.post(`/chapters/${bookId}`, payload).then(r => r.data);
     }
 
     // GET a single chapter
