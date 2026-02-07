@@ -201,7 +201,7 @@ export function BookDetails() {
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-foreground/5 font-serif text-xl font-medium text-foreground/60 group-hover:bg-luxury-gold/10 group-hover:text-luxury-gold transition-colors">
                                         {index + 1}
                                     </div>
-                                    <div className="flex-1 min-w-0" onClick={() => {/* Navigate to chapter content - TODO */ }}>
+                                    <div className="flex-1 min-w-0" onClick={() => navigate(`/book/${id}/chapter/${chapter.id}`)}>
                                         <h3 className="mb-1 font-serif text-xl font-medium text-foreground group-hover:text-luxury-gold transition-colors truncate cursor-pointer">
                                             {chapter.title}
                                         </h3>
