@@ -38,6 +38,7 @@ export const fetchBookHandler = async (
     return res.status(200).json(book);
 }
 
+// PATCH /books/:id
 export const updateBookHandler = async (
     req: Request<{ userId: string, id: string }, unknown, BookUpdateRequest>,
     res: Response<BookResponse>,
@@ -50,6 +51,7 @@ export const updateBookHandler = async (
     return res.status(200).json(book);
 }
 
+// DELETE /books/:id
 export const deleteBookHandler = async (
     req: Request<{ userId: string, id: string }, unknown, unknown>,
     res: Response<BookResponse>,
