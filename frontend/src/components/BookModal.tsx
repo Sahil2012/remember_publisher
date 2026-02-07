@@ -1,14 +1,18 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, Book, Upload } from "lucide-react";
+import { X, Check, Book, Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUploadFile } from "@/api/upload/hooks";
 
-interface NewBookModalProps {
+import type { Book as BookType } from "@/api/books/types";
+
+interface BookModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onCreate: (bookData: any) => void;
+    onSubmit: (bookData: any) => void;
+    book?: BookType;
+    isLoading?: boolean;
 }
 
 const BOOK_TYPES = [
@@ -27,13 +31,33 @@ const COVER_COLORS = [
     { id: "slate", hex: "#f1f5f9", label: "Cool Slate" },
 ];
 
-export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [type, setType] = useState(BOOK_TYPES[0].id);
-    const [coverColor, setCoverColor] = useState(COVER_COLORS[0].hex);
+export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }: BookModalProps) {
+    const [title, setTitle] = useState(book?.title || "");
+    const [description, setDescription] = useState(book?.description || "");
+    const [type, setType] = useState(BOOK_TYPES[0].id); // Type not in Book interface yet
+    const [coverColor, setCoverColor] = useState(book?.coverColor || COVER_COLORS[0].hex);
     const [coverImage, setCoverImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Sync state with book prop when it changes or modal opens
+    useEffect(() => {
+        if (isOpen) {
+            if (book) {
+                setTitle(book.title);
+                setDescription(book.description);
+                // Type is not currently persisted in backend Book model
+                setCoverColor(book.coverColor || COVER_COLORS[0].hex);
+                setCoverImage(book.coverImage || null);
+            } else {
+                // Reset for create mode
+                setTitle("");
+                setDescription("");
+                setType(BOOK_TYPES[0].id);
+                setCoverColor(COVER_COLORS[0].hex);
+                setCoverImage(null);
+            }
+        }
+    }, [isOpen, book]);
 
     // Upload Hook
     const { mutateAsync: uploadFile, isPending: isUploading } = useUploadFile();
@@ -53,7 +77,8 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onCreate({
+        if (isLoading) return;
+        onSubmit({
             title,
             description,
             type,
@@ -71,8 +96,8 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="fixed inset-0 z-50 bg-background/60 backdrop-blur-sm"
+                        onClick={!isLoading ? onClose : undefined}
+                        className={cn("fixed inset-0 z-50 bg-background/60 backdrop-blur-sm", isLoading && "pointer-events-none")}
                     />
 
                     {/* Modal with "Paper" Physics */}
@@ -130,10 +155,14 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                 <div className="flex-1 p-8 flex flex-col bg-white overflow-y-auto max-h-[80vh] md:max-h-full">
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
-                                            <h3 className="text-xl font-serif font-medium text-foreground">Create New Book</h3>
-                                            <p className="text-sm text-muted-foreground">Start your new writing journey.</p>
+                                            <h3 className="text-xl font-serif font-medium text-foreground">
+                                                {book ? "Edit Book" : "Create New Book"}
+                                            </h3>
+                                            <p className="text-sm text-muted-foreground">
+                                                {book ? "Update your book details." : "Start your new writing journey."}
+                                            </p>
                                         </div>
-                                        <Button type="button" variant="ghost" size="icon" onClick={onClose} className="rounded-full -mr-2 -mt-2">
+                                        <Button type="button" variant="ghost" size="icon" onClick={onClose} disabled={isLoading} className="rounded-full -mr-2 -mt-2">
                                             <X className="w-5 h-5" />
                                         </Button>
                                     </div>
@@ -146,9 +175,10 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                                 autoFocus
                                                 type="text"
                                                 value={title}
+                                                disabled={isLoading}
                                                 onChange={(e) => setTitle(e.target.value)}
                                                 placeholder="Enter a memorable title..."
-                                                className="w-full border-b-2 border-foreground/10 py-2 text-xl font-serif bg-transparent focus:outline-none focus:border-luxury-gold/50 transition-colors placeholder:text-muted-foreground/30"
+                                                className="w-full border-b-2 border-foreground/10 py-2 text-xl font-serif bg-transparent focus:outline-none focus:border-luxury-gold/50 transition-colors placeholder:text-muted-foreground/30 disabled:opacity-50"
                                             />
                                         </div>
 
@@ -157,10 +187,11 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Summary</label>
                                             <textarea
                                                 value={description}
+                                                disabled={isLoading}
                                                 onChange={(e) => setDescription(e.target.value)}
                                                 placeholder="What is this book about?"
                                                 rows={3}
-                                                className="w-full rounded-lg bg-foreground/[0.02] border border-foreground/10 p-3 text-sm focus:outline-none focus:ring-1 focus:ring-luxury-gold/30 resize-none transition-all"
+                                                className="w-full rounded-lg bg-foreground/[0.02] border border-foreground/10 p-3 text-sm focus:outline-none focus:ring-1 focus:ring-luxury-gold/30 resize-none transition-all disabled:opacity-50"
                                             />
                                         </div>
 
@@ -172,9 +203,10 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                                     <button
                                                         key={t.id}
                                                         type="button"
+                                                        disabled={isLoading}
                                                         onClick={() => setType(t.id)}
                                                         className={cn(
-                                                            "text-left p-3 rounded-xl border transition-all relative overflow-hidden group",
+                                                            "text-left p-3 rounded-xl border transition-all relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed",
                                                             type === t.id
                                                                 ? "border-luxury-gold bg-luxury-gold/5"
                                                                 : "border-foreground/10 hover:border-foreground/20 bg-white"
@@ -203,11 +235,13 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                                     className="hidden"
                                                     ref={fileInputRef}
                                                     onChange={handleImageUpload}
+                                                    disabled={isLoading || isUploading}
                                                 />
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
+                                                    disabled={isLoading || isUploading}
                                                     className="h-6 px-2 text-xs text-luxury-gold hover:text-luxury-gold hover:bg-luxury-gold/5"
                                                     onClick={() => fileInputRef.current?.click()}
                                                 >
@@ -227,6 +261,7 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                                         type="button"
                                                         variant="ghost"
                                                         size="icon"
+                                                        disabled={isLoading}
                                                         className="h-8 w-8 text-muted-foreground hover:text-red-500"
                                                         onClick={() => setCoverImage(null)}
                                                     >
@@ -239,9 +274,10 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
                                                         <button
                                                             key={c.id}
                                                             type="button"
+                                                            disabled={isLoading}
                                                             onClick={() => setCoverColor(c.hex)}
                                                             className={cn(
-                                                                "flex-shrink-0 w-8 h-8 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxury-gold/50",
+                                                                "flex-shrink-0 w-8 h-8 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxury-gold/50 disabled:opacity-50 disabled:cursor-not-allowed",
                                                                 coverColor === c.hex
                                                                     ? "ring-2 ring-luxury-gold ring-offset-2 scale-110 shadow-md"
                                                                     : "ring-1 ring-foreground/5 hover:scale-105 hover:shadow-sm"
@@ -257,15 +293,16 @@ export function NewBookModal({ isOpen, onClose, onCreate }: NewBookModalProps) {
 
                                     {/* Footer Actions */}
                                     <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-foreground/5">
-                                        <Button type="button" variant="ghost" onClick={onClose}>
+                                        <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
                                             Cancel
                                         </Button>
                                         <Button
                                             type="submit"
-                                            disabled={!title.trim()}
+                                            disabled={!title.trim() || isLoading}
                                             className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-6 shadow-md hover:shadow-lg transition-all"
                                         >
-                                            Create Book
+                                            {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                            {book ? "Save Changes" : "Create Book"}
                                         </Button>
                                     </div>
                                 </div>
