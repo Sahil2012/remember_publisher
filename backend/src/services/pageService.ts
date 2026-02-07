@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { PageRequest, PageUpdateRequest } from "../schema/pageSchema";
+import { PageReorderRequest, PageRequest, PageUpdateRequest } from "../schema/pageSchema";
 import prisma from "../api/prismaClient.js";
 import logger from "../utils/logger.js";
 
@@ -108,22 +108,35 @@ export const deletePage = async (
 
 export const reorderPages = async (
     chapterId: string,
-    pages: { id: string; order: number }[],
+    pages: PageReorderRequest,
     tx?: Prisma.TransactionClient | PrismaClient
 ) => {
     logger.info(`Reordering pages for chapter: ${chapterId}`);
     const db = tx || prisma;
 
-    const updates = pages.map((page) =>
-        db.page.update({
-            where: { id: page.id, chapterId }, // Ensure page belongs to chapter
-            data: { order: page.order },
-        })
-    );
+    const executeReorder = async (client: Prisma.TransactionClient | PrismaClient) => {
+        // 1. Temporarily move to negative
+        const tempUpdates = pages.map((page) =>
+            client.page.update({
+                where: { id: page.id, chapterId },
+                data: { order: -page.order },
+            })
+        );
+        await Promise.all(tempUpdates);
 
-    // If we are already in a transaction (tx provided), we just await the updates.
-    // If not, we start a new transaction using the global prisma client.
-    const results = tx ? await Promise.all(updates) : await prisma.$transaction(updates);
+        // 2. Set to final
+        const finalUpdates = pages.map((page) =>
+            client.page.update({
+                where: { id: page.id, chapterId },
+                data: { order: page.order },
+            })
+        );
+        return await Promise.all(finalUpdates);
+    };
+
+    const results = tx
+        ? await executeReorder(tx)
+        : await prisma.$transaction((txClient) => executeReorder(txClient));
 
     logger.info(`Reordered ${results.length} pages for chapter: ${chapterId}`);
     return results;

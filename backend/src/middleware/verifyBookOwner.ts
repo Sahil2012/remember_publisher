@@ -3,11 +3,10 @@ import { NotFoundError, UnauthorizedError } from "../exception/HttpError";
 import prisma from "../api/prismaClient";
 
 export const verifyBookOwner = async (req: Request, res: Response, next: NextFunction) => {
-    const bookId = req.params.bookId;
+    const bookId = req.params.bookId as string;
     const userId = req.user?.id;
     const book = await prisma.book.findUnique({
         where: {
-            userId,
             id: bookId,
         },
     });
