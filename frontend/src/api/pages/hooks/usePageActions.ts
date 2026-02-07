@@ -35,9 +35,18 @@ export const usePageActions = () => {
         },
     });
 
+    const reorderPages = useMutation({
+        mutationFn: ({ bookId, chapterId, pages }: { bookId: string; chapterId: string; pages: { id: string; order: number }[] }) =>
+            pageClient.reorderPages(bookId, chapterId, pages),
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: pageKeys.list(variables.chapterId) });
+        },
+    });
+
     return {
         createPage,
         updatePage,
         deletePage,
+        reorderPages,
     };
 };

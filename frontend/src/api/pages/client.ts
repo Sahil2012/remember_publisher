@@ -33,4 +33,9 @@ export class PageClient {
     deletePage(id: string): Promise<Page> {
         return this.client.delete(`/pages/${id}`).then(r => r.data);
     }
+
+    // REORDER pages in a chapter
+    reorderPages(bookId: string, chapterId: string, pages: { id: string; order: number }[]): Promise<void> {
+        return this.client.patch(`/chapters/${bookId}/${chapterId}/pages/order`, pages).then(r => r.data);
+    }
 }

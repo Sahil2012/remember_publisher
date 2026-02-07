@@ -21,3 +21,10 @@ export const pageResponseSchema = pageSchema.extend({
 export type PageRequest = z.infer<typeof pageSchema>;
 export type PageUpdateRequest = z.infer<typeof pageUpdateSchema>;
 export type PageResponse = z.infer<typeof pageResponseSchema>;
+
+export const pageReorderSchema = z.array(z.object({
+    id: z.string(),
+    order: z.number().int().min(0),
+}));
+
+export type PageReorderRequest = z.infer<typeof pageReorderSchema>;
