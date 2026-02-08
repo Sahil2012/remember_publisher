@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/requireAuth";
-import { resolveUser } from "../middleware/resolveUser";
+import { ensureUserExists, resolveUser } from "../middleware/resolveUser";
 import { createBookHandler, deleteBookHandler, fetchBookHandler, fetchBooksHandler, updateBookHandler } from "../controller/bookController";
 import { validate } from "../middleware/schemaValidator";
 import { bookSchema } from "../schema/bookSchema";
@@ -12,7 +12,8 @@ const bookRoutes = Router();
 bookRoutes.post("/", requireAuth, resolveUser, validate({ body: bookSchema }), createBookHandler);
 
 // GET /books
-bookRoutes.get("/", requireAuth, resolveUser, fetchBooksHandler);
+//TODO: remove ensureUserExists
+bookRoutes.get("/", requireAuth, ensureUserExists, resolveUser, fetchBooksHandler);
 
 // GET /books/:id
 bookRoutes.get("/:id", requireAuth, resolveUser, validate({ params: z.object({ id: z.uuid() }) }), fetchBookHandler);
