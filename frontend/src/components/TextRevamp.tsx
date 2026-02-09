@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ToneSelector } from "./ToneSelector";
-import { Editor } from "./Editor";
+import { TiptapEditor } from "./TiptapEditor";
 import { CategorySelector, type Category } from "./CategorySelector";
 import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
 
@@ -141,8 +141,8 @@ export function TextRevamp() {
                         <div className="flex-1 flex flex-col gap-4 relative">
                             {/* Input Card - Paper feel */}
                             <div className="flex-1 bg-white rounded-2xl border border-foreground/5 shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-luxury-gold/20 transition-all hover:shadow-md relative group">
-                                <Editor
-                                    value={inputText}
+                                <TiptapEditor
+                                    content={inputText}
                                     onChange={setInputText}
                                     placeholder="Start typing or paste your content here..."
                                     className="h-full min-h-[400px]"
@@ -220,8 +220,8 @@ export function TextRevamp() {
                                         transition={{ duration: 0.6, ease: "easeOut" }}
                                         className="h-full"
                                     >
-                                        <Editor
-                                            value={outputText}
+                                        <TiptapEditor
+                                            content={outputText}
                                             onChange={setOutputText}
                                             readOnly={false}
                                             className="h-full"

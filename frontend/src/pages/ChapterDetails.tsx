@@ -10,6 +10,8 @@ import { useState, useRef, useEffect } from "react";
 import { usePageActions } from "@/api/pages/hooks/usePageActions";
 import { toast } from "sonner";
 import type { Page } from "@/api/books/types";
+import { TiptapEditor } from "@/components/TiptapEditor";
+import { RevampService } from "@/services/revamp";
 
 // dnd-kit imports
 import {
@@ -32,52 +34,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-// Helper for auto-resizing textarea in Reader mode
-const AutoResizeTextarea = ({
-    value,
-    onChange,
-    onBlur,
-    placeholder,
-    className,
-    readOnly
-}: {
-    value?: string;
-    onChange: (val: string) => void;
-    onBlur: () => void;
-    placeholder?: string;
-    className?: string;
-    readOnly?: boolean;
-}) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+// AutoResizeTextarea removed
 
-    const adjustHeight = () => {
-        const textarea = textareaRef.current;
-        if (textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
-        }
-    };
-
-    useEffect(() => {
-        adjustHeight();
-    }, [value, readOnly]);
-
-    return (
-        <textarea
-            ref={textareaRef}
-            className={cn("resize-none overflow-hidden", className)}
-            value={value || ""}
-            onChange={(e) => {
-                onChange(e.target.value);
-                adjustHeight();
-            }}
-            onBlur={onBlur}
-            placeholder={placeholder}
-            readOnly={readOnly}
-            rows={1}
-        />
-    );
-};
 
 // Sortable Page Card Component for Grid View
 function SortablePageCard({ page, index, onDelete, onClick }: { page: Page, index: number, onDelete: (id: string) => void, onClick: () => void }) {
@@ -110,9 +68,10 @@ function SortablePageCard({ page, index, onDelete, onClick }: { page: Page, inde
                 onClick={onClick}
             >
                 <div className="absolute top-4 right-4 text-xs font-mono text-stone-300">#{index + 1}</div>
-                <div className="text-xs text-stone-400 line-clamp-[12] font-serif leading-relaxed pointer-events-none select-none">
-                    {page.textContent || "Empty page..."}
-                </div>
+                <div
+                    className="text-[10px] text-stone-500 font-serif leading-relaxed pointer-events-none select-none prose prose-stone prose-p:my-1 prose-headings:my-2 prose-p:text-[10px] prose-headings:text-xs max-w-none"
+                    dangerouslySetInnerHTML={{ __html: page.textContent || "<p>Empty page...</p>" }}
+                />
             </div>
 
             {/* Actions Footer */}
@@ -141,9 +100,10 @@ function PageCardOverlay({ page, index }: { page: Page, index: number }) {
         <div className="relative aspect-[3/4] bg-white rounded-lg shadow-xl border border-stone-200 cursor-grabbing overflow-hidden flex flex-col rotate-3 scale-105">
             <div className="flex-1 p-6 overflow-hidden">
                 <div className="absolute top-4 right-4 text-xs font-mono text-stone-300">#{index + 1}</div>
-                <div className="text-xs text-stone-400 line-clamp-[12] font-serif leading-relaxed">
-                    {page.textContent || "Empty page..."}
-                </div>
+                <div
+                    className="text-[10px] text-stone-500 font-serif leading-relaxed pointer-events-none select-none prose prose-stone prose-p:my-1 prose-headings:my-2 prose-p:text-[10px] prose-headings:text-xs max-w-none"
+                    dangerouslySetInnerHTML={{ __html: page.textContent || "<p>Empty page...</p>" }}
+                />
             </div>
             <div className="h-10 border-t border-stone-100 flex items-center justify-between px-3 bg-stone-50/50">
                 <div className="text-[10px] text-stone-400 font-medium uppercase tracking-wider">Page {index + 1}</div>
@@ -153,7 +113,82 @@ function PageCardOverlay({ page, index }: { page: Page, index: number }) {
     );
 }
 
+import { useDragControls } from "framer-motion";
+
+function SortableReaderPage({ page, index, isReadingMode, handleUpdatePageContent, handleDeletePage }: { page: Page, index: number, isReadingMode: boolean, handleUpdatePageContent: (id: string, content: string) => void, handleDeletePage: (id: string) => void }) {
+    const dragControls = useDragControls();
+
+    return (
+        <Reorder.Item
+            value={page}
+            id={`page-${page.id}`}
+            drag={!isReadingMode ? "y" : false}
+            dragListener={false} // Disable default listener
+            dragControls={dragControls} // Use manual controls
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.3 }}
+            style={{ touchAction: "pan-y" }} // Allow vertical scrolling on the card
+            className="relative w-full max-w-[800px] flex justify-center group"
+        >
+            <div className={cn(
+                "w-full transition-all duration-500 bg-white relative overflow-hidden",
+                isReadingMode
+                    ? "shadow-none bg-transparent"
+                    : "shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] ring-1 ring-stone-900/5 rounded-sm hover:shadow-lg"
+            )}>
+
+                {!isReadingMode && (
+                    <div
+                        className="absolute top-0 bottom-0 -left-12 w-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-stone-300 hover:text-stone-500"
+                        onPointerDown={(e) => dragControls.start(e)}
+                    >
+                        <GripVertical className="h-5 w-5" />
+                    </div>
+                )}
+
+                <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-none sticky-bottom-num">
+                    <span className="text-xs font-serif text-stone-300 font-medium tracking-widest">{index + 1}</span>
+                </div>
+
+                <div
+                    className={cn(
+                        "p-12 md:p-16 h-full min-h-[600px]",
+                        !isReadingMode && "cursor-text"
+                    )}
+                    onClick={() => {
+                        if (!isReadingMode) {
+                            (document.querySelector(`#page-${page.id} .ProseMirror`) as HTMLElement)?.focus();
+                        }
+                    }}
+                >
+                    <PageEditor
+                        page={page}
+                        onUpdate={(content) => handleUpdatePageContent(page.id, content)}
+                        readOnly={isReadingMode}
+                    />
+                </div>
+            </div>
+
+            {!isReadingMode && (
+                <div className="absolute -right-16 top-0 bottom-0 w-12 flex flex-col pt-8 opacity-0 hover:opacity-100 transition-opacity duration-300">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10 text-stone-400 hover:text-red-600 hover:bg-stone-100 rounded-full transition-colors"
+                        onClick={() => handleDeletePage(page.id)}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
+        </Reorder.Item>
+    );
+}
+
 export function ChapterDetails() {
+    // ... (rest of the component, just updating the map loop)
     const { bookId, chapterId } = useParams<{ bookId: string; chapterId: string }>();
     const navigate = useNavigate();
 
@@ -456,68 +491,14 @@ export function ChapterDetails() {
                         >
                             <AnimatePresence mode="popLayout">
                                 {orderedPages.map((page, index) => (
-                                    <Reorder.Item
+                                    <SortableReaderPage
                                         key={page.id}
-                                        value={page}
-                                        id={`page-${page.id}`}
-                                        drag={!isReadingMode ? "y" : false}
-                                        dragListener={!isReadingMode}
-                                        onDragEnd={handleDragEndList}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.98 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="relative w-full max-w-[800px] flex justify-center"
-                                    >
-                                        <div className={cn(
-                                            "w-full transition-all duration-500 bg-white relative overflow-hidden",
-                                            isReadingMode
-                                                ? "shadow-none bg-transparent"
-                                                : "shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] ring-1 ring-stone-900/5 rounded-sm hover:shadow-lg"
-                                        )}>
-
-                                            {!isReadingMode && (
-                                                <div className="absolute top-0 bottom-0 -left-12 w-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-stone-300 hover:text-stone-500">
-                                                    <GripVertical className="h-5 w-5" />
-                                                </div>
-                                            )}
-
-                                            <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-none sticky-bottom-num">
-                                                <span className="text-xs font-serif text-stone-300 font-medium tracking-widest">{index + 1}</span>
-                                            </div>
-
-                                            <div
-                                                className={cn(
-                                                    "p-12 md:p-16 h-full min-h-[600px]",
-                                                    !isReadingMode && "cursor-text"
-                                                )}
-                                                onClick={() => {
-                                                    if (!isReadingMode) {
-                                                        document.getElementById(`page-textarea-${page.id}`)?.focus();
-                                                    }
-                                                }}
-                                            >
-                                                <PageEditor
-                                                    page={page}
-                                                    onUpdate={(content) => handleUpdatePageContent(page.id, content)}
-                                                    readOnly={isReadingMode}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {!isReadingMode && (
-                                            <div className="absolute -right-16 top-0 bottom-0 w-12 flex flex-col pt-8 opacity-0 hover:opacity-100 transition-opacity duration-300">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-10 w-10 text-stone-400 hover:text-red-600 hover:bg-stone-100 rounded-full transition-colors"
-                                                    onClick={() => handleDeletePage(page.id)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </Reorder.Item>
+                                        page={page}
+                                        index={index}
+                                        isReadingMode={isReadingMode}
+                                        handleUpdatePageContent={handleUpdatePageContent}
+                                        handleDeletePage={handleDeletePage}
+                                    />
                                 ))}
                             </AnimatePresence>
                         </Reorder.Group>
@@ -547,26 +528,45 @@ export function ChapterDetails() {
 
 function PageEditor({ page, onUpdate, readOnly }: { page: Page, onUpdate: (content: string) => void, readOnly?: boolean }) {
     const [content, setContent] = useState(page.textContent || "");
+    const [isRevamping, setIsRevamping] = useState(false);
 
     useEffect(() => {
         setContent(page.textContent || "");
     }, [page.textContent]);
 
+    const handleRevamp = async () => {
+        setIsRevamping(true);
+        toast.info("Polishing your text with AI...", { duration: 2000 });
+        try {
+            // Basic revamp call - defaulting to standard/memoir for now
+            const result = await RevampService.revampText(content, "Standard", "Memoir");
+            setContent(result);
+            onUpdate(result);
+            toast.success("Text revamped successfully!");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to revamp text.");
+        } finally {
+            setIsRevamping(false);
+        }
+    };
+
     return (
-        <AutoResizeTextarea
-            value={content}
+        <TiptapEditor
+            content={content}
             onChange={setContent}
             onBlur={() => {
                 if (content !== page.textContent && !readOnly) {
                     onUpdate(content);
                 }
             }}
-            placeholder={readOnly ? "" : "The story begins..."}
-            readOnly={readOnly}
+            readOnly={readOnly || isRevamping}
+            onRevamp={handleRevamp}
             className={cn(
-                "w-full h-full bg-transparent border-none focus:ring-0 focus:outline-none text-lg md:text-xl leading-loose text-stone-800 placeholder:text-stone-300 min-h-[600px]",
-                readOnly && "cursor-default"
+                "min-h-[800px]", // Increased height (closer to A4)
+                readOnly && "pointer-events-none"
             )}
+            placeholder={readOnly ? "" : "The story begins..."}
         />
     );
 }
