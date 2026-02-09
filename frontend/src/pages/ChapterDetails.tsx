@@ -113,82 +113,7 @@ function PageCardOverlay({ page, index }: { page: Page, index: number }) {
     );
 }
 
-import { useDragControls } from "framer-motion";
-
-function SortableReaderPage({ page, index, isReadingMode, handleUpdatePageContent, handleDeletePage }: { page: Page, index: number, isReadingMode: boolean, handleUpdatePageContent: (id: string, content: string) => void, handleDeletePage: (id: string) => void }) {
-    const dragControls = useDragControls();
-
-    return (
-        <Reorder.Item
-            value={page}
-            id={`page-${page.id}`}
-            drag={!isReadingMode ? "y" : false}
-            dragListener={false} // Disable default listener
-            dragControls={dragControls} // Use manual controls
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.3 }}
-            style={{ touchAction: "pan-y" }} // Allow vertical scrolling on the card
-            className="relative w-full max-w-[800px] flex justify-center group"
-        >
-            <div className={cn(
-                "w-full transition-all duration-500 bg-white relative overflow-hidden",
-                isReadingMode
-                    ? "shadow-none bg-transparent"
-                    : "shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] ring-1 ring-stone-900/5 rounded-sm hover:shadow-lg"
-            )}>
-
-                {!isReadingMode && (
-                    <div
-                        className="absolute top-0 bottom-0 -left-12 w-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-stone-300 hover:text-stone-500"
-                        onPointerDown={(e) => dragControls.start(e)}
-                    >
-                        <GripVertical className="h-5 w-5" />
-                    </div>
-                )}
-
-                <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-none sticky-bottom-num">
-                    <span className="text-xs font-serif text-stone-300 font-medium tracking-widest">{index + 1}</span>
-                </div>
-
-                <div
-                    className={cn(
-                        "p-12 md:p-16 h-full min-h-[600px]",
-                        !isReadingMode && "cursor-text"
-                    )}
-                    onClick={() => {
-                        if (!isReadingMode) {
-                            (document.querySelector(`#page-${page.id} .ProseMirror`) as HTMLElement)?.focus();
-                        }
-                    }}
-                >
-                    <PageEditor
-                        page={page}
-                        onUpdate={(content) => handleUpdatePageContent(page.id, content)}
-                        readOnly={isReadingMode}
-                    />
-                </div>
-            </div>
-
-            {!isReadingMode && (
-                <div className="absolute -right-16 top-0 bottom-0 w-12 flex flex-col pt-8 opacity-0 hover:opacity-100 transition-opacity duration-300">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-10 w-10 text-stone-400 hover:text-red-600 hover:bg-stone-100 rounded-full transition-colors"
-                        onClick={() => handleDeletePage(page.id)}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                </div>
-            )}
-        </Reorder.Item>
-    );
-}
-
 export function ChapterDetails() {
-    // ... (rest of the component, just updating the map loop)
     const { bookId, chapterId } = useParams<{ bookId: string; chapterId: string }>();
     const navigate = useNavigate();
 
@@ -197,8 +122,9 @@ export function ChapterDetails() {
     const { createPage, deletePage, updatePage, reorderPages } = usePageActions();
 
     const [orderedPages, setOrderedPages] = useState<Page[]>([]);
-    const [viewMode, setViewMode] = useState<'grid' | 'reader'>('grid');
+    const [viewMode, setViewMode] = useState<'grid' | 'focus'>('grid');
     const [isReadingMode, setIsReadingMode] = useState(false);
+    const [activePageIndex, setActivePageIndex] = useState<number>(0);
 
     // dnd-kit state
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -206,7 +132,7 @@ export function ChapterDetails() {
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8, // slight movement required to start drag, prevents accidental drags on click
+                distance: 8,
             },
         }),
         useSensor(KeyboardSensor, {
@@ -232,6 +158,9 @@ export function ChapterDetails() {
                 }
             });
             toast.success("New page added");
+            if (viewMode === 'focus') {
+                setActivePageIndex(orderedPages.length); // Switch to new page
+            }
         } catch (error) {
             toast.error("Failed to add page");
         }
@@ -241,6 +170,9 @@ export function ChapterDetails() {
         try {
             await deletePage.mutateAsync(pageId);
             toast.success("Page deleted");
+            if (viewMode === 'focus') {
+                setViewMode('grid');
+            }
         } catch (error) {
             toast.error("Failed to delete page");
         }
@@ -251,21 +183,6 @@ export function ChapterDetails() {
             id: pageId,
             payload: { textContent: newContent }
         });
-    };
-
-    // Framer Motion Reorder (Reader View)
-    const handleReorderList = (newOrder: Page[]) => {
-        setOrderedPages(newOrder);
-    };
-
-    const handleDragEndList = () => {
-        // for framer motion list
-        if (!bookId || !chapterId) return;
-        const updates = orderedPages.map((page, index) => ({
-            id: page.id,
-            order: index + 1
-        }));
-        reorderPages.mutate({ bookId, chapterId, pages: updates });
     };
 
     // dnd-kit Reorder (Grid View)
@@ -283,7 +200,6 @@ export function ChapterDetails() {
                 const newIndex = items.findIndex((item) => item.id === over.id);
                 const newItems = arrayMove(items, oldIndex, newIndex);
 
-                // Trigger API update
                 if (bookId && chapterId) {
                     const updates = newItems.map((p, i) => ({
                         id: p.id,
@@ -297,13 +213,20 @@ export function ChapterDetails() {
         }
     };
 
-    const openPageInReader = (pageId: string) => {
-        setViewMode('reader');
-        // Wait for render then scroll
-        setTimeout(() => {
-            const element = document.getElementById(`page-${pageId}`);
-            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+    const openPageInFocus = (index: number) => {
+        setActivePageIndex(index);
+        setViewMode('focus');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const navigatePage = (direction: 'prev' | 'next') => {
+        if (direction === 'prev' && activePageIndex > 0) {
+            setActivePageIndex(activePageIndex - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (direction === 'next' && activePageIndex < orderedPages.length - 1) {
+            setActivePageIndex(activePageIndex + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     };
 
     if (isChapterLoading || isPagesLoading) {
@@ -325,15 +248,17 @@ export function ChapterDetails() {
         );
     }
 
+    const activePage = orderedPages[activePageIndex];
+
     return (
         <div className={cn(
             "min-h-screen animate-in fade-in duration-500 font-serif transition-colors duration-500",
-            viewMode === 'reader' && isReadingMode ? "bg-[#fdfbf7]" : "bg-[#f8f5f2]"
+            viewMode === 'focus' && isReadingMode ? "bg-[#fdfbf7]" : "bg-[#f8f5f2]"
         )}>
             {/* Header */}
             <header className={cn(
                 "sticky top-0 z-20 transition-all duration-300",
-                viewMode === 'reader' && isReadingMode
+                viewMode === 'focus' && isReadingMode
                     ? "bg-[#fdfbf7]/90 border-transparent h-14"
                     : "border-b border-stone-200/50 bg-[#f8f5f2]/80 h-16"
                 , "backdrop-blur-md"
@@ -344,7 +269,7 @@ export function ChapterDetails() {
                             variant="ghost"
                             size="icon"
                             onClick={() => {
-                                if (viewMode === 'reader') {
+                                if (viewMode === 'focus') {
                                     setViewMode('grid');
                                 } else {
                                     navigate(`/book/${bookId}`);
@@ -379,17 +304,20 @@ export function ChapterDetails() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setViewMode('reader')}
+                                onClick={() => {
+                                    setViewMode('focus');
+                                    if (viewMode === 'grid') setActivePageIndex(0);
+                                }}
                                 className={cn(
                                     "h-7 px-3 text-xs font-sans uppercase tracking-wide rounded-md transition-all",
-                                    viewMode === 'reader' ? "bg-white shadow-sm text-stone-900" : "text-stone-500 hover:text-stone-900"
+                                    viewMode === 'focus' ? "bg-white shadow-sm text-stone-900" : "text-stone-500 hover:text-stone-900"
                                 )}
                             >
-                                <FileText className="mr-2 h-3 w-3" /> Reader
+                                <FileText className="mr-2 h-3 w-3" /> Focus
                             </Button>
                         </div>
 
-                        {viewMode === 'reader' && (
+                        {viewMode === 'focus' && (
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -398,6 +326,7 @@ export function ChapterDetails() {
                                     "h-9 px-3 text-xs font-sans uppercase tracking-wide rounded-md transition-all",
                                     isReadingMode ? "text-stone-900 bg-stone-200/50" : "text-stone-500 hover:text-stone-900"
                                 )}
+                                title="Toggle Read-Only Mode"
                             >
                                 {isReadingMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                             </Button>
@@ -438,7 +367,7 @@ export function ChapterDetails() {
                                             page={page}
                                             index={index}
                                             onDelete={handleDeletePage}
-                                            onClick={() => openPageInReader(page.id)}
+                                            onClick={() => openPageInFocus(index)}
                                         />
                                     ))}
 
@@ -468,57 +397,91 @@ export function ChapterDetails() {
                 )}
 
 
-                {/* READER VIEW (Framer Motion List) */}
-                {viewMode === 'reader' && (
-                    <div className="flex flex-col items-center space-y-12 max-w-4xl mx-auto">
-                        <div className="w-full max-w-[65ch] text-center mb-8">
-                            <h2 className="text-4xl md:text-5xl font-serif font-medium text-stone-900 mb-4 leading-tight">
-                                {chapter.title}
-                            </h2>
-                            {chapter.description && (
-                                <p className="text-lg text-stone-500 italic max-w-lg mx-auto leading-relaxed">
-                                    {chapter.description}
-                                </p>
+                {/* FOCUS VIEW (Single Page) */}
+                {viewMode === 'focus' && activePage && (
+                    <div className="flex flex-col items-center space-y-8 max-w-4xl mx-auto min-h-[calc(100vh-200px)]">
+
+                        <div className="w-full flex items-center justify-between text-sm text-stone-400 font-sans px-4">
+                            <span>Page {activePageIndex + 1} of {orderedPages.length}</span>
+                            {!isReadingMode && (
+                                <button
+                                    onClick={() => handleDeletePage(activePage.id)}
+                                    className="text-red-400 hover:text-red-600 flex items-center gap-1 transition-colors"
+                                >
+                                    <Trash2 className="w-3 h-3" /> Delete Page
+                                </button>
                             )}
-                            <div className="mt-8 w-12 h-1 bg-stone-200 mx-auto rounded-full" />
                         </div>
 
-                        <Reorder.Group
-                            axis="y"
-                            values={orderedPages}
-                            onReorder={handleReorderList}
-                            className="w-full flex flex-col items-center gap-16"
+                        <motion.div
+                            key={activePage.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className={cn(
+                                "w-full transition-all duration-500 bg-white relative overflow-hidden",
+                                isReadingMode
+                                    ? "shadow-none bg-transparent"
+                                    : "shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] ring-1 ring-stone-900/5 rounded-sm"
+                            )}
                         >
-                            <AnimatePresence mode="popLayout">
-                                {orderedPages.map((page, index) => (
-                                    <SortableReaderPage
-                                        key={page.id}
-                                        page={page}
-                                        index={index}
-                                        isReadingMode={isReadingMode}
-                                        handleUpdatePageContent={handleUpdatePageContent}
-                                        handleDeletePage={handleDeletePage}
-                                    />
-                                ))}
-                            </AnimatePresence>
-                        </Reorder.Group>
+                            <div className="absolute top-0 bottom-0 left-0 w-1 bg-stone-100/50" />
 
-                        {/* Ghost Page for Reader View additions */}
-                        {!isReadingMode && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="w-full max-w-[800px] group cursor-pointer pb-20"
-                                onClick={handleAddPage}
+                            <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-none sticky-bottom-num">
+                                <span className="text-xs font-serif text-stone-300 font-medium tracking-widest">{activePageIndex + 1}</span>
+                            </div>
+
+                            <div
+                                className={cn(
+                                    "p-12 md:p-16 h-full",
+                                    !isReadingMode && "cursor-text"
+                                )}
+                                onClick={() => {
+                                    if (!isReadingMode) {
+                                        (document.querySelector(`#page-${activePage.id} .ProseMirror`) as HTMLElement)?.focus();
+                                    }
+                                }}
                             >
-                                <div className="h-24 border-2 border-dashed border-stone-200 rounded-lg flex items-center justify-center text-stone-400 group-hover:border-stone-400 group-hover:text-stone-600 transition-all bg-white/50 hover:bg-white/80">
-                                    <span className="flex items-center font-serif text-lg italic">
-                                        <Plus className="mr-2 h-5 w-5" />
-                                        Add another page...
-                                    </span>
+                                <div id={`page-${activePage.id}`}>
+                                    <PageEditor
+                                        page={activePage}
+                                        onUpdate={(content) => handleUpdatePageContent(activePage.id, content)}
+                                        readOnly={isReadingMode}
+                                    />
                                 </div>
-                            </motion.div>
-                        )}
+                            </div>
+                        </motion.div>
+
+                        {/* Navigation Footer */}
+                        <div className="flex items-center justify-between w-full max-w-[800px] px-4 pt-4 pb-20">
+                            <Button
+                                variant="ghost"
+                                onClick={() => navigatePage('prev')}
+                                disabled={activePageIndex === 0}
+                                className={cn("text-stone-500 hover:text-stone-900", activePageIndex === 0 && "opacity-0 pointer-events-none")}
+                            >
+                                <ArrowLeft className="mr-2 h-4 w-4" /> Previous Page
+                            </Button>
+
+                            {!isReadingMode && (
+                                <Button
+                                    variant="outline"
+                                    onClick={handleAddPage}
+                                    className="border-stone-200 hover:bg-stone-50 text-stone-600"
+                                >
+                                    <Plus className="mr-2 h-4 w-4" /> New Page
+                                </Button>
+                            )}
+
+                            <Button
+                                variant="ghost"
+                                onClick={() => navigatePage('next')}
+                                disabled={activePageIndex === orderedPages.length - 1}
+                                className={cn("text-stone-500 hover:text-stone-900", activePageIndex === orderedPages.length - 1 && "opacity-0 pointer-events-none")}
+                            >
+                                Next Page <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                            </Button>
+                        </div>
                     </div>
                 )}
             </main>

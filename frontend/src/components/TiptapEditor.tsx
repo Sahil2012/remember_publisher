@@ -9,11 +9,14 @@ import Color from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
 import FontFamily from '@tiptap/extension-font-family';
+import TextAlign from '@tiptap/extension-text-align';
+import { LineHeight } from './tiptap/extensions/LineHeight';
 import { cn } from "@/lib/utils";
 import {
     Bold, Italic, Underline as UnderlineIcon, Strikethrough, Quote,
     List, ListOrdered, Link as LinkIcon, Image as ImageIcon,
-    Heading1, Heading2, Wand2, Plus, X
+    Heading1, Heading2, Wand2, Plus, X,
+    AlignLeft, AlignCenter, AlignRight, AlignJustify
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useState, useRef } from 'react';
@@ -57,6 +60,13 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
             Color,
             Highlight,
             FontFamily,
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+            LineHeight.configure({
+                types: ['heading', 'paragraph'],
+                defaultLineHeight: '1.5',
+            }),
             Placeholder.configure({
                 placeholder: ({ node }) => {
                     if (node.type.name === 'heading') {
@@ -203,6 +213,39 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => setFont('monospace')} className={cn("h-7 w-7 p-0 font-mono hover:bg-stone-700 hover:text-white transition-colors", editor.isActive('textStyle', { fontFamily: 'monospace' }) ? 'bg-stone-700 text-white' : 'text-stone-300')}>
                             Ag
+                        </Button>
+                    </div>
+
+                    <div className="w-px h-4 bg-stone-700 mx-1" />
+
+                    {/* Text Alignment */}
+                    <div className="flex gap-0.5">
+                        <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={cn("h-7 px-2 hover:bg-stone-700 hover:text-white transition-colors", editor.isActive({ textAlign: 'left' }) ? 'bg-stone-700 text-white' : 'text-stone-300')}>
+                            <AlignLeft className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign('center').run()} className={cn("h-7 px-2 hover:bg-stone-700 hover:text-white transition-colors", editor.isActive({ textAlign: 'center' }) ? 'bg-stone-700 text-white' : 'text-stone-300')}>
+                            <AlignCenter className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign('right').run()} className={cn("h-7 px-2 hover:bg-stone-700 hover:text-white transition-colors", editor.isActive({ textAlign: 'right' }) ? 'bg-stone-700 text-white' : 'text-stone-300')}>
+                            <AlignRight className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign('justify').run()} className={cn("h-7 px-2 hover:bg-stone-700 hover:text-white transition-colors", editor.isActive({ textAlign: 'justify' }) ? 'bg-stone-700 text-white' : 'text-stone-300')}>
+                            <AlignJustify className="w-4 h-4" />
+                        </Button>
+                    </div>
+
+                    <div className="w-px h-4 bg-stone-700 mx-1" />
+
+                    {/* Line Height */}
+                    <div className="flex gap-0.5">
+                        <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().setLineHeight('1.0').run()} className={cn("h-7 w-8 p-0 text-[10px] font-mono hover:bg-stone-700 hover:text-white transition-colors", editor.getAttributes('paragraph').lineHeight === '1.0' ? 'bg-stone-700 text-white' : 'text-stone-300')}>
+                            1.0
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().setLineHeight('1.5').run()} className={cn("h-7 w-8 p-0 text-[10px] font-mono hover:bg-stone-700 hover:text-white transition-colors", editor.getAttributes('paragraph').lineHeight === '1.5' ? 'bg-stone-700 text-white' : 'text-stone-300')}>
+                            1.5
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().setLineHeight('2.0').run()} className={cn("h-7 w-8 p-0 text-[10px] font-mono hover:bg-stone-700 hover:text-white transition-colors", editor.getAttributes('paragraph').lineHeight === '2.0' ? 'bg-stone-700 text-white' : 'text-stone-300')}>
+                            2.0
                         </Button>
                     </div>
 
