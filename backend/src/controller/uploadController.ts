@@ -3,19 +3,26 @@ import Busboy from "busboy";
 import { StorageFactory } from "../services/storage/storageFactory";
 import { BadRequestError } from "../exception/HttpError";
 
-export const uploadFileHandler = (req: Request, res: Response, next: NextFunction) => {
+import { getAuth } from "@clerk/express";
+
+export const uploadFileHandler = async (req: Request, res: Response, next: NextFunction) => {
     const busboy = Busboy({ headers: req.headers });
     const storage = StorageFactory.getProvider();
+
+    const { userId } = getAuth(req);
+    if (!userId) {
+        return next(new BadRequestError("User ID not found in request"));
+    }
 
     let isFileUploaded = false;
 
     busboy.on('file', async (name, file, info) => {
         const { filename, mimeType } = info;
-        const uniqueFilename = `${Date.now()}-${Math.round(Math.random() * 1E9)}-${filename.replace(/\s+/g, '_')}`;
+        const uniqueFilename = `${Date.now()}-${Math.round(Math.random() * 1E9)}-${filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
         try {
             // Stream the file directly to storage provider
-            const publicUrl = await storage.uploadStream(file, uniqueFilename, mimeType);
+            const publicUrl = await storage.uploadStream(file, uniqueFilename, mimeType, userId);
             isFileUploaded = true;
 
             // We only support single file upload per request for simplicity for now

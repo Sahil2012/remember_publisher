@@ -27,6 +27,10 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/chapters", chapterRoutes);
 app.use("/api/pages", pageRoutes);
 
+// Serve uploads statically
+import path from 'path';
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 app.get('/health', (req, res) => {
     res.send('Server is healthy');
 });

@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useUploadFile } from "@/api/upload/hooks";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 interface TiptapEditorProps {
     content: string;
@@ -93,6 +94,60 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                     readOnly && "pointer-events-none"
                 ),
             },
+            handleDrop: (view, event, _slice, moved) => {
+                if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+                    const file = event.dataTransfer.files[0];
+                    if (file.type.startsWith('image/')) {
+                        event.preventDefault(); // Prevent default behavior immediately
+
+                        // We need to calculate the position *before* the async operation
+                        // or just use the current selection if we can't reliably get the drop pos?
+                        // Actually, view.posAtCoords works.
+                        const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+
+                        uploadFile(file).then(url => {
+                            if (url) {
+                                const { schema } = view.state;
+                                const node = schema.nodes.image.create({ src: url });
+                                const tr = view.state.tr.insert(coordinates?.pos ?? view.state.selection.from, node);
+                                view.dispatch(tr);
+                                toast.success("Image uploaded successfully");
+                            }
+                        }).catch(err => {
+                            console.error("Failed to upload image via drop:", err);
+                            toast.error("Failed to upload image via drop: " + (err instanceof Error ? err.message : "Unknown error"));
+                        });
+
+                        return true;
+                    }
+                }
+                return false;
+            },
+            handlePaste: (view, event) => {
+                const items = Array.from(event.clipboardData?.items || []);
+                const item = items.find(item => item.type.startsWith('image'));
+
+                if (item) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        event.preventDefault();
+                        uploadFile(file).then(url => {
+                            if (url) {
+                                const { schema } = view.state;
+                                const node = schema.nodes.image.create({ src: url });
+                                const tr = view.state.tr.replaceSelectionWith(node);
+                                view.dispatch(tr);
+                                toast.success("Image uploaded successfully");
+                            }
+                        }).catch(err => {
+                            console.error("Failed to upload image via paste:", err);
+                            toast.error("Failed to upload image via paste: " + (err instanceof Error ? err.message : "Unknown error"));
+                        });
+                        return true;
+                    }
+                }
+                return false;
+            }
         },
     });
 
@@ -128,9 +183,11 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                 console.log("Image uploaded, URL:", url);
                 if (url) {
                     editor?.chain().focus().setImage({ src: url }).run();
+                    toast.success("Image uploaded successfully");
                 }
             } catch (error) {
                 console.error("Image upload failed:", error);
+                toast.error("Image upload failed: " + (error instanceof Error ? error.message : "Unknown error"));
             }
         }
         // Reset input
