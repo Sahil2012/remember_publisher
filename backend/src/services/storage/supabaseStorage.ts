@@ -14,15 +14,15 @@ export class SupabaseStorage implements IStorageProvider {
         }
 
         this.client = createClient(supabaseUrl, supabaseKey);
-        this.bucketName = "book-covers"; // User can change this or make it dynamic
+        this.bucketName = process.env.SUPABASE_BUCKET_NAME || "book-covers";
     }
 
-    async uploadStream(fileStream: NodeJS.ReadableStream, filename: string, mimeType: string): Promise<string> {
+    async uploadStream(fileStream: NodeJS.ReadableStream, filename: string, mimeType: string, userId: string): Promise<string> {
         // Supabase upload accepts ArrayBuffer, ArrayBufferView, Blob, Buffer, File, FormData, NodeJS.ReadableStream, ReadableStream, URLSearchParams, string
         // We pass the stream directly.
         const { data, error } = await this.client.storage
             .from(this.bucketName)
-            .upload(filename, fileStream, {
+            .upload(`${userId}/${filename}`, fileStream, {
                 contentType: mimeType,
                 upsert: true,
                 duplex: 'half' // Required for node streams in some fetch implementations
@@ -37,6 +37,9 @@ export class SupabaseStorage implements IStorageProvider {
         const { data: publicUrlData } = this.client.storage
             .from(this.bucketName)
             .getPublicUrl(data.path);
+
+        console.log("Supabase Upload Success:", data.path);
+        console.log("Generated Public URL:", publicUrlData.publicUrl);
 
         return publicUrlData.publicUrl;
     }
