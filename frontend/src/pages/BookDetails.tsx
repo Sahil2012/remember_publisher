@@ -81,6 +81,10 @@ export function BookDetails() {
         }
     };
 
+    const isChapterAvailable = (chapters: Chapter[]) => {
+        return chapters.filter(c => c.order != -1).length === 0;
+    }
+
 
     if (isLoading) {
         return (
@@ -176,7 +180,7 @@ export function BookDetails() {
                     </div>
 
                     <div className="grid gap-4">
-                        {(!book.chapters || book.chapters.length === 0) ? (
+                        {(!book.chapters || isChapterAvailable(book.chapters)) ? (
                             <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-foreground/10 bg-foreground/[0.02] py-16 text-center">
                                 <div className="mb-4 rounded-full bg-foreground/5 p-4">
                                     <BookOpen className="h-8 w-8 text-muted-foreground" />

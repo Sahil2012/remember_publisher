@@ -14,6 +14,11 @@ export const createBook = async (
         data: {
             ...bookData,
             userId,
+            chapters: {
+                create: [
+                    { title: 'Misc', order: -1 }
+                ]
+            }
         }
     });
     logger.info(`Book created successfully with ID: ${book.id}`);
