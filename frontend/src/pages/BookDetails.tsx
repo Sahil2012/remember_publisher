@@ -169,13 +169,25 @@ export function BookDetails() {
                 <div className="space-y-8">
                     <div className="flex items-center justify-between">
                         <h2 className="font-serif text-3xl font-medium">Chapters</h2>
-                        <Button
-                            onClick={handleAddChapter}
-                            className="rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all"
-                        >
-                            <Plus className="mr-2 h-4 w-4" />
-                            New Chapter
-                        </Button>
+                        <div className="flex items-center gap-4">
+                            {miscChapter && (
+                                <Button
+                                    onClick={() => navigate(`/book/${id}/chapter/${miscChapter.id}`)}
+                                    variant="outline"
+                                    className="rounded-full border-foreground/20 hover:bg-foreground/5 shadow-sm transition-all"
+                                >
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    Open ScratchPad
+                                </Button>
+                            )}
+                            <Button
+                                onClick={handleAddChapter}
+                                className="rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all"
+                            >
+                                <Plus className="mr-2 h-4 w-4" />
+                                New Chapter
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="grid gap-4">

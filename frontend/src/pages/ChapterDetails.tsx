@@ -282,7 +282,7 @@ export function ChapterDetails() {
 
                         {(!isReadingMode || viewMode === 'grid') && (
                             <h1 className="font-serif text-lg font-medium text-stone-800 truncate max-w-md animate-in fade-in slide-in-from-left-2">
-                                {chapter.title}
+                                {chapter.order === -1 ? 'ScratchPad' : chapter.title}
                             </h1>
                         )}
                     </div>
@@ -346,7 +346,9 @@ export function ChapterDetails() {
                         className="w-full"
                     >
                         <div className="mb-8 text-center">
-                            <h2 className="text-3xl font-serif font-medium text-stone-900">Storyboard</h2>
+                            <h2 className="text-3xl font-serif font-medium text-stone-900">
+                                {chapter.order === -1 ? 'ScratchPad Pages' : 'Storyboard'}
+                            </h2>
                             <p className="text-stone-500 mt-2">Drag to reorder pages</p>
                         </div>
 
