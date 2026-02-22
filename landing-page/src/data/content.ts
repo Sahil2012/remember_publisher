@@ -48,16 +48,16 @@ export const content = {
             icon: "BookHeart"
         },
         {
-            label: "Professional Authority",
-            title: "BUSINESS BOOK",
-            description: "Launch your authority with your book. Share your wisdom, your achievements, and create the best calling card that lasts. The ripple effect is incredible: Key note speaking engagements, consulting, endless possibilities once you are an… AUTHOR!",
-            icon: "Briefcase"
-        },
-        {
             label: "Annual Milestone",
             title: "A YEARBOOK",
             description: "Use our system to curate your, your family’s or your business’s best moments for the year. The wins, the challenges, the staff who deserve to be celebrated. What a gift to your customers, your family, your community! Digital photos get lost, but set in a beautiful book? There forever. LEGACY.",
             icon: "Calendar"
+        },
+        {
+            label: "Professional Authority",
+            title: "BUSINESS BOOK",
+            description: "Launch your authority with your book. Share your wisdom, your achievements, and create the best calling card that lasts. The ripple effect is incredible: Key note speaking engagements, consulting, endless possibilities once you are an… AUTHOR!",
+            icon: "Briefcase"
         }
     ],
     howItWorks: {

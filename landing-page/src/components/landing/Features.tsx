@@ -14,8 +14,8 @@ const iconMap: Record<string, React.ElementType> = {
 
 const imageMap: Record<number, string> = {
     0: "/life_memoir.png",
-    1: "/business-book.png",
-    2: "/yearbook.png",
+    1: "/yearbook.png",
+    2: "/business-book.png",
 };
 
 export function Features() {
