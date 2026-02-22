@@ -273,3 +273,16 @@
     height: 0;
     pointer-events: none;
 }
+
+/* Storyboard Grid Thumbnail Overrides */
+/* The layout uses pseudo-scaling (text-[10px]) instead of CSS transform: scale. */
+/* Intrinsic pixel images (e.g., 400px) will blow up to 100% width in the tiny 200px thumbnail card, */
+/* destroying the float text-wrap. Here we force them back down to behave proportionally. */
+.prose img[data-alignment="left"],
+.prose img[data-alignment="right"] {
+    max-width: 45% !important;
+}
+
+.prose img[data-alignment="center"] {
+    max-width: 100% !important;
+}

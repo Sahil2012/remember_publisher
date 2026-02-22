@@ -1,7 +1,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu, FloatingMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import { ResizableImage } from './tiptap/extensions/ResizableImage';
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import { TextStyle } from '@tiptap/extension-text-style';
@@ -46,10 +46,7 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                     levels: [1, 2, 3],
                 },
             }),
-            Image.configure({
-                inline: true,
-                allowBase64: true,
-            }),
+            ResizableImage,
             Link.configure({
                 openOnClick: false,
                 HTMLAttributes: {
@@ -219,13 +216,17 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                 accept="image/*"
             />
 
-            {/* Bubble Menu: Dark Theme (Medium Style) */}
+            {/* Bubble Menu for Text */}
             {editor && !readOnly && (
                 <BubbleMenu
                     editor={editor}
                     // @ts-ignore
                     tippyOptions={{ duration: 100, maxWidth: 600, appendTo: document.body, zIndex: 999, moveTransition: 'transform 0.2s ease-out' }}
-                    className="flex items-center gap-1 p-1 rounded-md bg-stone-900 text-stone-100 shadow-xl border border-stone-800 overflow-hidden z-50"
+                    className="flex items-center gap-1 p-1 rounded-md bg-stone-900 text-stone-100 shadow-xl border border-stone-800 overflow-hidden"
+                    shouldShow={({ state }) => {
+                        const isImageSelected = (state.selection as any).node?.type.name === 'image';
+                        return !state.selection.empty && !isImageSelected;
+                    }}
                 >
                     <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBold().run()} className={cn("h-7 px-2 hover:bg-stone-700 hover:text-white transition-colors", editor.isActive('bold') ? 'bg-stone-700 text-white' : 'text-stone-300')}>
                         <Bold className="w-4 h-4" />
@@ -305,7 +306,6 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                             2.0
                         </Button>
                     </div>
-
                 </BubbleMenu>
             )}
 
