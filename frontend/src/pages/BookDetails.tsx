@@ -21,6 +21,9 @@ export function BookDetails() {
     const isMutating = useIsMutating();
     const isGlobalLoading = isMutating > 0;
 
+    const activeChapters = book?.chapters?.filter(c => c.order !== -1).sort((a, b) => a.order - b.order) || [];
+    const miscChapter = book?.chapters?.find(c => c.order === -1);
+
     const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
     const [isDeleteChapterModalOpen, setIsDeleteChapterModalOpen] = useState(false);
     const [selectedChapter, setSelectedChapter] = useState<Chapter | undefined>(undefined);
@@ -80,10 +83,6 @@ export function BookDetails() {
             toast.error("Failed to delete chapter");
         }
     };
-
-    const isChapterAvailable = (chapters: Chapter[]) => {
-        return chapters.filter(c => c.order != -1).length === 0;
-    }
 
 
     if (isLoading) {
@@ -180,7 +179,7 @@ export function BookDetails() {
                     </div>
 
                     <div className="grid gap-4">
-                        {(!book.chapters || isChapterAvailable(book.chapters)) ? (
+                        {activeChapters.length === 0 ? (
                             <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-foreground/10 bg-foreground/[0.02] py-16 text-center">
                                 <div className="mb-4 rounded-full bg-foreground/5 p-4">
                                     <BookOpen className="h-8 w-8 text-muted-foreground" />
@@ -194,7 +193,7 @@ export function BookDetails() {
                                 </Button>
                             </div>
                         ) : (
-                            book.chapters.map((chapter: Chapter, index: number) => (
+                            activeChapters.map((chapter: Chapter, index: number) => (
                                 <motion.div
                                     key={chapter.id}
                                     initial={{ opacity: 0, y: 10 }}
