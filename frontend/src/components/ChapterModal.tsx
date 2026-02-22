@@ -91,7 +91,7 @@ export function ChapterModal({ isOpen, onClose, onSubmit, chapter, isLoading = f
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description (Optional)</label>
+                                            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Push Notes (Optional)</label>
                                             <textarea
                                                 value={description}
                                                 disabled={isLoading}

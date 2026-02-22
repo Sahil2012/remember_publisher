@@ -57,7 +57,7 @@ export function BookDetails() {
             } else {
                 await createChapter.mutateAsync({
                     bookId: id,
-                    payload: { ...chapterData, order: (book?.chapters?.length || 0) + 1 }
+                    payload: chapterData
                 });
                 toast.success("Chapter created successfully");
             }

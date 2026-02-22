@@ -7,13 +7,13 @@ export const pageSchema = z.object({
     content: z.any().optional(), // JSON content
     textContent: z.string().nullable().optional(), // Plain text representation for search/preview
     order: z.number().int().min(0).optional(),
+    chapterId: z.string().optional(),
 });
 
 export const pageUpdateSchema = pageSchema.partial();
 
 export const pageResponseSchema = pageSchema.extend({
     id: z.string(),
-    chapterId: z.string(),
     createdAt: z.date(),
     updatedAt: z.date(),
 });

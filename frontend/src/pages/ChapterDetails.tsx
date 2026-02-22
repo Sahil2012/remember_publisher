@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useChapter } from "@/api/chapters/hooks/useChapterData";
+import { useBook } from "@/api/books/hooks/useBookData";
 import { usePages } from "@/api/pages/hooks/usePageData";
-import { ArrowLeft, Plus, Eye, EyeOff, LayoutGrid, FileText, GripVertical, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Eye, EyeOff, LayoutGrid, FileText, GripVertical, Trash2, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ import { toast } from "sonner";
 import type { Page } from "@/api/books/types";
 import { TiptapEditor } from "@/components/TiptapEditor";
 import { RevampService } from "@/services/revamp";
+import { MovePageModal } from "@/components/MovePageModal";
 
 // dnd-kit imports
 import {
@@ -38,7 +40,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 
 // Sortable Page Card Component for Grid View
-function SortablePageCard({ page, index, onDelete, onClick }: { page: Page, index: number, onDelete: (id: string) => void, onClick: () => void }) {
+function SortablePageCard({ page, index, onDelete, onMove, onClick }: { page: Page, index: number, onDelete: (id: string) => void, onMove: (page: Page) => void, onClick: () => void }) {
     const {
         attributes,
         listeners,
@@ -77,18 +79,32 @@ function SortablePageCard({ page, index, onDelete, onClick }: { page: Page, inde
             {/* Actions Footer */}
             <div className="h-10 border-t border-stone-100 flex items-center justify-between px-3 bg-stone-50/50">
                 <div className="text-[10px] text-stone-400 font-medium uppercase tracking-wider">Page {index + 1}</div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-full"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(page.id);
-                    }}
-                    onPointerDown={(e) => e.stopPropagation()} // Prevent drag start when clicking delete
-                >
-                    <Trash2 className="h-3 w-3" />
-                </Button>
+                <div className="flex items-center gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-full"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onMove(page);
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()}
+                    >
+                        <ArrowRightLeft className="h-3 w-3" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-full"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(page.id);
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()} // Prevent drag start when clicking delete
+                    >
+                        <Trash2 className="h-3 w-3" />
+                    </Button>
+                </div>
             </div>
         </div>
     );
@@ -121,10 +137,15 @@ export function ChapterDetails() {
     const { data: pages, isLoading: isPagesLoading } = usePages(chapterId || "");
     const { createPage, deletePage, updatePage, reorderPages } = usePageActions();
 
+    const { data: book } = useBook(bookId || "");
+
     const [orderedPages, setOrderedPages] = useState<Page[]>([]);
     const [viewMode, setViewMode] = useState<'grid' | 'focus'>('grid');
     const [isReadingMode, setIsReadingMode] = useState(false);
     const [activePageIndex, setActivePageIndex] = useState<number>(0);
+
+    const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+    const [pageToMove, setPageToMove] = useState<Page | null>(null);
 
     // dnd-kit state
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -183,6 +204,28 @@ export function ChapterDetails() {
             id: pageId,
             payload: { textContent: newContent }
         });
+    };
+
+    const handleMovePage = (page: Page) => {
+        setPageToMove(page);
+        setIsMoveModalOpen(true);
+    };
+
+    const handleConfirmMove = async (destChapterId: string) => {
+        if (!pageToMove) return;
+        try {
+            await updatePage.mutateAsync({
+                id: pageToMove.id,
+                payload: { chapterId: destChapterId }
+            });
+            toast.success("Page moved successfully");
+            setIsMoveModalOpen(false);
+            if (viewMode === 'focus') {
+                setViewMode('grid');
+            }
+        } catch (error) {
+            toast.error("Failed to move page");
+        }
     };
 
     // dnd-kit Reorder (Grid View)
@@ -369,6 +412,7 @@ export function ChapterDetails() {
                                             page={page}
                                             index={index}
                                             onDelete={handleDeletePage}
+                                            onMove={handleMovePage}
                                             onClick={() => openPageInFocus(index)}
                                         />
                                     ))}
@@ -406,12 +450,20 @@ export function ChapterDetails() {
                         <div className="w-full flex items-center justify-between text-sm text-stone-400 font-sans px-4">
                             <span>Page {activePageIndex + 1} of {orderedPages.length}</span>
                             {!isReadingMode && (
-                                <button
-                                    onClick={() => handleDeletePage(activePage.id)}
-                                    className="text-red-400 hover:text-red-600 flex items-center gap-1 transition-colors"
-                                >
-                                    <Trash2 className="w-3 h-3" /> Delete Page
-                                </button>
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={() => handleMovePage(activePage)}
+                                        className="text-stone-400 hover:text-stone-600 flex items-center gap-1 transition-colors"
+                                    >
+                                        <ArrowRightLeft className="w-3 h-3" /> Move
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeletePage(activePage.id)}
+                                        className="text-red-400 hover:text-red-600 flex items-center gap-1 transition-colors"
+                                    >
+                                        <Trash2 className="w-3 h-3" /> Delete
+                                    </button>
+                                </div>
                             )}
                         </div>
 
@@ -487,6 +539,15 @@ export function ChapterDetails() {
                     </div>
                 )}
             </main>
+
+            <MovePageModal
+                isOpen={isMoveModalOpen}
+                onClose={() => setIsMoveModalOpen(false)}
+                onSubmit={handleConfirmMove}
+                chapters={book?.chapters || []}
+                currentChapterId={chapterId || ""}
+                isLoading={updatePage.isPending}
+            />
         </div>
     );
 }

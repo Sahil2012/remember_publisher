@@ -81,6 +81,15 @@ export const updatePage = async (
         updateData.content = Prisma.JsonNull;
     }
 
+    if (pageData.chapterId && pageData.order === undefined) {
+        const lastPage = await db.page.findFirst({
+            where: { chapterId: pageData.chapterId },
+            orderBy: { order: 'desc' },
+            select: { order: true }
+        });
+        updateData.order = (lastPage?.order ?? 0) + 1;
+    }
+
     const page = await db.page.update({
         where: {
             id: pageId,
