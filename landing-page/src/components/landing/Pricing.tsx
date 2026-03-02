@@ -16,7 +16,7 @@ export const Pricing = () => {
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 max-w-5xl mx-auto">
+                <div className="flex md:grid-cols-1 gap-x-12 gap-y-16 max-w-5xl mx-auto justify-center">
                     {pricingTiers.map((tier) => (
                         <div key={tier.name} className="flex flex-col group">
                             {/* Header */}

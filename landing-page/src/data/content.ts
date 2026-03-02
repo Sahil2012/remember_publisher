@@ -1,8 +1,8 @@
 
 export const pricingTiers = [
     {
-        name: "The Digital Edition",
-        price: "$129",
+        name: "The Legacy Collection",
+        price: "$49 per month",
         description: "Perfect for creating a timeless digital archive to share your story with friends, family, and future generations.",
         features: [
             "Bi-weekly newsletters with tips, tricks and great wisdom on how to shape your story",
@@ -11,24 +11,38 @@ export const pricingTiers = [
             "Shareable Online Link",
             "3-Month Backup Retention",
         ],
-        mostPopular: false,
+        mostPopular: true,
         cta: "Start Your Story",
     },
-    {
-        name: "The Legacy Collection",
-        price: "$599",
-        description: "The ultimate package for preserving your family history or launching your professional authority as a published author.",
-        features: [
-            "Everything in the Digital Edition",
-            "An in-depth interview session with an editor to get you started, or help with your progress",
-            "Professional Photo Restoration",
-            "An add-on choice of hard cover or soft cover book, and a small print run at a very reasonable price",
-            "Lifetime Digital Archive",
-            "And if you need it, access to a personal editor or ghostwriter, at an additional cost.",
-        ],
-        mostPopular: true,
-        cta: "Preserve Your Legacy",
-    },
+    // {
+    //     name: "The Digital Edition",
+    //     price: "$129",
+    //     description: "Perfect for creating a timeless digital archive to share your story with friends, family, and future generations.",
+    //     features: [
+    //         "Bi-weekly newsletters with tips, tricks and great wisdom on how to shape your story",
+    //         "Access to our incredible system of story recording, building, and shaping into a beautiful document",
+    //         "Digital E-Book (PDF)",
+    //         "Shareable Online Link",
+    //         "3-Month Backup Retention",
+    //     ],
+    //     mostPopular: false,
+    //     cta: "Start Your Story",
+    // },
+    // {
+    //     name: "The Legacy Collection",
+    //     price: "$599",
+    //     description: "The ultimate package for preserving your family history or launching your professional authority as a published author.",
+    //     features: [
+    //         "Everything in the Digital Edition",
+    //         "An in-depth interview session with an editor to get you started, or help with your progress",
+    //         "Professional Photo Restoration",
+    //         "An add-on choice of hard cover or soft cover book, and a small print run at a very reasonable price",
+    //         "Lifetime Digital Archive",
+    //         "And if you need it, access to a personal editor or ghostwriter, at an additional cost.",
+    //     ],
+    //     mostPopular: true,
+    //     cta: "Preserve Your Legacy",
+    // },
 ];
 
 
@@ -44,7 +58,7 @@ export const content = {
         {
             label: "Personal Legacy",
             title: "LIFE STORY/MEMOIR",
-            description: "Use our system to curate your, your family’s or your business’s best moments for the year. The wins, the challenges, the staff who deserve to be celebrated. What a gift to your customers, your family, your community! Digital photos get lost, but set in a beautiful book? There forever. LEGACY.",
+            description: "Create a book that will celebrate life, and family, and watch the excitement as they see that this treasure will be passed down generations. The process is not just life affirming, but health sustaining. It gives PURPOSE. ",
             icon: "BookHeart"
         },
         {
