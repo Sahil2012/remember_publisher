@@ -7,10 +7,10 @@ export function HowItWorks() {
     const { howItWorks } = content;
 
     return (
-        <section id="process" className="pt-24 pb-16 bg-background relative overflow-hidden">
+        <section id="process" className="py-16 md:py-20 bg-background relative overflow-hidden">
             <div className="container px-6 md:px-8 mx-auto max-w-6xl relative z-10">
 
-                <div className="text-center mb-24">
+                <div className="text-center mb-14 md:mb-16">
                     <span className="text-sm font-sans font-semibold tracking-widest uppercase text-muted-foreground mb-4 block">
                         The Process
                     </span>
@@ -19,7 +19,7 @@ export function HowItWorks() {
                     </h2>
                 </div>
 
-                <div className="space-y-24 md:space-y-32 relative">
+                <div className="space-y-16 md:space-y-20 relative">
                     {howItWorks.steps.map((item, index) => {
                         const isEven = index % 2 === 0;
 

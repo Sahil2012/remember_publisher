@@ -8,12 +8,12 @@ export function Testimonials() {
     const { testimonials } = content;
 
     return (
-        <section id="stories" className="py-32 bg-secondary/5 relative overflow-hidden">
+        <section id="stories" className="py-16 md:py-20 bg-secondary/5 relative overflow-hidden">
             {/* Elegant Background Pattern */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply"></div>
 
             <div className="container px-6 md:px-8 mx-auto max-w-7xl relative z-10">
-                <div className="mb-24 text-center max-w-3xl mx-auto">
+                <div className="mb-14 md:mb-16 text-center max-w-3xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -39,7 +39,7 @@ export function Testimonials() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, delay: index * 0.2 }}
-                            className={`relative group bg-background p-10 rounded-[2rem] shadow-sm border border-border/40 hover:shadow-md transition-shadow duration-500 ${index % 2 === 1 ? 'md:mt-24' : ''
+                            className={`relative group bg-background p-10 rounded-[2rem] shadow-sm border border-border/40 hover:shadow-md transition-shadow duration-500 ${index % 2 === 1 ? 'md:mt-12' : ''
                                 }`}
                         >
                             {/* Decorative Quote Mark */}

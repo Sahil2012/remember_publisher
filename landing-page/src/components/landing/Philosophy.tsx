@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export function Philosophy() {
     return (
-        <section className="py-24 md:py-32 bg-foreground text-background relative overflow-hidden">
+        <section className="py-16 md:py-20 bg-foreground text-background relative overflow-hidden">
             {/* Subtle Texture / Gradient for depth */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-luxury-gold via-background to-background pointer-events-none" />
 

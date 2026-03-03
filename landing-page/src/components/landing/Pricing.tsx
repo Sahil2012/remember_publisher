@@ -5,17 +5,17 @@ import { Button } from "@/components/ui/button";
 
 export const Pricing = () => {
     return (
-        <section id="pricing" className="py-24 bg-background border-t border-border/40">
+        <section id="pricing" className="py-16 md:py-20 bg-background border-t border-border/40">
             <div className="container px-4 md:px-6 mx-auto">
-                <div className="flex flex-col items-center justify-center space-y-4 text-center mb-24">
+                <div className="flex flex-col items-center justify-center space-y-4 text-center mb-14 md:mb-16">
                     <span className="text-sm font-sans font-medium tracking-widest uppercase text-muted-foreground/60">
                         Editions
                     </span>
                     <h2 className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-foreground">
-                        Invest in Your Legacy
+                        Create Your Legacy
                     </h2>
                     <p className="text-sm md:text-base font-sans text-muted-foreground max-w-2xl leading-relaxed">
-                        Start your trial now and get <span className="text-luxury-gold font-medium">12 months of subscription at the cost of 6 months</span>.
+                        <span className="text-luxury-gold font-medium">$49 per month</span> or save and get <span className="text-luxury-gold font-medium">12 months’ subscription for just $294</span>. Get 6 months free access and enjoy the process without pressure.
                     </p>
                 </div>
 

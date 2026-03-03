@@ -74,7 +74,7 @@ export function Stories() {
     const { stories } = content;
 
     return (
-        <section id="stories" className="py-24 bg-muted/30 relative overflow-hidden">
+        <section id="stories" className="py-16 md:py-20 bg-muted/30 relative overflow-hidden">
             <div className="container px-6 md:px-8 mx-auto max-w-7xl relative z-10">
 
                 <div className="text-center mb-20">

@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export function QRSection() {
     return (
-        <section className="py-24 md:py-32 bg-background text-foreground relative overflow-hidden">
+        <section className="py-16 md:py-20 bg-background text-foreground relative overflow-hidden">
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-luxury-gold via-transparent to-transparent pointer-events-none" />
 
             <div className="container px-6 md:px-8 mx-auto max-w-5xl relative z-10">

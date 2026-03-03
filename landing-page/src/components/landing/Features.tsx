@@ -22,11 +22,11 @@ export function Features() {
     const { offerings } = content;
 
     return (
-        <section id="offerings" className="pt-16 pb-24 bg-background overflow-hidden scroll-mt-12">
+        <section id="offerings" className="py-16 md:py-20 bg-background overflow-hidden scroll-mt-12">
             <div className="container px-6 md:px-8 mx-auto max-w-7xl">
 
                 {/* Section Header */}
-                <div className="mb-12 md:mb-24 text-center max-w-3xl mx-auto">
+                <div className="mb-10 md:mb-14 text-center max-w-3xl mx-auto">
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -49,7 +49,7 @@ export function Features() {
                 </div>
 
                 {/* Offerings Zig-Zag Layout */}
-                <div className="space-y-24 md:space-y-24">
+                <div className="space-y-16 md:space-y-20">
                     {offerings.map((offer, index) => {
                         const Icon = iconMap[offer.icon] || BookHeart;
                         const isEven = index % 2 === 0;
@@ -57,7 +57,7 @@ export function Features() {
                         return (
                             <div
                                 key={index}
-                                className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12 md:gap-24`}
+                                className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-10 md:gap-14`}
                             >
                                 {/* Content Side */}
                                 <motion.div
