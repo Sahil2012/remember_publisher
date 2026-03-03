@@ -4,6 +4,7 @@ import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Philosophy } from "@/components/landing/Philosophy";
+import { QRSection } from "@/components/landing/QRSection";
 import { Stories } from "@/components/landing/Stories";
 import { Testimonials } from "@/components/landing/Testimonials";
 import { Pricing } from "@/components/landing/Pricing";
@@ -19,6 +20,7 @@ export default function Home() {
       <Features />
       <HowItWorks />
       <Philosophy />
+      <QRSection />
       <Stories />
       <Testimonials />
       <Pricing />
