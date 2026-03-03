@@ -14,6 +14,9 @@ export const Pricing = () => {
                     <h2 className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-foreground">
                         Invest in Your Legacy
                     </h2>
+                    <p className="text-sm md:text-base font-sans text-muted-foreground max-w-2xl leading-relaxed">
+                        Start your trial now and get <span className="text-luxury-gold font-medium">12 months of subscription at the cost of 6 months</span>.
+                    </p>
                 </div>
 
                 <div className="flex md:grid-cols-1 gap-x-12 gap-y-16 max-w-5xl mx-auto justify-center">
