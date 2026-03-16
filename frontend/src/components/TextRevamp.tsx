@@ -9,7 +9,7 @@ import { TiptapEditor } from "./TiptapEditor";
 import { CategorySelector, type Category } from "./CategorySelector";
 import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
 
-import { RevampService } from "@/services/revamp";
+import { useRevampText } from "@/api/revamp/hooks";
 
 const LOADING_MESSAGES = [
     "Analyzing your tone...",
@@ -58,6 +58,8 @@ export function TextRevamp() {
     const [showOutput, setShowOutput] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    const revampMutation = useRevampText();
+
     // Get active tones based on category
     const activeTones = selectedCategory === "Memoir" ? MEMOIR_TONES : BUSINESS_TONES;
 
@@ -73,7 +75,10 @@ export function TextRevamp() {
         setShowOutput(false);
 
         try {
-            const result = await RevampService.revampText(inputText, selectedTone, selectedCategory);
+            const result = await revampMutation.mutateAsync({
+                bookId: bookId || "",
+                payload: { text: inputText, tone: selectedTone, category: selectedCategory }
+            });
             setOutputText(result);
             setShowOutput(true);
         } catch (error) {
@@ -146,6 +151,7 @@ export function TextRevamp() {
                                     onChange={setInputText}
                                     placeholder="Start typing or paste your content here..."
                                     className="h-full min-h-[400px]"
+                                    bookId={bookId || ""}
                                 />
 
                                 {/* Floating Gradient Border Effect on Focus */}
@@ -225,6 +231,7 @@ export function TextRevamp() {
                                             onChange={setOutputText}
                                             readOnly={false}
                                             className="h-full"
+                                            bookId={bookId || ""}
                                         />
                                     </motion.div>
                                 ) : (

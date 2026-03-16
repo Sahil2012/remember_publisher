@@ -23,6 +23,10 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import { useUploadFile } from "@/api/upload/hooks";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useRevampText } from "@/api/revamp/hooks";
+import { ToneSelector } from "./ToneSelector";
+import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
+import { Loader2 } from "lucide-react";
 
 interface TiptapEditorProps {
     content: string;
@@ -32,12 +36,68 @@ interface TiptapEditorProps {
     placeholder?: string;
     onRevamp?: () => void;
     onBlur?: () => void;
+    category?: "Memoir" | "Business";
+    bookId: string;
 }
 
-export function TiptapEditor({ content, onChange, readOnly = false, className, placeholder = "Start writing...", onRevamp, onBlur }: TiptapEditorProps) {
+export function TiptapEditor({ content, onChange, readOnly = false, className, placeholder = "Start writing...", onRevamp, onBlur, category = "Memoir", bookId }: TiptapEditorProps) {
     const { mutateAsync: uploadFile } = useUploadFile();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [isRewriting, setIsRewriting] = useState(false);
+    const [showToneSelector, setShowToneSelector] = useState(false);
+    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+    const revampMutation = useRevampText();
+
+    const LOADING_MESSAGES = [
+        "Crafting your words...",
+        "Consulting the muse...",
+        "Polishing the prose...",
+        "Sprinkling some magic...",
+    ];
+
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval>;
+        if (isRewriting) {
+            interval = setInterval(() => {
+                setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+            }, 2000);
+        }
+        return () => clearInterval(interval);
+    }, [isRewriting]);
+
+    const handleInlineRewrite = async (toneId: string) => {
+        if (!editor) return;
+        const selectedText = editor.state.doc.textBetween(
+            editor.state.selection.from,
+            editor.state.selection.to,
+            " "
+        );
+        if (!selectedText) {
+            toast.error("Please select some text first.");
+            return;
+        }
+
+        setIsRewriting(true);
+        setShowToneSelector(false);
+        try {
+            const revampedText = await revampMutation.mutateAsync({
+                bookId,
+                payload: { text: selectedText, tone: toneId, category: category || "Memoir" }
+            });
+            // Replace the selected content
+            editor.chain().focus().insertContent(revampedText).run();
+            // Trigger onChange so the parent explicitly receives the new HTML
+            onChange(editor.getHTML());
+            toast.success("Text rewritten successfully");
+        } catch (error) {
+            console.error("Rewrite failed:", error);
+            toast.error("Failed to rewrite text");
+        } finally {
+            setIsRewriting(false);
+        }
+    };
 
     const editor = useEditor({
         extensions: [
@@ -217,17 +277,54 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
             />
 
             {/* Bubble Menu for Text */}
-            {editor && !readOnly && (
+            {editor && !readOnly && !isRewriting && (
                 <BubbleMenu
                     editor={editor}
                     // @ts-ignore
-                    tippyOptions={{ duration: 100, maxWidth: 600, appendTo: document.body, zIndex: 999, moveTransition: 'transform 0.2s ease-out' }}
-                    className="flex items-center gap-1 p-1 rounded-md bg-stone-900 text-stone-100 shadow-xl border border-stone-800 overflow-hidden"
+                    tippyOptions={{ duration: 100, maxWidth: 600, appendTo: document.body, zIndex: 40, moveTransition: 'transform 0.2s ease-out' }}
+                    className="flex items-center gap-1 p-1 rounded-md bg-stone-900 text-stone-100 shadow-xl border border-stone-800"
                     shouldShow={({ state }) => {
                         const isImageSelected = (state.selection as any).node?.type.name === 'image';
+                        if (showToneSelector) return true;
                         return !state.selection.empty && !isImageSelected;
                     }}
                 >
+                    <div className="relative flex items-center">
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setShowToneSelector(!showToneSelector)} 
+                            className={cn("h-7 px-2 hover:bg-luxury-gold/20 hover:text-luxury-gold transition-colors text-luxury-gold", showToneSelector && "bg-luxury-gold/20")}
+                            title="Rewrite Text"
+                        >
+                            <Wand2 className="w-4 h-4" />
+                        </Button>
+                        
+                        <AnimatePresence>
+                            {showToneSelector && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute bottom-[130%] mb-2 bg-white border border-stone-200 p-3 rounded-xl shadow-2xl z-[9999] w-[300px] sm:w-[340px] left-0 origin-bottom-left cursor-default text-stone-900 flex flex-col gap-2"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <div className="text-[10px] text-stone-500 mb-2 font-bold uppercase tracking-wider flex justify-between items-center">
+                                        <span>Rewrite selected text</span>
+                                        <button onClick={(e) => { e.stopPropagation(); setShowToneSelector(false); }} className="text-stone-400 hover:text-stone-600 rounded-full hover:bg-stone-100 p-1"><X className="w-3 h-3"/></button>
+                                    </div>
+                                    <ToneSelector
+                                        selectedTone=""
+                                        onSelect={(tone) => handleInlineRewrite(tone)}
+                                        tones={category === "Business" ? BUSINESS_TONES : MEMOIR_TONES}
+                                    />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    <div className="w-px h-4 bg-stone-700 mx-1" />
+
                     <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBold().run()} className={cn("h-7 px-2 hover:bg-stone-700 hover:text-white transition-colors", editor.isActive('bold') ? 'bg-stone-700 text-white' : 'text-stone-300')}>
                         <Bold className="w-4 h-4" />
                     </Button>
@@ -310,7 +407,7 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
             )}
 
             {/* Floating Menu: Expandable (+ Button) */}
-            {editor && !readOnly && (
+            {editor && !readOnly && !isRewriting && (
                 <FloatingMenu
                     editor={editor}
                     // @ts-ignore
@@ -390,6 +487,21 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                         </AnimatePresence>
                     </div>
                 </FloatingMenu>
+            )}
+
+            {isRewriting && (
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[2px] rounded-md pointer-events-auto">
+                    <Loader2 className="h-8 w-8 text-luxury-gold animate-spin mb-4" />
+                    <motion.p
+                        key={loadingMessageIndex}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        className="text-sm font-medium text-stone-600 font-serif italic"
+                    >
+                        {LOADING_MESSAGES[loadingMessageIndex]}
+                    </motion.p>
+                </div>
             )}
 
             <EditorContent editor={editor} className="min-h-[300px]" />

@@ -12,7 +12,7 @@ import { usePageActions } from "@/api/pages/hooks/usePageActions";
 import { toast } from "sonner";
 import type { Page } from "@/api/books/types";
 import { TiptapEditor } from "@/components/TiptapEditor";
-import { RevampService } from "@/services/revamp";
+import { useRevampText } from "@/api/revamp/hooks";
 import { MovePageModal } from "@/components/MovePageModal";
 
 // dnd-kit imports
@@ -501,6 +501,8 @@ export function ChapterDetails() {
                                         page={activePage}
                                         onUpdate={(content) => handleUpdatePageContent(activePage.id, content)}
                                         readOnly={isReadingMode}
+                                        category={book?.category as "Memoir" | "Business"}
+                                        bookId={bookId || ""}
                                     />
                                 </div>
                             </div>
@@ -552,9 +554,10 @@ export function ChapterDetails() {
     );
 }
 
-function PageEditor({ page, onUpdate, readOnly }: { page: Page, onUpdate: (content: string) => void, readOnly?: boolean }) {
+function PageEditor({ page, onUpdate, readOnly, category, bookId }: { page: Page, onUpdate: (content: string) => void, readOnly?: boolean, category?: "Memoir" | "Business", bookId: string }) {
     const [content, setContent] = useState(page.textContent || "");
     const [isRevamping, setIsRevamping] = useState(false);
+    const revampMutation = useRevampText();
 
     useEffect(() => {
         setContent(page.textContent || "");
@@ -564,9 +567,14 @@ function PageEditor({ page, onUpdate, readOnly }: { page: Page, onUpdate: (conte
         setIsRevamping(true);
         toast.info("Polishing your text with AI...", { duration: 2000 });
         try {
-            // Basic revamp call - defaulting to standard/memoir for now
-            const result = await RevampService.revampText(content, "Standard", "Memoir");
+            // Basic revamp call
+            const result = await revampMutation.mutateAsync({
+                bookId,
+                payload: { text: content, tone: "Standard", category: category || "Memoir" }
+            });
+            // Update local state first to feel instantaneous
             setContent(result);
+            // Fire the update to the backend, which will invalidate the query
             onUpdate(result);
             toast.success("Text revamped successfully!");
         } catch (error) {
@@ -581,6 +589,8 @@ function PageEditor({ page, onUpdate, readOnly }: { page: Page, onUpdate: (conte
         <TiptapEditor
             content={content}
             onChange={setContent}
+            category={category}
+            bookId={bookId}
             onBlur={() => {
                 if (content !== page.textContent && !readOnly) {
                     onUpdate(content);
