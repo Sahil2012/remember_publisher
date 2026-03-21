@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@clerk/express": "^1.7.67",
+    "@deepgram/sdk": "^5.0.0",
     "@google/generative-ai": "^0.24.1",
     "@langchain/google-genai": "^2.1.2",
     "@prisma/client": "^6.17.1",
@@ -26,6 +27,7 @@
     "morgan": "^1.10.1",
     "svix": "^1.84.1",
     "winston": "^3.19.0",
+    "ws": "^8.19.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {
@@ -34,6 +36,7 @@
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.0.3",
+    "@types/ws": "^8.18.1",
     "nodemon": "^3.1.11",
     "prisma": "^6.16.3",
     "ts-node": "^10.9.2",

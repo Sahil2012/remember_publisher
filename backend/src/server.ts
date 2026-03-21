@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { configDotenv } from 'dotenv';
+import http from 'http';
+import { setupWebSocket } from './websocket.js';
 import authRoutes from './routes/authRoutes.js';
 import morganMiddleware from './middleware/loggerCollector.js';
 import { clerkMiddleware } from '@clerk/express';
@@ -40,7 +42,10 @@ app.use(notFoundHandler);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+setupWebSocket(server);
+
+server.listen(PORT, () => {
     try {
         console.log(`Server is running on port ${PORT}`);
     } catch (error) {
