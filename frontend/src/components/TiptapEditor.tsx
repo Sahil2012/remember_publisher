@@ -27,6 +27,8 @@ import { useRevampText } from "@/api/revamp/hooks";
 import { ToneSelector } from "./ToneSelector";
 import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
 import { Loader2 } from "lucide-react";
+import { useDictation } from "../hooks/useDictation";
+import { DictationOverlay } from "./DictationOverlay";
 
 interface TiptapEditorProps {
     content: string;
@@ -49,6 +51,21 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
     const [showToneSelector, setShowToneSelector] = useState(false);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
     const revampMutation = useRevampText();
+
+    const [interimText, setInterimText] = useState("");
+    const { 
+        isRecording, isPaused, errorState, 
+        startRecording, pauseRecording, resumeRecording, stopRecording 
+    } = useDictation(
+        (transientText) => { setInterimText(transientText); },
+        (finalText) => {
+            if (editor) {
+                setInterimText("");
+                editor.chain().focus().insertContent(`${finalText} `).run();
+                onChange(editor.getHTML());
+            }
+        }
+    );
 
     const LOADING_MESSAGES = [
         "Crafting your words...",
@@ -502,6 +519,19 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                         {LOADING_MESSAGES[loadingMessageIndex]}
                     </motion.p>
                 </div>
+            )}
+
+            {!readOnly && (
+                <DictationOverlay 
+                    isRecording={isRecording}
+                    isPaused={isPaused}
+                    errorState={errorState}
+                    interimText={interimText}
+                    onStart={startRecording}
+                    onPause={pauseRecording}
+                    onResume={resumeRecording}
+                    onStop={stopRecording}
+                />
             )}
 
             <EditorContent editor={editor} className="min-h-[300px]" />
