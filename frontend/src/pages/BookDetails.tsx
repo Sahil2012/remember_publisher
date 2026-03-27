@@ -8,9 +8,11 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ChapterModal } from "@/components/ChapterModal";
 import { DeleteChapterModal } from "@/components/DeleteChapterModal";
+import { ExportBookModal } from "@/components/ExportBookModal";
 import { useChapterActions } from "@/api/chapters/hooks/useChapterActions";
 import type { Chapter } from "@/api/books/types";
 import { toast } from "sonner";
+import { Download } from "lucide-react";
 import { useIsMutating } from "@tanstack/react-query";
 
 export function BookDetails() {
@@ -26,6 +28,7 @@ export function BookDetails() {
 
     const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
     const [isDeleteChapterModalOpen, setIsDeleteChapterModalOpen] = useState(false);
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const [selectedChapter, setSelectedChapter] = useState<Chapter | undefined>(undefined);
 
     const handleAddChapter = () => {
@@ -152,7 +155,7 @@ export function BookDetails() {
                             {book.description || "No description provided."}
                         </p>
 
-                        <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+                        <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-8">
                             <div className="flex items-center gap-2">
                                 <FileText className="h-4 w-4" />
                                 <span>{book.chapters?.length || 0} Chapters</span>
@@ -161,6 +164,16 @@ export function BookDetails() {
                                 <Clock className="h-4 w-4" />
                                 <span>Updated {new Date(book.updatedAt).toLocaleDateString()}</span>
                             </div>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <Button 
+                                onClick={() => setIsExportModalOpen(true)}
+                                className="bg-luxury-gold text-white hover:bg-[#B9935A] shadow-lg hover:shadow-xl font-medium px-8 transition-all"
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                Export Book to PDF
+                            </Button>
                         </div>
                     </motion.div>
                 </div>
@@ -271,6 +284,12 @@ export function BookDetails() {
                 onConfirm={handleConfirmDeleteChapter}
                 chapter={selectedChapter}
                 isLoading={isGlobalLoading}
+            />
+
+            <ExportBookModal
+                isOpen={isExportModalOpen}
+                onClose={() => setIsExportModalOpen(false)}
+                book={book}
             />
         </div>
     );
