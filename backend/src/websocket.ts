@@ -35,6 +35,8 @@ export function setupWebSocket(server: http.Server) {
                 language: 'en',
                 smart_format: "true",
                 interim_results: "true",
+                dictation: "true",
+                punctuate: "true",
             });
 
             const preBuffer: Buffer[] = [];

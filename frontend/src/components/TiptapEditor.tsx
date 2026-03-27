@@ -62,7 +62,41 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
         (finalText) => {
             if (editor) {
                 setInterimText("");
-                editor.chain().focus().insertContent(`${finalText} `).run();
+                
+                let textToInsert = finalText;
+                let htmlToInsert = textToInsert;
+                let triggerBreak = false;
+
+                // Deepgram dictation literals fallback (sometimes outputted with dictation:true)
+                htmlToInsert = htmlToInsert.replace(/<\\n\\n>/g, '<p></p>');
+                htmlToInsert = htmlToInsert.replace(/<\n\n>/g, '<p></p>');
+                htmlToInsert = htmlToInsert.replace(/<\\n>/g, '<br>');
+                htmlToInsert = htmlToInsert.replace(/<\n>/g, '<br>');
+                htmlToInsert = htmlToInsert.replace(/<period>/g, '.');
+                htmlToInsert = htmlToInsert.replace(/<comma>/g, ',');
+                htmlToInsert = htmlToInsert.replace(/<question_mark>/g, '?');
+
+                // Conversational paragraph commands at the end of the phrase
+                const paragraphRegex = /(?:\s+)?(?:let'?s\s+(?:do|start|create|make)\s+a\s+new\s+paragraph|let'?s\s+(?:break|break\s+down)\s+this\s+paragraph|enter\s+(?:into\s+)?(?:the\s+)?next\s+line|new\s+paragraph|next\s+paragraph|next\s+line)\s*\.?$/i;
+
+                if (paragraphRegex.test(htmlToInsert)) {
+                    htmlToInsert = htmlToInsert.replace(paragraphRegex, '') + '<p></p>';
+                }
+                
+                // Conversational punctuation fallback
+                const fullStopRegex = /\s*(?:full\s+stop|period)\s*$/i;
+                if (fullStopRegex.test(htmlToInsert)) {
+                    htmlToInsert = htmlToInsert.replace(fullStopRegex, '.');
+                }
+
+                if (htmlToInsert.includes('\n\n')) {
+                    htmlToInsert = htmlToInsert.replace(/\n\n/g, '<p></p>');
+                }
+
+                if (htmlToInsert.trim().length > 0) {
+                    editor.chain().focus().insertContent(`${htmlToInsert} `).run();
+                }
+
                 onChange(editor.getHTML());
             }
         }
