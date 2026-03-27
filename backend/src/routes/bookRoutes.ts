@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/requireAuth";
 import { ensureUserExists, resolveUser } from "../middleware/resolveUser";
-import { createBookHandler, deleteBookHandler, fetchBookHandler, fetchBooksHandler, updateBookHandler } from "../controller/bookController";
+import { createBookHandler, deleteBookHandler, fetchBookHandler, fetchBooksHandler, updateBookHandler, fetchFullBookHandler } from "../controller/bookController";
 import { validate } from "../middleware/schemaValidator";
 import { bookSchema } from "../schema/bookSchema";
 import z from "zod";
@@ -17,6 +17,9 @@ bookRoutes.get("/", requireAuth, ensureUserExists, resolveUser, fetchBooksHandle
 
 // GET /books/:id
 bookRoutes.get("/:id", requireAuth, resolveUser, validate({ params: z.object({ id: z.uuid() }) }), fetchBookHandler);
+
+// GET /books/:id/full
+bookRoutes.get("/:id/full", requireAuth, resolveUser, validate({ params: z.object({ id: z.uuid() }) }), fetchFullBookHandler);
 
 // PATCH /books/:id
 bookRoutes.patch("/:id", requireAuth, resolveUser, validate({ params: z.object({ id: z.uuid() }), body: bookSchema }), updateBookHandler);

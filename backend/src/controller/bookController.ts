@@ -38,6 +38,31 @@ export const fetchBookHandler = async (
     return res.status(200).json(book);
 }
 
+export const fetchFullBookHandler = async (
+    req: Request<{ userId: string, id: string }, unknown, unknown>,
+    res: Response,
+    next: NextFunction
+) => {
+    // @ts-ignore
+    const book = await prisma.book.findFirst({
+        where: { id: req.params.id, userId: req.user?.id },
+        include: {
+            chapters: {
+                where: { order: { gte: 0 } },
+                orderBy: { order: 'asc' },
+                include: {
+                    pages: { orderBy: { order: 'asc' } }
+                }
+            }
+        }
+    });
+
+    if (!book) {
+        throw new NotFoundError("Book not found");
+    }
+    return res.status(200).json(book);
+}
+
 // PATCH /books/:id
 export const updateBookHandler = async (
     req: Request<{ userId: string, id: string }, unknown, BookUpdateRequest>,
