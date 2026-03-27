@@ -467,6 +467,8 @@ export function ChapterDetails() {
                             )}
                         </div>
 
+                        <div id="ai-toolbar-portal" className="w-full relative z-[60] mb-2" />
+
                         <motion.div
                             key={activePage.id}
                             initial={{ opacity: 0, y: 10 }}

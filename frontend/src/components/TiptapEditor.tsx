@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useState, useRef } from 'react';
+import { createPortal } from "react-dom";
 import { useUploadFile } from "@/api/upload/hooks";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -28,7 +29,7 @@ import { ToneSelector } from "./ToneSelector";
 import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
 import { Loader2 } from "lucide-react";
 import { useDictation } from "../hooks/useDictation";
-import { DictationOverlay } from "./DictationOverlay";
+import { GlobalAIToolbar } from "./GlobalAIToolbar";
 
 interface TiptapEditorProps {
     content: string;
@@ -97,7 +98,6 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
         }
 
         setIsRewriting(true);
-        setShowToneSelector(false);
         try {
             const revampedText = await revampMutation.mutateAsync({
                 bookId,
@@ -279,19 +279,48 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
         editor?.chain().focus().setFontFamily(font).run();
     };
 
+    const [portalDest, setPortalDest] = useState<HTMLElement | null>(null);
+
+    useEffect(() => {
+        // Find the portal destination on mount (after DOM is ready)
+        const dest = document.getElementById("ai-toolbar-portal");
+        if (dest) setPortalDest(dest);
+    }, []);
+
     if (!editor) {
         return null;
     }
 
+    const toolbarEl = !readOnly && (
+        <GlobalAIToolbar 
+            editor={editor}
+            isRecording={isRecording}
+            isPaused={isPaused}
+            errorState={errorState}
+            interimText={interimText}
+            showToneSelector={showToneSelector}
+            setShowToneSelector={setShowToneSelector}
+            onStartDictation={startRecording}
+            onPauseDictation={pauseRecording}
+            onResumeDictation={resumeRecording}
+            onStopDictation={stopRecording}
+            onRewriteSelect={handleInlineRewrite}
+            category={category}
+        />
+    );
+
     return (
-        <div className={cn("relative w-full group", className)}>
-            <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageUpload}
-                className="hidden"
-                accept="image/*"
-            />
+        <div className="flex flex-col w-full h-full relative">
+            {portalDest && createPortal(toolbarEl, portalDest)}
+            
+            <div className={cn("relative w-full group flex-col flex", className)}>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    accept="image/*"
+                />
 
             {/* Bubble Menu for Text */}
             {editor && !readOnly && !isRewriting && (
@@ -302,46 +331,9 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                     className="flex items-center gap-1 p-1 rounded-md bg-stone-900 text-stone-100 shadow-xl border border-stone-800"
                     shouldShow={({ state }) => {
                         const isImageSelected = (state.selection as any).node?.type.name === 'image';
-                        if (showToneSelector) return true;
                         return !state.selection.empty && !isImageSelected;
                     }}
                 >
-                    <div className="relative flex items-center">
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setShowToneSelector(!showToneSelector)} 
-                            className={cn("h-7 px-2 hover:bg-luxury-gold/20 hover:text-luxury-gold transition-colors text-luxury-gold", showToneSelector && "bg-luxury-gold/20")}
-                            title="Rewrite Text"
-                        >
-                            <Wand2 className="w-4 h-4" />
-                        </Button>
-                        
-                        <AnimatePresence>
-                            {showToneSelector && (
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    className="absolute bottom-[130%] mb-2 bg-white border border-stone-200 p-3 rounded-xl shadow-2xl z-[9999] w-[300px] sm:w-[340px] left-0 origin-bottom-left cursor-default text-stone-900 flex flex-col gap-2"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <div className="text-[10px] text-stone-500 mb-2 font-bold uppercase tracking-wider flex justify-between items-center">
-                                        <span>Rewrite selected text</span>
-                                        <button onClick={(e) => { e.stopPropagation(); setShowToneSelector(false); }} className="text-stone-400 hover:text-stone-600 rounded-full hover:bg-stone-100 p-1"><X className="w-3 h-3"/></button>
-                                    </div>
-                                    <ToneSelector
-                                        selectedTone=""
-                                        onSelect={(tone) => handleInlineRewrite(tone)}
-                                        tones={category === "Business" ? BUSINESS_TONES : MEMOIR_TONES}
-                                    />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-
-                    <div className="w-px h-4 bg-stone-700 mx-1" />
-
                     <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBold().run()} className={cn("h-7 px-2 hover:bg-stone-700 hover:text-white transition-colors", editor.isActive('bold') ? 'bg-stone-700 text-white' : 'text-stone-300')}>
                         <Bold className="w-4 h-4" />
                     </Button>
@@ -521,20 +513,8 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                 </div>
             )}
 
-            {!readOnly && (
-                <DictationOverlay 
-                    isRecording={isRecording}
-                    isPaused={isPaused}
-                    errorState={errorState}
-                    interimText={interimText}
-                    onStart={startRecording}
-                    onPause={pauseRecording}
-                    onResume={resumeRecording}
-                    onStop={stopRecording}
-                />
-            )}
-
             <EditorContent editor={editor} className="min-h-[300px]" />
+        </div>
         </div>
     );
 }
