@@ -35,6 +35,15 @@ export const getBooksByUserId = async (
         where: {
             userId,
         },
+        include: {
+            _count: {
+                select: {
+                    chapters: {
+                        where: { order: { gte: 0 } }
+                    }
+                }
+            }
+        }
     });
     logger.info(`Fetched ${books.length} books for user: ${userId}`);
     return books;

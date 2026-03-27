@@ -79,7 +79,7 @@ export function Dashboard() {
             id: book.id,
             title: book.title,
             lastEdited: new Date(book.updatedAt).toLocaleDateString(), // Simple formatting
-            wordCount: 0, // Not supported by API yet
+            chapterCount: book._count?.chapters || 0,
             coverColor: book.coverColor || "#e7e5e4", // Default or random
             coverImage: book.coverImage
         };

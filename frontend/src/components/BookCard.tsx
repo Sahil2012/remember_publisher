@@ -7,7 +7,7 @@ export interface Book {
     id: string;
     title: string;
     lastEdited: string;
-    wordCount: number;
+    chapterCount: number;
     coverColor?: string;
     coverImage?: string | null;
 }
@@ -96,7 +96,7 @@ export function BookCard({ book, onClick, onEdit, onDelete }: BookCardProps) {
                         <span>{book.lastEdited}</span>
                     </div>
                     <span className="font-medium bg-foreground/5 px-2 py-0.5 rounded-full">
-                        {book.wordCount} words
+                        {book.chapterCount} {book.chapterCount === 1 ? 'chapter' : 'chapters'}
                     </span>
                 </div>
             </div>

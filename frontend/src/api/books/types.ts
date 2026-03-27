@@ -29,7 +29,9 @@ export interface Book {
     category?: "MEMOIR" | "BUSINESS" | "YEARBOOK" | "OTHER" | "Memoir" | "Business";
     status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     userId: string;
-    wordCount?: number;
+    _count?: {
+        chapters: number;
+    };
     createdAt: string;
     updatedAt: string;
     chapters: Chapter[];
