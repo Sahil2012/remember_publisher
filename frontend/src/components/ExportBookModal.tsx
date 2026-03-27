@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, FileText, CheckCircle2, Loader2, Download, Image as ImageIcon, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Book } from "@/api/books/types";
+import { useAPIClient } from "@/api/useAPIClient";
+import { useReactToPrint } from "react-to-print";
 
 interface ExportBookModalProps {
     isOpen: boolean;
@@ -13,12 +15,26 @@ interface ExportBookModalProps {
 }
 
 export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps) {
+    const apiClient = useAPIClient();
+
     const [includeCover, setIncludeCover] = useState(true);
     const [includeToc, setIncludeToc] = useState(true);
     const [includeNumbers, setIncludeNumbers] = useState(true);
 
     const [isExporting, setIsExporting] = useState(false);
     const [exportStep, setExportStep] = useState(0);
+    
+    const [fullBookData, setFullBookData] = useState<any>(null);
+    const printRef = useRef<HTMLDivElement>(null);
+
+    const reactToPrintFn = useReactToPrint({
+        contentRef: printRef,
+        documentTitle: book.title ? `${book.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}` : 'Book_Export',
+        onAfterPrint: () => {
+            toast.success("PDF exported successfully!");
+            onClose();
+        }
+    });
 
     const exportSteps = [
         "Preparing manuscript data...",
@@ -45,20 +61,33 @@ export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps)
         setIsExporting(true);
         setExportStep(0);
 
-        // Simulation mock for the UI/UX. We will replace this with the real backend call in the next step.
-        // The real backend call will take 3-5 seconds depending on the book size.
-        for (let i = 0; i < exportSteps.length; i++) {
-            setExportStep(i);
-            await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 600));
-        }
+        const interval = setInterval(() => {
+            setExportStep((prev) => {
+                if (prev < exportSteps.length - 2) return prev + 1;
+                return prev;
+            });
+        }, 1200);
 
-        toast.success("PDF generated successfully! (Mocked)");
-        
-        // TODO: Trigger actual file download from blob
-        
-        setTimeout(() => {
-            onClose();
-        }, 1500);
+        try {
+            // Fetch the entire populated DB object
+            const response = await apiClient.get(`/books/${book.id}/full`);
+            setFullBookData(response.data);
+
+            clearInterval(interval);
+            setExportStep(exportSteps.length - 1);
+
+            // Wait a brief moment for React to flush the DOM
+            setTimeout(() => {
+                if (reactToPrintFn) reactToPrintFn();
+            }, 800);
+
+        } catch (error) {
+            clearInterval(interval);
+            console.error("Failed to fetch full book data:", error);
+            toast.error("Failed to generate PDF. Could not sync with database.");
+            setIsExporting(false);
+            setExportStep(0);
+        }
     };
 
     if (!isOpen) return null;
@@ -208,6 +237,79 @@ export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps)
                     </div>
                 )}
             </motion.div>
+
+            {/* INVISIBLE PRINTABLE DOM */}
+            <div className="hidden">
+                <div ref={printRef} className="print-container bg-white text-black text-left">
+                    <style type="text/css" media="print">
+                        {`
+                        @page { size: auto; margin: 20mm; }
+                        @page:first { margin: 0; }
+                        .page-break { page-break-after: always; }
+                        /* Strict height prevents bleeding onto blank subsequent pages */
+                        .print-page { min-height: calc(100vh - 45mm); padding: 0 2rem; position: relative; background: white; display: flex; flex-direction: column; box-sizing: border-box; }
+                        /* Ensure Tailwind default prose doesn't overwrite floating images */
+                        .prose img[style*="float: left"] { float: left !important; display: inline-block !important; margin: 0 1.5rem 1rem 0 !important; }
+                        .prose img[style*="float: right"] { float: right !important; display: inline-block !important; margin: 0 0 1.5rem 1.5rem !important; }
+                        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white; }
+                        `}
+                    </style>
+
+                    {fullBookData && (
+                        <>
+                            {includeCover && (
+                                <div className="page-break flex flex-col items-center justify-center w-[100vw] h-[100vh] text-center"
+                                     style={fullBookData.coverImage ? { backgroundImage: `url(${fullBookData.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { backgroundColor: '#fcfcfc' }}
+                                >
+                                    <div className="bg-white/90 p-16 rounded-3xl max-w-[80%] shadow-2xl backdrop-blur-xl border border-white/20">
+                                        <h1 className="text-5xl font-serif font-bold text-stone-900 tracking-tight mb-6">{fullBookData.title}</h1>
+                                        {fullBookData.description && <p className="text-2xl text-stone-600 font-serif leading-relaxed italic">{fullBookData.description}</p>}
+                                    </div>
+                                </div>
+                            )}
+
+                            {includeToc && fullBookData.chapters?.length > 0 && (
+                                <div className="page-break print-page">
+                                    <h2 className="text-4xl font-serif font-bold border-b-2 border-stone-200 pb-4 mb-12 mt-12 text-stone-900">Table of Contents</h2>
+                                    <div className="space-y-6 px-4 flex-grow">
+                                        {fullBookData.chapters.map((chapter: any, i: number) => (
+                                            <div key={chapter.id} className="flex justify-between items-baseline text-2xl font-serif text-stone-800">
+                                                <span>Chapter {i + 1}: {chapter.title}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {fullBookData.chapters?.map((chapter: any, chapIdx: number) => (
+                                <div key={chapter.id} className="chapter-section">
+                                    <div className="page-break print-page flex flex-col justify-center items-center h-[100vh]">
+                                        <div className="text-center space-y-6">
+                                            <div className="w-16 h-1 bg-luxury-gold mx-auto rounded-full mb-8"></div>
+                                            <h1 className="text-5xl font-serif font-bold text-stone-900 uppercase tracking-widest text-luxury-gold">Chapter {chapIdx + 1}</h1>
+                                            <h2 className="text-4xl font-serif text-stone-600 mt-4 italic">{chapter.title}</h2>
+                                        </div>
+                                    </div>
+                                    
+                                    {chapter.pages?.map((page: any, pageIdx: number) => (
+                                        <div key={page.id} className="page-break print-page flex flex-col w-full">
+                                            <div 
+                                                className="prose prose-xl prose-stone max-w-4xl mx-auto w-full tiptap flex-grow"
+                                                dangerouslySetInnerHTML={{ __html: page.textContent || "" }}
+                                            />
+                                            {includeNumbers && (
+                                                <div className="w-full flex justify-center mt-12 pt-8 border-t border-stone-100">
+                                                    <span className="text-stone-400 font-sans text-sm tracking-widest">{chapIdx + 1}.{pageIdx + 1}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
