@@ -467,7 +467,7 @@ export function ChapterDetails() {
                             )}
                         </div>
 
-                        <div id="ai-toolbar-portal" className="w-full relative z-[60] mb-2" />
+                        <div id="ai-toolbar-portal" className="w-full sticky top-16 z-[60] mb-2 pointer-events-none *:pointer-events-auto" />
 
                         <motion.div
                             key={activePage.id}

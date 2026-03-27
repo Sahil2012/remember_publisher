@@ -6,6 +6,7 @@ import { Editor } from '@tiptap/react';
 import { toast } from "sonner";
 import { ToneSelector } from "./ToneSelector";
 import { BUSINESS_TONES, MEMOIR_TONES } from "@/config/tones";
+import { useEffect, useRef } from "react";
 
 interface GlobalAIToolbarProps {
   editor: Editor;
@@ -39,11 +40,27 @@ export function GlobalAIToolbar({
   category,
 }: GlobalAIToolbarProps) {
   
+  const toolbarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (toolbarRef.current && !toolbarRef.current.contains(event.target as Node)) {
+        setShowToneSelector(false);
+      }
+    }
+    if (showToneSelector) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showToneSelector, setShowToneSelector]);
+
   return (
-    <div className="relative z-30 bg-stone-50/95 backdrop-blur-md border border-stone-200 py-3 px-4 mb-6 rounded-xl shadow-sm flex items-center justify-between transition-all">
+    <div className="relative z-50 bg-white/85 backdrop-blur-2xl border border-white/60 py-3 px-6 mb-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] ring-1 ring-stone-900/5 flex items-center justify-between transition-all">
       
       {/* Left side: AI Tools */}
-      <div className="flex items-center gap-4 relative">
+      <div className="flex items-center gap-4 relative" ref={toolbarRef}>
         <Button
             onClick={(e) => {
               e.preventDefault();
@@ -65,15 +82,9 @@ export function GlobalAIToolbar({
 
         <AnimatePresence>
             {showToneSelector && (
-                <>
-                    {/* Invisible backdrop to dismiss ToneSelector when clicking outside */}
-                    <div 
-                        className="fixed inset-0 z-[9998]" 
-                        onClick={() => setShowToneSelector(false)} 
-                    />
-                    <motion.div 
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                <motion.div 
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         className="absolute top-full mt-2 left-0 bg-white border border-stone-200 p-3 rounded-xl shadow-2xl z-[9999] w-[300px] sm:w-[340px] origin-top-left cursor-default text-stone-900 flex flex-col gap-2"
                         onClick={(e) => e.stopPropagation()}
@@ -90,7 +101,6 @@ export function GlobalAIToolbar({
                             tones={category === "Business" ? BUSINESS_TONES : MEMOIR_TONES}
                         />
                     </motion.div>
-                </>
             )}
         </AnimatePresence>
       </div>
