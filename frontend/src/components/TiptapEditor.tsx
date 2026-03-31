@@ -11,6 +11,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import FontFamily from '@tiptap/extension-font-family';
 import TextAlign from '@tiptap/extension-text-align';
 import { LineHeight } from './tiptap/extensions/LineHeight';
+import CharacterCount from '@tiptap/extension-character-count';
 import { cn } from "@/lib/utils";
 import {
     Bold, Italic, Underline as UnderlineIcon, Strikethrough, Quote,
@@ -25,8 +26,6 @@ import { useUploadFile } from "@/api/upload/hooks";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useRevampText } from "@/api/revamp/hooks";
-import { ToneSelector } from "./ToneSelector";
-import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
 import { Loader2 } from "lucide-react";
 import { useDictation } from "../hooks/useDictation";
 import { GlobalAIToolbar } from "./GlobalAIToolbar";
@@ -43,10 +42,16 @@ interface TiptapEditorProps {
     bookId: string;
 }
 
+const MAX_PAGE_HEIGHT = 800; // Simulated A4 printable height constraint inside the editor modal
+
 export function TiptapEditor({ content, onChange, readOnly = false, className, placeholder = "Start writing...", onRevamp, onBlur, category = "Memoir", bookId }: TiptapEditorProps) {
     const { mutateAsync: uploadFile } = useUploadFile();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    
+    // Layout-Aware Constraints
+    const editorContainerRef = useRef<HTMLDivElement>(null);
+    const [isOverflowing, setIsOverflowing] = useState(false);
 
     const [isRewriting, setIsRewriting] = useState(false);
     const [showToneSelector, setShowToneSelector] = useState(false);
@@ -185,6 +190,9 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                 },
                 includeChildren: true,
             }),
+            CharacterCount.configure({
+                limit: undefined, // Used for metadata if needed, no longer for blocking
+            }),
         ],
         content,
         editable: !readOnly,
@@ -258,6 +266,41 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
             }
         },
     });
+
+    // Layout-Aware DOM Height Observer
+    useEffect(() => {
+        if (!editorContainerRef.current || !editor) return;
+
+        const checkOverflow = () => {
+            // The ProseMirror instance itself is what expands. We measure the editor wrapper's scroll height.
+            const proseMirrorDiv = editorContainerRef.current?.querySelector('.ProseMirror');
+            if (proseMirrorDiv) {
+                if (proseMirrorDiv.scrollHeight > MAX_PAGE_HEIGHT) {
+                    setIsOverflowing(true);
+                } else {
+                    setIsOverflowing(false);
+                }
+            }
+        };
+
+        const resizeObserver = new ResizeObserver(() => checkOverflow());
+        
+        const proseMirrorDiv = editorContainerRef.current?.querySelector('.ProseMirror');
+        if (proseMirrorDiv) {
+            resizeObserver.observe(proseMirrorDiv);
+        }
+
+        // Tiptap explicitly updating could also change scroll content without dimension shifts
+        editor.on('update', checkOverflow);
+
+        // Initial check
+        setTimeout(checkOverflow, 100);
+
+        return () => {
+            resizeObserver.disconnect();
+            editor.off('update', checkOverflow);
+        };
+    }, [editor, content]);
 
     // Update content if changed externally (e.g. initial load)
     useEffect(() => {
@@ -344,10 +387,14 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
     );
 
     return (
-        <div className="flex flex-col w-full h-full relative">
+        <div className="flex flex-col w-full h-full relative" ref={editorContainerRef}>
             {portalDest && createPortal(toolbarEl, portalDest)}
             
-            <div className={cn("relative w-full group flex-col flex", className)}>
+            <div className={cn(
+                "relative w-full group flex-col flex transition-colors duration-300 rounded-lg",
+                isOverflowing && !readOnly ? "bg-red-50/20 ring-1 ring-red-200" : "",
+                className
+            )}>
                 <input
                     type="file"
                     ref={fileInputRef}
@@ -547,7 +594,13 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                 </div>
             )}
 
-            <EditorContent editor={editor} className="min-h-[300px]" />
+            {isOverflowing && !readOnly && (
+                <div className="absolute top-2 right-2 bg-red-100 text-red-600 border border-red-200 shadow-sm text-xs font-medium px-3 py-1.5 rounded-full z-50 animate-in fade-in slide-in-from-top-2">
+                    Page Overflow! (Will bleed on export)
+                </div>
+            )}
+
+            <EditorContent editor={editor} className={cn("min-h-[300px] pb-8", isOverflowing && "text-red-900/40")} />
         </div>
         </div>
     );
