@@ -44,11 +44,14 @@ model Book {
   coverImage      String?      
   coverColor      String?      
   status          BookStatus   @default(DRAFT)
+  isPublic        Boolean      @default(false)
   
   userId          String
   user            AppUser         @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   chapters        Chapter[]
+  published       PublishedSnapshot?
+  
   
   wordCount       Int          @default(0)
   
@@ -93,4 +96,18 @@ model Page {
 
   @@index([chapterId])
   @@unique([chapterId, order])
+}
+
+model PublishedSnapshot {
+  id              String   @id @default(uuid())
+  shareId         String   @unique @default(uuid())
+  snapshotData    Json     
+  
+  bookId          String   @unique
+  book            Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([shareId])
 }
