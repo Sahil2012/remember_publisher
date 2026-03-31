@@ -42,6 +42,9 @@ export const getBooksByUserId = async (
                         where: { order: { gte: 0 } }
                     }
                 }
+            },
+            published: {
+                select: { shareId: true }
             }
         }
     });
@@ -67,6 +70,9 @@ export const getBookById = async (
                     pages: true,
                 },
             },
+            published: {
+                select: { shareId: true }
+            }
         }
     });
     logger.info(`Fetched book with ID: ${bookId}`);

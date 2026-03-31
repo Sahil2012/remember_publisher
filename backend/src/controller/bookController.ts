@@ -53,6 +53,9 @@ export const fetchFullBookHandler = async (
                 include: {
                     pages: { orderBy: { order: 'asc' } }
                 }
+            },
+            published: {
+                select: { shareId: true }
             }
         }
     });

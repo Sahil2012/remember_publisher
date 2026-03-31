@@ -12,6 +12,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import chapterRoutes from './routes/chapterRoutes.js';
 import pageRoutes from './routes/pageRoutes.js';
 import revampRoutes from './routes/revampRoutes.js';
+import publicRoutes from './routes/publicRoutes.js';
 
 configDotenv();
 
@@ -29,6 +30,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/chapters", chapterRoutes);
 app.use("/api/pages", pageRoutes);
 app.use("/api/revamp", revampRoutes);
+app.use("/api/public", publicRoutes);
 
 // Serve uploads statically
 import path from 'path';
