@@ -246,8 +246,18 @@ export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps)
                         @page { size: auto; margin: 20mm; }
                         @page:first { margin: 0; }
                         .page-break { page-break-after: always; }
-                        /* Strict height prevents bleeding onto blank subsequent pages */
-                        .print-page { min-height: calc(100vh - 45mm); padding: 0 2rem; position: relative; background: white; display: flex; flex-direction: column; box-sizing: border-box; }
+                        /* Strict height violently enforces the exact physical dimensions and prevents arbitrary blank trailing pages */
+                        .print-page { 
+                            height: calc(100vh - 45mm); 
+                            max-height: calc(100vh - 45mm); 
+                            overflow: hidden; 
+                            padding: 0 2rem; 
+                            position: relative; 
+                            background: white; 
+                            display: flex; 
+                            flex-direction: column; 
+                            box-sizing: border-box; 
+                        }
                         /* Ensure Tailwind default prose doesn't overwrite floating images */
                         .prose img[style*="float: left"] { float: left !important; display: inline-block !important; margin: 0 1.5rem 1rem 0 !important; }
                         .prose img[style*="float: right"] { float: right !important; display: inline-block !important; margin: 0 0 1.5rem 1.5rem !important; }
@@ -259,8 +269,16 @@ export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps)
                         <>
                             {includeCover && (
                                 <div className="page-break flex flex-col items-center justify-center w-[100vw] h-[100vh] text-center"
-                                     style={fullBookData.coverImage ? { backgroundImage: `url(${fullBookData.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { backgroundColor: '#fcfcfc' }}
+                                     style={
+                                         fullBookData.coverImage 
+                                            ? { backgroundImage: `url(${fullBookData.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } 
+                                            : { backgroundColor: fullBookData.coverColor || '#1a1818' }
+                                     }
                                 >
+                                    {/* Optional texture layer if solid color */}
+                                    {!fullBookData.coverImage && (
+                                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
+                                    )}
                                     <div className="bg-white/90 p-16 rounded-3xl max-w-[80%] shadow-2xl backdrop-blur-xl border border-white/20">
                                         <h1 className="text-5xl font-serif font-bold text-stone-900 tracking-tight mb-6">{fullBookData.title}</h1>
                                         {fullBookData.description && <p className="text-2xl text-stone-600 font-serif leading-relaxed italic">{fullBookData.description}</p>}
@@ -283,7 +301,7 @@ export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps)
 
                             {fullBookData.chapters?.map((chapter: any, chapIdx: number) => (
                                 <div key={chapter.id} className="chapter-section">
-                                    <div className="page-break print-page flex flex-col justify-center items-center h-[100vh]">
+                                    <div className="page-break print-page flex flex-col justify-center items-center">
                                         <div className="text-center space-y-6">
                                             <div className="w-16 h-1 bg-luxury-gold mx-auto rounded-full mb-8"></div>
                                             <h1 className="text-5xl font-serif font-bold text-stone-900 uppercase tracking-widest text-luxury-gold">Chapter {chapIdx + 1}</h1>
@@ -294,11 +312,11 @@ export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps)
                                     {chapter.pages?.map((page: any, pageIdx: number) => (
                                         <div key={page.id} className="page-break print-page flex flex-col w-full">
                                             <div 
-                                                className="prose prose-xl prose-stone max-w-4xl mx-auto w-full tiptap flex-grow"
+                                                className="prose prose-lg prose-stone max-w-4xl mx-auto w-full tiptap flex-grow overflow-hidden relative mb-16"
                                                 dangerouslySetInnerHTML={{ __html: page.textContent || "" }}
                                             />
                                             {includeNumbers && (
-                                                <div className="w-full flex justify-center mt-12 pt-8 border-t border-stone-100">
+                                                <div className="absolute bottom-4 left-0 right-0 w-full flex justify-center pt-8 border-t border-stone-100 bg-white">
                                                     <span className="text-stone-400 font-sans text-sm tracking-widest">{chapIdx + 1}.{pageIdx + 1}</span>
                                                 </div>
                                             )}

@@ -42,7 +42,7 @@ interface TiptapEditorProps {
     bookId: string;
 }
 
-const MAX_PAGE_HEIGHT = 800; // Simulated A4 printable height constraint inside the editor modal
+const MAX_PAGE_HEIGHT = 900; // Simulated A4 printable height constraint inside the editor modal
 
 export function TiptapEditor({ content, onChange, readOnly = false, className, placeholder = "Start writing...", onRevamp, onBlur, category = "Memoir", bookId }: TiptapEditorProps) {
     const { mutateAsync: uploadFile } = useUploadFile();
