@@ -29,6 +29,8 @@ export interface Book {
     category?: "MEMOIR" | "BUSINESS" | "YEARBOOK" | "OTHER" | "Memoir" | "Business";
     status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     userId: string;
+    isPublic?: boolean;
+    published?: { shareId: string } | null;
     _count?: {
         chapters: number;
     };

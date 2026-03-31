@@ -9,6 +9,7 @@ import { Loader } from "./components/ui/loader";
 import { AuthLayout } from "./components/auth/AuthLayout";
 import { BookDetails } from "./pages/BookDetails";
 import { ChapterDetails } from "./pages/ChapterDetails";
+import { PublicReader } from "./pages/PublicReader";
 
 function PublicRoute() {
   const { user, isLoaded } = useUser();
@@ -65,6 +66,10 @@ export const router = createBrowserRouter([
         ]
       }
     ]
+  },
+  {
+    path: "/read/:shareId",
+    element: <PublicReader />,
   },
   {
     Component: ProtectedRoute,

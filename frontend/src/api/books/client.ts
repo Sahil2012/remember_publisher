@@ -24,6 +24,20 @@ export class BookClient {
         return this.client.patch(`/books/${id}`, payload).then(r => r.data);
     }
 
+    publishBook(id: string): Promise<{ shareId: string }> {
+        return this.client.post(`/books/${id}/publish`).then(r => r.data);
+    }
+
+    unpublishBook(id: string): Promise<{ success: boolean }> {
+        return this.client.post(`/books/${id}/unpublish`).then(r => r.data);
+    }
+
+    getPublicBook(shareId: string): Promise<Book> {
+        // Unauthenticated route, we might need a separate client if global client attaches auth headers that fail,
+        // but Clerk typically ignores auth headers on public routes unless enforced.
+        return this.client.get(`/public/books/${shareId}`).then(r => r.data);
+    }
+
     deleteBook(id: string): Promise<void> {
         return this.client.delete(`/books/${id}`).then(r => r.data);
     }

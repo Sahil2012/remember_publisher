@@ -12,9 +12,10 @@ interface ExportBookModalProps {
     isOpen: boolean;
     onClose: () => void;
     book: Book;
+    isSnapshot?: boolean;
 }
 
-export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps) {
+export function ExportBookModal({ isOpen, onClose, book, isSnapshot }: ExportBookModalProps) {
     const apiClient = useAPIClient();
 
     const [includeCover, setIncludeCover] = useState(true);
@@ -69,9 +70,14 @@ export function ExportBookModal({ isOpen, onClose, book }: ExportBookModalProps)
         }, 1200);
 
         try {
-            // Fetch the entire populated DB object
-            const response = await apiClient.get(`/books/${book.id}/full`);
-            setFullBookData(response.data);
+            if (isSnapshot) {
+                // The public reader already has the fully populated JSON snapshot
+                setFullBookData(book);
+            } else {
+                // Fetch the entire populated DB object for private drafts
+                const response = await apiClient.get(`/books/${book.id}/full`);
+                setFullBookData(response.data);
+            }
 
             clearInterval(interval);
             setExportStep(exportSteps.length - 1);

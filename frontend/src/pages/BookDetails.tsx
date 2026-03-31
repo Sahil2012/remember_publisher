@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useBook } from "@/api/books/hooks/useBookData";
-import { ArrowLeft, BookOpen, Clock, FileText, Plus, Edit2, Trash2, MoreVertical } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, FileText, Plus, Edit2, Trash2, MoreVertical, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { ChapterModal } from "@/components/ChapterModal";
 import { DeleteChapterModal } from "@/components/DeleteChapterModal";
 import { ExportBookModal } from "@/components/ExportBookModal";
+import { ShareBookModal } from "@/components/ShareBookModal";
 import { useChapterActions } from "@/api/chapters/hooks/useChapterActions";
 import type { Chapter } from "@/api/books/types";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ export function BookDetails() {
     const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
     const [isDeleteChapterModalOpen, setIsDeleteChapterModalOpen] = useState(false);
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [selectedChapter, setSelectedChapter] = useState<Chapter | undefined>(undefined);
 
     const handleAddChapter = () => {
@@ -168,11 +170,22 @@ export function BookDetails() {
 
                         <div className="flex items-center gap-4">
                             <Button 
+                                onClick={() => setIsShareModalOpen(true)}
+                                variant="outline"
+                                className={cn(
+                                    "shadow-sm font-medium px-6 transition-all",
+                                    book.isPublic ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800" : ""
+                                )}
+                            >
+                                <Globe className="w-4 h-4 mr-2" />
+                                {book.isPublic ? "Manage Share Link" : "Share"}
+                            </Button>
+                            <Button 
                                 onClick={() => setIsExportModalOpen(true)}
-                                className="bg-luxury-gold text-white hover:bg-[#B9935A] shadow-lg hover:shadow-xl font-medium px-8 transition-all"
+                                className="bg-luxury-gold text-white hover:bg-[#B9935A] shadow-lg hover:shadow-xl font-medium px-6 transition-all"
                             >
                                 <Download className="w-4 h-4 mr-2" />
-                                Export Book to PDF
+                                Export PDF
                             </Button>
                         </div>
                     </motion.div>
@@ -289,6 +302,12 @@ export function BookDetails() {
             <ExportBookModal
                 isOpen={isExportModalOpen}
                 onClose={() => setIsExportModalOpen(false)}
+                book={book}
+            />
+
+            <ShareBookModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
                 book={book}
             />
         </div>

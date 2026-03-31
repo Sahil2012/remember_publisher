@@ -23,6 +23,11 @@ export const useAPIClient = (): AxiosInstance => {
 
         instance.interceptors.request.use(
             async (config) => {
+                // Bypass authentication checks for public endpoints
+                if (config.url?.startsWith('/public')) {
+                    return config;
+                }
+
                 const token = await getToken();
                 if (!token) {
                     navigate('/login');

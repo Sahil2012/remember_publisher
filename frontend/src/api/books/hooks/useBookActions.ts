@@ -32,9 +32,27 @@ export const useBookActions = () => {
         },
     });
 
+    const publishBook = useMutation({
+        mutationFn: (id: string) => bookClient.publishBook(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: bookKeys.detail(id) });
+            queryClient.invalidateQueries({ queryKey: bookKeys.lists() });
+        },
+    });
+
+    const unpublishBook = useMutation({
+        mutationFn: (id: string) => bookClient.unpublishBook(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: bookKeys.detail(id) });
+            queryClient.invalidateQueries({ queryKey: bookKeys.lists() });
+        },
+    });
+
     return {
         createBook,
         updateBook,
         deleteBook,
+        publishBook,
+        unpublishBook,
     };
 };
