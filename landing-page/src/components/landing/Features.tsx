@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { BookHeart, Briefcase, Calendar, ArrowRight } from "lucide-react";
 import { content } from "@/data/content";
 import Image from "next/image";
+import Link from "next/link";
 
 const iconMap: Record<string, React.ElementType> = {
     BookHeart,
@@ -89,7 +90,9 @@ export function Features() {
                                         whileHover={{ x: 5 }}
                                         className="cursor-pointer group flex items-center gap-2 text-foreground font-medium border-b border-luxury-gold/30 pb-1 hover:border-luxury-gold transition-all"
                                     >
-                                        Explore this format
+                                        <Link href="https://remember-publisher.vercel.app/" className="w-full max-w-xs">
+                                            Explore this format
+                                        </Link>
                                         <ArrowRight className="w-4 h-4 text-luxury-gold group-hover:translate-x-1 transition-transform" />
                                     </motion.button>
                                 </motion.div>
