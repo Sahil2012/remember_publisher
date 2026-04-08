@@ -3,6 +3,7 @@ import { Library } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
 import rbPressLogo from "@/assets/rb-press.png";
+import { SubscriptionModal } from "./SubscriptionModal";
 
 export function Layout() {
     const location = useLocation();
@@ -54,6 +55,8 @@ export function Layout() {
                     </div>
                 </div>
             </footer>
+
+            <SubscriptionModal />
         </div>
     );
 }

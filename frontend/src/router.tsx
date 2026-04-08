@@ -10,6 +10,8 @@ import { AuthLayout } from "./components/auth/AuthLayout";
 import { BookDetails } from "./pages/BookDetails";
 import { ChapterDetails } from "./pages/ChapterDetails";
 import { PublicReader } from "./pages/PublicReader";
+import { ErrorPage } from "./components/ErrorPage";
+import { Billing } from "./pages/Billing";
 
 function PublicRoute() {
   const { user, isLoaded } = useUser();
@@ -47,6 +49,7 @@ function ProtectedRoute() {
 export const router = createBrowserRouter([
   {
     Component: PublicRoute,
+    errorElement: <ErrorPage />,
     children: [
       {
         Component: AuthLayout,
@@ -70,9 +73,11 @@ export const router = createBrowserRouter([
   {
     path: "/read/:shareId",
     element: <PublicReader />,
+    errorElement: <ErrorPage />,
   },
   {
     Component: ProtectedRoute,
+    errorElement: <ErrorPage />,
     children: [{
       Component: Layout,
       children: [
@@ -83,6 +88,10 @@ export const router = createBrowserRouter([
         {
           path: "library",
           element: <Dashboard />
+        },
+        {
+          path: "billing",
+          element: <Billing />
         },
         {
           path: "book/:id",

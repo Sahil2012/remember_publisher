@@ -13,6 +13,8 @@ import chapterRoutes from './routes/chapterRoutes.js';
 import pageRoutes from './routes/pageRoutes.js';
 import revampRoutes from './routes/revampRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
+import stripeRoutes from './routes/stripeRoutes.js';
+import { stripeWebhookHandler } from './controller/stripeController.js';
 
 configDotenv();
 
@@ -21,6 +23,10 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(clerkMiddleware({ debug: process.env.NODE_ENV === "development" }));
+
+// Webhook must be parsed as raw body
+app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), stripeWebhookHandler);
+
 app.use(express.json());
 app.use(morganMiddleware);
 
@@ -31,6 +37,7 @@ app.use("/api/chapters", chapterRoutes);
 app.use("/api/pages", pageRoutes);
 app.use("/api/revamp", revampRoutes);
 app.use("/api/public", publicRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 // Serve uploads statically
 import path from 'path';

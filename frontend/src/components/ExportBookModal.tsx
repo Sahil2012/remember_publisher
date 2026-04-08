@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import type { Book } from "@/api/books/types";
 import { useAPIClient } from "@/api/useAPIClient";
 import { useReactToPrint } from "react-to-print";
+import { useSubscription } from "@/hooks/useSubscription";
+import { subscriptionModal } from "@/store/subscriptionModalStore";
 
 interface ExportBookModalProps {
     isOpen: boolean;
@@ -17,6 +19,7 @@ interface ExportBookModalProps {
 
 export function ExportBookModal({ isOpen, onClose, book, isSnapshot }: ExportBookModalProps) {
     const apiClient = useAPIClient();
+    const { data: isSubscribed } = useSubscription();
 
     const [includeCover, setIncludeCover] = useState(true);
     const [includeToc, setIncludeToc] = useState(true);
@@ -59,6 +62,11 @@ export function ExportBookModal({ isOpen, onClose, book, isSnapshot }: ExportBoo
     }, [isOpen]);
 
     const handleGenerate = async () => {
+        if (!isSubscribed) {
+            subscriptionModal.open();
+            return;
+        }
+
         setIsExporting(true);
         setExportStep(0);
 

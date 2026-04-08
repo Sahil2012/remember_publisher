@@ -10,6 +10,8 @@ import { CategorySelector, type Category } from "./CategorySelector";
 import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
 
 import { useRevampText } from "@/api/revamp/hooks";
+import { useSubscription } from "@/hooks/useSubscription";
+import { subscriptionModal } from "@/store/subscriptionModalStore";
 
 const LOADING_MESSAGES = [
     "Analyzing your tone...",
@@ -48,6 +50,7 @@ export function TextRevamp() {
     const { bookId } = useParams();
     const [inputText, setInputText] = useState("");
     const [outputText, setOutputText] = useState("");
+    const { data: isSubscribed } = useSubscription();
 
     // Default to Memoir
     const [selectedCategory, setSelectedCategory] = useState<Category>("Memoir");
@@ -69,6 +72,10 @@ export function TextRevamp() {
     }, [selectedCategory]);
 
     const handleRevamp = async () => {
+        if (!isSubscribed) {
+            subscriptionModal.open();
+            return;
+        }
         if (!inputText.trim()) return;
 
         setIsLoading(true);

@@ -29,6 +29,8 @@ import { useRevampText } from "@/api/revamp/hooks";
 import { Loader2 } from "lucide-react";
 import { useDictation } from "../hooks/useDictation";
 import { GlobalAIToolbar } from "./GlobalAIToolbar";
+import { useSubscription } from "@/hooks/useSubscription";
+import { subscriptionModal } from "@/store/subscriptionModalStore";
 
 interface TiptapEditorProps {
     content: string;
@@ -57,6 +59,7 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
     const [showToneSelector, setShowToneSelector] = useState(false);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
     const revampMutation = useRevampText();
+    const { data: isSubscribed } = useSubscription();
 
     const [interimText, setInterimText] = useState("");
     const { 
@@ -125,6 +128,11 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
     }, [isRewriting]);
 
     const handleInlineRewrite = async (toneId: string) => {
+        if (!isSubscribed) {
+            subscriptionModal.open();
+            return;
+        }
+
         if (!editor) return;
         const selectedText = editor.state.doc.textBetween(
             editor.state.selection.from,

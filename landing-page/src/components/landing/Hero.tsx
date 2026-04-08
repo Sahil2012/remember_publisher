@@ -70,7 +70,7 @@ export function Hero() {
                             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                             className="flex flex-col sm:flex-row items-center gap-5 w-full"
                         >
-                            <Link target="_blank" href="https://remember-publisher.vercel.app/">
+                            <Link target="_blank" href="https://app.rememberpress.com/">
                                 <Button
                                     size="lg"
                                     className="cursor-pointer rounded-full px-10 h-14 text-lg font-medium bg-foreground text-background hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto"

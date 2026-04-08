@@ -60,7 +60,7 @@ export const Pricing = () => {
 
                             {/* CTA */}
                             <div className="pt-4">
-                                <Link target="_blank" href="https://remember-publisher.vercel.app/">
+                                <Link target="_blank" href="https://app.rememberpress.com/">
                                     <Button
                                         className={`w-full h-12 text-sm font-medium rounded-full transition-all duration-300 ${tier.mostPopular
                                             ? "bg-foreground text-background hover:bg-foreground/90 shadow-md"

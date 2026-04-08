@@ -58,7 +58,7 @@ export function Navbar() {
                     {/* Actions */}
                     <div className="flex items-center gap-4 z-50">
 
-                        <Link href="https://remember-publisher.vercel.app/" className="hidden md:block">
+                        <Link href="https://app.rememberpress.com/" className="hidden md:block">
                             <Button size="sm" className="cursor-pointer rounded-full px-6 h-10 font-sans font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors shadow-md">
                                 Get Started
                             </Button>
@@ -123,7 +123,7 @@ export function Navbar() {
                                     closed: { opacity: 0, y: 20 }
                                 }}
                             >
-                                <Link href="https://remember-publisher.vercel.app/" onClick={() => setIsMenuOpen(false)} className="w-full max-w-xs">
+                                <Link href="https://app.rememberpress.com/" onClick={() => setIsMenuOpen(false)} className="w-full max-w-xs">
                                     <Button size="lg" className="w-full rounded-full h-14 text-lg font-medium shadow-xl">
                                         Get Started
                                     </Button>

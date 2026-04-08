@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { ToneSelector } from "./ToneSelector";
 import { BUSINESS_TONES, MEMOIR_TONES } from "@/config/tones";
 import { useEffect, useRef } from "react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { subscriptionModal } from "@/store/subscriptionModalStore";
 
 interface GlobalAIToolbarProps {
   editor: Editor;
@@ -41,6 +43,7 @@ export function GlobalAIToolbar({
 }: GlobalAIToolbarProps) {
   
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const { data: isSubscribed } = useSubscription();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -64,6 +67,10 @@ export function GlobalAIToolbar({
         <Button
             onClick={(e) => {
               e.preventDefault();
+              if (!isSubscribed) {
+                  subscriptionModal.open();
+                  return;
+              }
               if (showToneSelector) {
                   setShowToneSelector(false);
                   return;
@@ -133,7 +140,14 @@ export function GlobalAIToolbar({
             {!isRecording ? (
                 <Button
                     variant="outline"
-                    onClick={(e) => { e.preventDefault(); onStartDictation(); }}
+                    onClick={(e) => { 
+                        e.preventDefault(); 
+                        if (!isSubscribed) {
+                            subscriptionModal.open();
+                            return;
+                        }
+                        onStartDictation(); 
+                    }}
                     className="border-stone-200 bg-white text-stone-600 hover:text-luxury-gold hover:border-luxury-gold min-w-[140px] shadow-sm font-medium"
                 >
                     <Mic className="w-4 h-4 mr-2" />
