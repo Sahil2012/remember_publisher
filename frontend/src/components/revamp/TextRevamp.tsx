@@ -142,7 +142,8 @@ export function TextRevamp() {
                 toast.error("You have already used your free trial.");
                 navigate("/billing");
             } else {
-                toast.error("Failed to generate text. Please check the backend connection.");
+                const errorMessage = error.response?.data?.message || "Failed to generate text. Please check the backend connection.";
+                toast.error(errorMessage);
             }
         } finally {
             setIsLoading(false);

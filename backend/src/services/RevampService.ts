@@ -33,9 +33,9 @@ export class RevampService implements IRevampService {
                 context_section: contextSection
             });
             return result.trim();
-        } catch (error) {
+        } catch (error: any) {
             console.error("RevampService Error:", error);
-            throw new Error("Failed to process text revamp request.");
+            throw new Error(`Failed to process text revamp request: ${error.message || "Unknown error"}`);
         }
     }
 }

@@ -25,7 +25,7 @@ export const revampText = async (req: Request, res: Response): Promise<void> => 
         }
 
         console.error("RevampController Error:", error);
-        res.status(500).json({ message: "An error occurred while revamping the text." });
+        res.status(500).json({ message: error.message || "An error occurred while revamping the text." });
     }
 };
 
@@ -70,6 +70,6 @@ export const standaloneRevampText = async (req: Request, res: Response): Promise
         }
 
         console.error("RevampController (Standalone) Error:", error);
-        res.status(500).json({ message: "An error occurred while revamping the text." });
+        res.status(500).json({ message: error.message || "An error occurred while revamping the text." });
     }
 };
