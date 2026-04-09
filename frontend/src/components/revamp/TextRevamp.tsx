@@ -74,9 +74,9 @@ export function TextRevamp() {
 
     const [isRecording, setIsRecording] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState(180);
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const onTransientText = useCallback((text: string) => {
+    const onTransientText = useCallback((_text: string) => {
         // Here we could append it to a temp state to show real-time
     }, []);
 
