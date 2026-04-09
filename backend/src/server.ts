@@ -14,6 +14,7 @@ import pageRoutes from './routes/pageRoutes.js';
 import revampRoutes from './routes/revampRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 import stripeRoutes from './routes/stripeRoutes.js';
+import standaloneRevampRoutes from './routes/standaloneRevampRoutes.js';
 import { stripeWebhookHandler } from './controller/stripeController.js';
 
 configDotenv();
@@ -36,6 +37,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/chapters", chapterRoutes);
 app.use("/api/pages", pageRoutes);
 app.use("/api/revamp", revampRoutes);
+app.use("/api/standalone-revamp", standaloneRevampRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/stripe", stripeRoutes);
 

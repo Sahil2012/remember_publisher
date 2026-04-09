@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2 } from "lucide-react";
@@ -11,8 +11,12 @@ export function Billing() {
     const success = searchParams.get("success");
     const apiClient = useAPIClient();
     const [isSyncing, setIsSyncing] = useState(success === "true");
+    const hasEffectRun = useRef(false);
 
     useEffect(() => {
+        if (hasEffectRun.current) return;
+        hasEffectRun.current = true;
+
         const syncSubscription = async () => {
             if (success === "true") {
                 try {
@@ -27,14 +31,17 @@ export function Billing() {
                         navigate("/library", { replace: true });
                     }, 2000);
                 }
-            } else {
+            } else if (searchParams.get("canceled") === "true" || success === "false") {
                 toast.error("Payment was cancelled or failed.");
+                navigate("/library", { replace: true });
+            } else {
+                // If no specific billing params, just go back to library
                 navigate("/library", { replace: true });
             }
         };
 
         syncSubscription();
-    }, [success, navigate, apiClient]);
+    }, [success, navigate, apiClient, searchParams]);
 
     if (success === "true") {
         return (

@@ -12,6 +12,8 @@ import { ChapterDetails } from "./pages/ChapterDetails";
 import { PublicReader } from "./pages/PublicReader";
 import { ErrorPage } from "./components/ErrorPage";
 import { Billing } from "./pages/Billing";
+import { AiRevampPage } from "./pages/AiRevampPage";
+import { SubscriptionGuard } from "./components/auth/SubscriptionGuard";
 
 function PublicRoute() {
   const { user, isLoaded } = useUser();
@@ -78,11 +80,15 @@ export const router = createBrowserRouter([
   {
     Component: ProtectedRoute,
     errorElement: <ErrorPage />,
-    children: [{
-      Component: Layout,
-      children: [
-        {
-          index: true,
+    children: [
+      {
+        Component: SubscriptionGuard,
+        children: [
+          {
+            Component: Layout,
+            children: [
+              {
+                index: true,
           element: <Navigate to="/library" />
         },
         {
@@ -94,6 +100,10 @@ export const router = createBrowserRouter([
           element: <Billing />
         },
         {
+          path: "revamp",
+          element: <AiRevampPage />
+        },
+        {
           path: "book/:id",
           element: <BookDetails />
         },
@@ -102,7 +112,9 @@ export const router = createBrowserRouter([
           element: <ChapterDetails />
         }
       ]
-    }
+          }
+        ]
+      }
     ]
   }
 ])

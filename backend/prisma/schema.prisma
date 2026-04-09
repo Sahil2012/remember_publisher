@@ -30,6 +30,7 @@ model AppUser {
   profileImage    String?
   credits         Int      @default(10) 
   
+  hasUsedAiRewrite       Boolean  @default(false)
   isSubscribed           Boolean  @default(false)
   stripeCustomerId       String?  @unique
   stripeSubscriptionId   String?  @unique
@@ -38,6 +39,7 @@ model AppUser {
 
   books           Book[]
   transactions    Transaction[]
+  aiRevampRecords AiRevampRecord[]
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -132,3 +134,17 @@ model PublishedSnapshot {
 
   @@index([shareId])
 }
+
+model AiRevampRecord {
+  id              String   @id @default(uuid())
+  originalText    String
+  revampedText    String
+  tone            String?
+  category        String?
+  
+  userId          String
+  user            AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+}
+
