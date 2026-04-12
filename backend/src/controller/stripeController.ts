@@ -275,7 +275,8 @@ export const syncSubscriptionHandler = async (
         });
 
         const latestPaidSession = sessions.data.find(
-            s => s.mode === 'payment' && s.payment_status === 'paid'
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (s: any) => s.mode === 'payment' && s.payment_status === 'paid'
         );
 
         if (latestPaidSession) {
