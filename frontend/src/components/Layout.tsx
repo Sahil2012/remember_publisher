@@ -22,11 +22,20 @@ export function Layout() {
                             to="/"
                             className={cn(
                                 "flex items-center gap-2 text-sm font-medium transition-colors hover:text-foreground",
-                                location.pathname === "/" ? "text-foreground" : "text-muted-foreground"
+                                location.pathname === "/library" || location.pathname === "/" ? "text-foreground" : "text-muted-foreground"
                             )}
                         >
                             <Library className="w-4 h-4" />
                             Library
+                        </Link>
+                        <Link
+                            to="/billing"
+                            className={cn(
+                                "flex items-center gap-2 text-sm font-medium transition-colors hover:text-foreground",
+                                location.pathname === "/billing" ? "text-foreground" : "text-muted-foreground"
+                            )}
+                        >
+                            <span className="text-sm">Billing</span>
                         </Link>
                         <SignedIn>
                             <UserButton />

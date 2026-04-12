@@ -18,7 +18,18 @@ export const createCheckoutSessionHandler = async (
             return next(new NotFoundError("User not found", ErrorCode.USER_NOT_FOUND));
         }
 
-        const priceId = process.env.STRIPE_PRICE_ID;
+        const { plan } = req.body;
+        const monthlyPriceId = process.env.STRIPE_PRICE_ID;
+        const yearlyPriceId = process.env.STRIPE_YEARLY_PRICE_ID;
+
+        let priceId = monthlyPriceId; // Default
+
+        if (plan === 'yearly') {
+            priceId = yearlyPriceId;
+        } else if (plan === 'monthly') {
+            priceId = monthlyPriceId;
+        }
+
         if (!priceId) {
             return next(new InternalServerError("Stripe price ID is not configured.", ErrorCode.INTERNAL_SERVER_ERROR));
         }
@@ -48,7 +59,7 @@ export const createCheckoutSessionHandler = async (
                     quantity: 1,
                 },
             ],
-            mode: "subscription",
+            mode: plan === 'yearly' ? 'payment' : 'subscription',
             success_url: `${req.headers.origin || "http://localhost:3000"}/billing?success=true`,
             cancel_url: `${req.headers.origin || "http://localhost:3000"}/billing?canceled=true`,
             client_reference_id: user.id,
@@ -106,21 +117,40 @@ export const stripeWebhookHandler = async (
             case 'checkout.session.completed': {
                 const session = event.data.object as any;
                 const userId = session.client_reference_id;
-                
+
                 if (userId) {
-                    const subscriptionId = session.subscription as string;
-                    
-                    // Retrieve subscription to get current_period_end
-                    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-                    
-                    await prisma.appUser.update({
-                        where: { id: userId },
-                        data: {
-                            isSubscribed: true,
-                            stripeSubscriptionId: subscriptionId,
-                            stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-                        },
-                    });
+                    if (session.mode === 'subscription') {
+                        const subscriptionId = session.subscription as string;
+                        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+                        await prisma.appUser.update({
+                            where: { id: userId },
+                            data: {
+                                isSubscribed: true,
+                                stripeSubscriptionId: subscriptionId,
+                                stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+                                stripePriceId: subscription.items.data[0]?.price.id,
+                            },
+                        });
+                    } else if (session.mode === 'payment') {
+                        // For one-time yearly payments, set access for 1 year
+                        const oneYearFromNow = new Date();
+                        oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+                        // Extract price ID from line items if possible, or just use what we know
+                        // Since we only have one one-time price currently:
+                        const priceId = process.env.STRIPE_YEARLY_PRICE_ID;
+
+                        await prisma.appUser.update({
+                            where: { id: userId },
+                            data: {
+                                isSubscribed: true,
+                                stripeCurrentPeriodEnd: oneYearFromNow,
+                                stripePriceId: priceId,
+                                stripeSubscriptionId: null, // Ensure no active subscription ID for one-time payments
+                            },
+                        });
+                    }
 
                     // Log transaction
                     await prisma.transaction.create({
@@ -130,7 +160,7 @@ export const stripeWebhookHandler = async (
                             amount: session.amount_total ? session.amount_total / 100 : 0,
                             currency: session.currency || "aud",
                             status: session.payment_status,
-                            type: 'checkout.session.completed',
+                            type: `checkout.session.completed.${session.mode}`,
                         }
                     });
                 }
@@ -139,7 +169,7 @@ export const stripeWebhookHandler = async (
             case 'invoice.payment_succeeded': {
                 const invoice = event.data.object as any;
                 const subscriptionId = invoice.subscription as string;
-                
+
                 if (subscriptionId) {
                     const user = await prisma.appUser.findUnique({
                         where: { stripeSubscriptionId: subscriptionId }
@@ -172,7 +202,7 @@ export const stripeWebhookHandler = async (
             case 'customer.subscription.deleted':
             case 'customer.subscription.updated': {
                 const subscription = event.data.object as any;
-                
+
                 const user = await prisma.appUser.findUnique({
                     where: { stripeSubscriptionId: subscription.id }
                 });
@@ -238,7 +268,157 @@ export const syncSubscriptionHandler = async (
             return res.status(200).json({ isSubscribed });
         }
 
+        // No recurring subscription found — check for recent one-time payment sessions
+        const sessions = await stripe.checkout.sessions.list({
+            customer: user.stripeCustomerId,
+            limit: 5,
+        });
+
+        const latestPaidSession = sessions.data.find(
+            s => s.mode === 'payment' && s.payment_status === 'paid'
+        );
+
+        if (latestPaidSession) {
+            console.log(`💰 Sync: One-time payment session found: ${latestPaidSession.id}`);
+            const oneYearFromNow = new Date(latestPaidSession.created * 1000);
+            oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+            await prisma.appUser.update({
+                where: { id: user.id },
+                data: {
+                    isSubscribed: true,
+                    stripeCurrentPeriodEnd: oneYearFromNow,
+                    stripePriceId: process.env.STRIPE_YEARLY_PRICE_ID,
+                    stripeSubscriptionId: null,
+                },
+            });
+
+            // Also log the transaction if not already done
+            const existingTx = await prisma.transaction.findUnique({
+                where: { stripeEventId: latestPaidSession.id },
+            });
+            if (!existingTx) {
+                await prisma.transaction.create({
+                    data: {
+                        userId: user.id,
+                        stripeEventId: latestPaidSession.id,
+                        amount: latestPaidSession.amount_total ? latestPaidSession.amount_total / 100 : 0,
+                        currency: latestPaidSession.currency || 'aud',
+                        status: latestPaidSession.payment_status,
+                        type: 'checkout.session.completed.payment',
+                    },
+                });
+            }
+
+            return res.status(200).json({ isSubscribed: true });
+        }
+
+        // Fallback: if the database already has a future period end (set by webhook), honour it
+        if (user.stripeCurrentPeriodEnd && user.stripeCurrentPeriodEnd > new Date()) {
+            return res.status(200).json({ isSubscribed: true });
+        }
+
+
         return res.status(200).json({ isSubscribed: false });
+    } catch (error: any) {
+        next(new InternalServerError(error.message, ErrorCode.INTERNAL_SERVER_ERROR));
+    }
+};
+
+export const getSubscriptionDetailsHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return next(new NotFoundError("User not found", ErrorCode.USER_NOT_FOUND));
+        }
+
+        // Fetch transaction history
+        const transactions = await prisma.transaction.findMany({
+            where: { userId: user.id },
+            orderBy: { createdAt: "desc" },
+        });
+
+        if (!user.stripeSubscriptionId) {
+            // Check for one-time access
+            const isCurrentlySubscribed = user.stripeCurrentPeriodEnd && user.stripeCurrentPeriodEnd > new Date();
+
+            // Use the earliest transaction as the purchase/member-since date
+            const startDate = transactions.length > 0
+                ? transactions[transactions.length - 1].createdAt
+                : null;
+
+            return res.status(200).json({
+                isSubscribed: isCurrentlySubscribed,
+                status: isCurrentlySubscribed ? 'active' : 'inactive',
+                currentPeriodEnd: user.stripeCurrentPeriodEnd,
+                startDate,
+                isOneTimePayment: true,
+                transactions: transactions.map(t => ({
+                    id: t.id,
+                    amount: t.amount,
+                    currency: t.currency,
+                    status: t.status,
+                    createdAt: t.createdAt,
+                    type: t.type
+                })),
+            });
+        }
+
+        // Fetch latest info from Stripe
+        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+
+        return res.status(200).json({
+            isSubscribed: user.isSubscribed,
+            status: subscription.status,
+            currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            startDate: new Date(subscription.start_date * 1000),
+            cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            transactions: transactions.map(t => ({
+                id: t.id,
+                amount: t.amount,
+                currency: t.currency,
+                status: t.status,
+                createdAt: t.createdAt,
+                type: t.type
+            })),
+        });
+    } catch (error: any) {
+        next(new InternalServerError(error.message, ErrorCode.INTERNAL_SERVER_ERROR));
+    }
+};
+
+export const cancelSubscriptionHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const user = req.user;
+        if (!user || !user.stripeSubscriptionId) {
+            return next(new BadRequestError("No active subscription found.", ErrorCode.BAD_REQUEST));
+        }
+
+        const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+            cancel_at_period_end: true,
+        });
+
+        // Also update our database representation immediately
+        await prisma.appUser.update({
+            where: { id: user.id },
+            data: {
+                isSubscribed: subscription.status === 'active' || subscription.status === 'trialing',
+                // Webhook will also handle this, but this makes the UI snappy
+            },
+        });
+
+        res.status(200).json({
+            message: "Subscription will be canceled at the end of the current billing period.",
+            cancelAtPeriodEnd: true,
+        });
     } catch (error: any) {
         next(new InternalServerError(error.message, ErrorCode.INTERNAL_SERVER_ERROR));
     }

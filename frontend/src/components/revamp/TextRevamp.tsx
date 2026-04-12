@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Loader2, Wand2, Copy, Check, Mic, Square, AlertCircle } from "lucide-react";
+import { Loader2, Wand2, Copy, Check, Mic, Square, AlertCircle, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ToneSelector } from "./ToneSelector";
 import { Editor } from "./Editor";
@@ -14,8 +14,8 @@ import { PricingModal } from "./PricingModal";
 import { Sparkles, ArrowRight } from "lucide-react";
 
 const LOADING_MESSAGES = [
-    "Analyzing your tone...",
-    "Brainstorming creative angles...",
+    "Reading your draft...",
+    "Finding the right tone...",
     "Polishing the prose...",
     "Crafting the perfect phrasing...",
     "Enhancing clarity and flow...",
@@ -139,10 +139,10 @@ export function TextRevamp() {
         } catch (error: any) {
             console.error("Failed to revamp text:", error);
             if (error.response?.status === 402) {
-                toast.error("You have already used your free trial.");
-                navigate("/billing");
+                toast.error("You have already used your complimentary session. Subscribe to continue.");
+                setIsPricingModalOpen(true);
             } else {
-                const errorMessage = error.response?.data?.message || "Failed to generate text. Please check the backend connection.";
+                const errorMessage = error.response?.data?.message || "Failed to process your draft. Please try again.";
                 toast.error(errorMessage);
             }
         } finally {
@@ -173,33 +173,35 @@ export function TextRevamp() {
 
     return (
         <div className="min-h-screen bg-[#FAFAFA] dark:bg-black/5 py-12 px-4 font-sans text-foreground">
-            {/* Promotional Banner */}
-            <div className="mx-auto max-w-5xl mb-8">
-                <motion.div 
+
+            {/* Free Gift Banner */}
+            <div className="mx-auto max-w-5xl mb-6">
+                <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative group overflow-hidden rounded-3xl bg-gradient-to-r from-luxury-gold to-luxury-gold/80 p-[1px] shadow-lg shadow-luxury-gold/10"
+                    className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1e2326] to-[#2e3538] px-6 py-5 shadow-lg"
                 >
-                    <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4 rounded-3xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md px-6 py-4">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-luxury-gold/10 text-luxury-gold">
-                                <Sparkles className="h-5 w-5" />
+                    <div className="absolute inset-0 opacity-5 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#a88a4b] to-transparent pointer-events-none" />
+                    <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#a88a4b]/20 text-[#a88a4b] shrink-0 mt-0.5">
+                                <Gift className="h-5 w-5" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-semibold text-foreground">
-                                    Unlock Unlimited Access
+                                <h3 className="text-sm font-semibold text-white mb-1">
+                                    This is our gift to you — completely free, no strings attached.
                                 </h3>
-                                <p className="text-xs text-muted-foreground">
-                                    Write full-length books, generate PDF ebooks, and more with Remember Press.
+                                <p className="text-xs text-white/60 leading-relaxed max-w-lg">
+                                    Try the RP Editor once, on us. No sign-up required, no conditions. If you love it and want full access to Remember Press — including unlimited books, PDF generation, and your personal archive — you can explore our plans below.
                                 </p>
                             </div>
                         </div>
                         <Button
                             onClick={() => setIsPricingModalOpen(true)}
                             size="sm"
-                            className="rounded-full bg-luxury-gold hover:bg-luxury-gold/90 text-white shadow-md shadow-luxury-gold/20 transition-all hover:scale-105"
+                            className="rounded-full bg-[#a88a4b] hover:bg-[#a88a4b]/90 text-white shadow-md shrink-0 transition-all hover:scale-105"
                         >
-                            View Plans
+                            See Full Plans
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     </div>
@@ -209,11 +211,17 @@ export function TextRevamp() {
             <div className="mx-auto max-w-5xl space-y-8">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/40 pb-6 mb-8">
                     <div className="space-y-2">
-                        <h1 className="text-3xl font-semibold tracking-tight text-foreground/90">
-                            AI Writing Assistant
-                        </h1>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-3xl font-semibold tracking-tight text-foreground/90">
+                                RP Editor
+                            </h1>
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#a88a4b] bg-[#a88a4b]/10 px-2.5 py-1 rounded-full border border-[#a88a4b]/20">
+                                <Gift className="h-3 w-3" />
+                                Free Trial
+                            </span>
+                        </div>
                         <p className="text-muted-foreground text-sm">
-                            Try our AI Revamp tool! Write locally or dictate your draft via your microphone, then refine its tone.
+                            Paste or dictate your draft below — the RP Editor will reshape the tone and style to bring your story to life. One free use, no conditions.
                         </p>
                     </div>
                     <CategorySelector selectedCategory={selectedCategory} onSelect={setSelectedCategory} disabled={isLoading} />
@@ -223,7 +231,7 @@ export function TextRevamp() {
                     {/* Left Column: Input */}
                     <div className="flex flex-col gap-4 h-full">
                         <div className="flex items-center justify-between h-6">
-                            <label className="text-xs font-bold text-luxury-gold uppercase tracking-wider">Original Draft</label>
+                            <label className="text-xs font-bold text-luxury-gold uppercase tracking-wider">Your Draft</label>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${isOverLimit ? 'bg-red-100 text-red-600' : 'bg-muted/30 text-muted-foreground'}`}>
                                 {wordCount} / 300 words
                             </span>
@@ -233,7 +241,7 @@ export function TextRevamp() {
                             <Editor
                                 value={inputText}
                                 onChange={setInputText}
-                                placeholder={`Start writing or clicking dictation to draft your ${selectedCategory.toLowerCase()}...`}
+                                placeholder={`Start writing or use the dictation button to speak your ${selectedCategory.toLowerCase()} into words...`}
                                 className="absolute inset-0 border-none"
                             />
                         </div>
@@ -278,7 +286,7 @@ export function TextRevamp() {
                                         className="rounded-full bg-luxury-gold hover:bg-luxury-gold/90 text-white shadow-lg shadow-luxury-gold/20 px-8 transition-all hover:scale-105 active:scale-95"
                                     >
                                         {isLoading ? (
-                                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Running...</>
+                                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Working...</>
                                         ) : (
                                             <><Wand2 className="mr-2 h-4 w-4" /> Revamp</>
                                         )}
@@ -288,7 +296,7 @@ export function TextRevamp() {
                             {isOverLimit && (
                                 <div className="flex items-center gap-2 text-sm text-red-500 mt-2">
                                     <AlertCircle className="h-4 w-4" />
-                                    <span>You have exceeded the 300 words limit. Please shorten your draft.</span>
+                                    <span>Your draft exceeds 300 words. Please shorten it before revamping.</span>
                                 </div>
                             )}
                         </div>
@@ -297,7 +305,7 @@ export function TextRevamp() {
                     {/* Right Column: Output */}
                     <div className="flex flex-col gap-4 h-full">
                         <div className="flex items-center justify-between h-6">
-                            <label className="text-xs font-bold text-luxury-gold uppercase tracking-wider">AI Suggestion</label>
+                            <label className="text-xs font-bold text-luxury-gold uppercase tracking-wider">RP Editor Result</label>
                             {showOutput && (
                                 <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-muted-foreground hover:text-luxury-gold hover:bg-luxury-gold/10" onClick={copyToClipboard}>
                                     {copied ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}
@@ -333,9 +341,9 @@ export function TextRevamp() {
                                                 <Wand2 className="h-8 w-8 text-luxury-gold/60" />
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium text-foreground/70">Ready to transform</p>
-                                                <p className="text-xs text-muted-foreground/60 max-w-[200px] mx-auto">
-                                                    Select a tone and click revamp to see the magic.
+                                                <p className="text-sm font-medium text-foreground/70">Your revamped draft will appear here</p>
+                                                <p className="text-xs text-muted-foreground/60 max-w-[220px] mx-auto">
+                                                    Select a tone and click Revamp to see the RP Editor in action.
                                                 </p>
                                             </div>
                                         </>
