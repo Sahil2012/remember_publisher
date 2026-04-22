@@ -23,12 +23,23 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({ origin: true, credentials: true }));
+
+// ── Raw body capture (MUST be before clerkMiddleware and express.json) ──────
+// Captures the raw Buffer into req.rawBody for every request before anything
+// else can consume or modify the stream. The Stripe webhook handler relies on
+// this to pass the unmodified payload to stripe.webhooks.constructEvent().
+app.use(
+    express.json({
+        verify: (req: any, _res, buf) => {
+            req.rawBody = buf;
+        },
+    })
+);
+
 app.use(clerkMiddleware({ debug: process.env.NODE_ENV === "development" }));
 
-// Webhook must be parsed as raw body
-app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), stripeWebhookHandler);
-
-app.use(express.json());
+// Webhook route – body already captured as req.rawBody above
+app.post("/api/stripe/webhook", stripeWebhookHandler);
 app.use(morganMiddleware);
 
 app.use("/api/auth", authRoutes);

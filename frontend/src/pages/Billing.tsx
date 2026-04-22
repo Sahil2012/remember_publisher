@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { WelcomeGiftModal } from "@/components/WelcomeGiftModal";
 
 interface Transaction {
     id: string;
@@ -39,6 +40,7 @@ export function Billing() {
     const [details, setDetails] = useState<SubscriptionDetails | null>(null);
     const [isCanceling, setIsCanceling] = useState(false);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [showGiftModal, setShowGiftModal] = useState(false);
     const hasEffectRun = useRef(false);
 
     const fetchDetails = async () => {
@@ -60,13 +62,14 @@ export function Billing() {
             if (success === "true") {
                 try {
                     await apiClient.get('/stripe/sync-subscription');
-                    toast.success("Payment successful! Your subscription is now active.");
                     // After sync, wait a bit then fetch details instead of navigating away immediately
                     setTimeout(() => {
                         setIsSyncing(false);
                         fetchDetails();
                         // Clear URL params
                         navigate("/billing", { replace: true });
+                        // Show the welcome gift modal
+                        setShowGiftModal(true);
                     }, 1500);
                 } catch (error) {
                     console.error("Failed to sync subscription status:", error);
@@ -382,6 +385,12 @@ export function Billing() {
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Welcome Gift Modal — shown once after successful payment */}
+            <WelcomeGiftModal
+                isOpen={showGiftModal}
+                onClose={() => setShowGiftModal(false)}
+            />
         </div>
     );
 }

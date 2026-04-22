@@ -100,10 +100,20 @@ export const stripeWebhookHandler = async (
 ) => {
     const signature = req.headers["stripe-signature"] as string;
 
+    // req.rawBody is captured by the express.json({ verify }) in server.ts.
+    // This guarantees the raw, unmodified bytes regardless of any middleware
+    // that may parse or transform req.body later in the chain.
+    const rawBody = (req as any).rawBody as Buffer | undefined;
+
+    if (!rawBody) {
+        console.error("Stripe webhook: rawBody is missing — body was not captured correctly.");
+        return res.status(400).send("Webhook Error: raw body unavailable.");
+    }
+
     let event;
     try {
         event = stripe.webhooks.constructEvent(
-            req.body, // This MUST be the raw body (Buffer)
+            rawBody,
             signature,
             STRIPE_WEBHOOK_SECRET
         );

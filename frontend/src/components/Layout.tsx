@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { Library } from "lucide-react";
+import { Library, BookOpen } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
 import rbPressLogo from "@/assets/rb-press.png";
@@ -27,6 +27,16 @@ export function Layout() {
                         >
                             <Library className="w-4 h-4" />
                             Library
+                        </Link>
+                        <Link
+                            to="/guides"
+                            className={cn(
+                                "flex items-center gap-2 text-sm font-medium transition-colors hover:text-foreground",
+                                location.pathname === "/guides" ? "text-foreground" : "text-muted-foreground"
+                            )}
+                        >
+                            <BookOpen className="w-4 h-4" />
+                            Writing Guides
                         </Link>
                         <Link
                             to="/billing"

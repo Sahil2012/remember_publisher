@@ -13,6 +13,7 @@ import { PublicReader } from "./pages/PublicReader";
 import { ErrorPage } from "./components/ErrorPage";
 import { Billing } from "./pages/Billing";
 import { AiRevampPage } from "./pages/AiRevampPage";
+import { WritingGuides } from "./pages/WritingGuides";
 import { SubscriptionGuard } from "./components/auth/SubscriptionGuard";
 
 function PublicRoute() {
@@ -102,6 +103,10 @@ export const router = createBrowserRouter([
         {
           path: "revamp",
           element: <AiRevampPage />
+        },
+        {
+          path: "guides",
+          element: <WritingGuides />
         },
         {
           path: "book/:id",
