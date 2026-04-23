@@ -51,11 +51,12 @@ export function Layout() {
                             <UserButton />
                         </SignedIn>
                         <SignedOut>
-                            <SignInButton mode="modal">
-                                <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                                    Sign In
-                                </button>
-                            </SignInButton>
+                            <Link 
+                                to="/signup" 
+                                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                Sign Up
+                            </Link>
                         </SignedOut>
                     </nav>
                 </div>

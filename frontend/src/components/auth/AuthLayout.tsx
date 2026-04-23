@@ -20,9 +20,11 @@ export function AuthContent({ children, title, subtitle, footer }: {
           </Link>
         </div>
 
-        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">
-          {title}
-        </h1>
+        {title && (
+          <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">
+            {title}
+          </h1>
+        )}
         {subtitle && (
           <p className="text-sm text-muted-foreground">
             {subtitle}

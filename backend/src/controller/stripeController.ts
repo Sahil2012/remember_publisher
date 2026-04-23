@@ -36,7 +36,18 @@ export const createCheckoutSessionHandler = async (
 
         let customerId = user.stripeCustomerId;
 
-        // Create Stripe Customer if one does not exist
+        // Validate existing customer ID works in current Stripe mode
+        if (customerId) {
+            try {
+                await stripe.customers.retrieve(customerId);
+            } catch {
+                console.warn(`⚠️ Stale Stripe customer ID ${customerId} — creating a new live customer.`);
+                customerId = null;
+                await prisma.appUser.update({ where: { id: user.id }, data: { stripeCustomerId: null } });
+            }
+        }
+
+        // Create Stripe Customer if one does not exist (or was just cleared)
         if (!customerId) {
             const customer = await stripe.customers.create({
                 email: user.email,
@@ -60,6 +71,7 @@ export const createCheckoutSessionHandler = async (
                 },
             ],
             mode: plan === 'yearly' ? 'payment' : 'subscription',
+            allow_promotion_codes: true,
             success_url: `${req.headers.origin || "http://localhost:3000"}/billing?success=true`,
             cancel_url: `${req.headers.origin || "http://localhost:3000"}/billing?canceled=true`,
             client_reference_id: user.id,
@@ -379,8 +391,39 @@ export const getSubscriptionDetailsHandler = async (
             });
         }
 
-        // Fetch latest info from Stripe
-        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        // Fetch latest info from Stripe — guard against stale/test-mode IDs
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let subscription: any = null;
+        try {
+            subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        } catch (stripeErr: any) {
+            console.warn(`⚠️ Could not retrieve Stripe subscription ${user.stripeSubscriptionId}: ${stripeErr.message}`);
+        }
+
+        if (!subscription) {
+            // Subscription ID is invalid (e.g., created in test mode, now running live)
+            // Fall back to DB state so billing page still loads
+            const isCurrentlySubscribed = user.stripeCurrentPeriodEnd && user.stripeCurrentPeriodEnd > new Date();
+            const startDate = transactions.length > 0
+                ? transactions[transactions.length - 1].createdAt
+                : null;
+
+            return res.status(200).json({
+                isSubscribed: !!isCurrentlySubscribed,
+                status: isCurrentlySubscribed ? 'active' : 'inactive',
+                currentPeriodEnd: user.stripeCurrentPeriodEnd,
+                startDate,
+                isOneTimePayment: false,
+                transactions: transactions.map(t => ({
+                    id: t.id,
+                    amount: t.amount,
+                    currency: t.currency,
+                    status: t.status,
+                    createdAt: t.createdAt,
+                    type: t.type
+                })),
+            });
+        }
 
         return res.status(200).json({
             isSubscribed: user.isSubscribed,

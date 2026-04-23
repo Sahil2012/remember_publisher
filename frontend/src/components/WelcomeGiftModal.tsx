@@ -1,10 +1,6 @@
-import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Gift, Download, ArrowRight, Sparkles, X } from "lucide-react";
+import { Gift, ArrowRight, Sparkles, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const GUIDE_URL =
-  "https://fsppruololkkduvvuikl.supabase.co/storage/v1/object/public/PageImage/WritingGuides/Remember%20Press%20Writing%20Guides%20for%20our%203%20markets.pdf";
 
 interface WelcomeGiftModalProps {
   isOpen: boolean;
@@ -12,21 +8,7 @@ interface WelcomeGiftModalProps {
 }
 
 export function WelcomeGiftModal({ isOpen, onClose }: WelcomeGiftModalProps) {
-  const [downloading, setDownloading] = useState(false);
   const navigate = useNavigate();
-
-  const handleDownload = () => {
-    setDownloading(true);
-    const link = document.createElement("a");
-    link.href = GUIDE_URL;
-    link.download = "Remember Press Writing Guides.pdf";
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => setDownloading(false), 1500);
-  };
 
   const handleViewAllGuides = () => {
     onClose();
@@ -37,13 +19,13 @@ export function WelcomeGiftModal({ isOpen, onClose }: WelcomeGiftModalProps) {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-          {/* Backdrop */}
+          {/* Backdrop — plain semi-transparent overlay (no blur = no lag) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 bg-black/60"
             onClick={onClose}
           />
 
@@ -57,6 +39,7 @@ export function WelcomeGiftModal({ isOpen, onClose }: WelcomeGiftModalProps) {
             style={{
               background: "hsl(var(--card))",
               border: "1px solid hsl(45 40% 50% / 0.3)",
+              willChange: "transform, opacity",
             }}
           >
             {/* Close button */}
@@ -103,14 +86,13 @@ export function WelcomeGiftModal({ isOpen, onClose }: WelcomeGiftModalProps) {
                 >
                   <Gift className="w-9 h-9" style={{ color: "hsl(45 40% 45%)" }} />
                 </div>
-                {/* Sparkle decoration */}
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                {/* Sparkle — CSS spin instead of framer infinite loop */}
+                <span
                   className="absolute -top-1 -right-1"
+                  style={{ animation: "spin 8s linear infinite" }}
                 >
                   <Sparkles className="w-4 h-4" style={{ color: "hsl(45 40% 55%)" }} />
-                </motion.div>
+                </span>
               </motion.div>
 
               {/* Headline */}
@@ -177,35 +159,24 @@ export function WelcomeGiftModal({ isOpen, onClose }: WelcomeGiftModalProps) {
               </div>
             </motion.div>
 
-            {/* Action buttons */}
+            {/* Action button — single primary CTA */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="px-8 pb-8 flex flex-col gap-3"
+              className="px-8 pb-8"
             >
               <button
-                onClick={handleDownload}
-                disabled={downloading}
+                onClick={handleViewAllGuides}
                 className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all duration-200"
                 style={{
-                  background: downloading
-                    ? "hsl(45 40% 50% / 0.7)"
-                    : "hsl(45 40% 50%)",
+                  background: "hsl(45 40% 50%)",
                   color: "hsl(220 10% 12%)",
-                  boxShadow: downloading ? "none" : "0 4px 16px hsl(45 40% 50% / 0.35)",
+                  boxShadow: "0 4px 16px hsl(45 40% 50% / 0.35)",
                 }}
               >
-                <Download className={`w-4 h-4 ${downloading ? "animate-bounce" : ""}`} />
-                {downloading ? "Opening guide…" : "Download My Free Guide"}
-              </button>
-
-              <button
-                onClick={handleViewAllGuides}
-                className="w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
                 View all guides in my account
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
           </motion.div>

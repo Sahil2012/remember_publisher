@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Editor } from '@tiptap/react';
 import { toast } from "sonner";
 import { ToneSelector } from "./ToneSelector";
-import { BUSINESS_TONES, MEMOIR_TONES } from "@/config/tones";
+import { BUSINESS_TONES, LIFE_STORY_TONES, YEARBOOK_TONES, type ToneOption } from "@/config/tones";
 import { useEffect, useRef } from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { subscriptionModal } from "@/store/subscriptionModalStore";
@@ -23,7 +23,7 @@ interface GlobalAIToolbarProps {
   onResumeDictation: () => void;
   onStopDictation: () => void;
   onRewriteSelect: (tone: string) => void;
-  category: "Memoir" | "Business";
+  category: "Life Story" | "Yearbook" | "Business";
 }
 
 export function GlobalAIToolbar({
@@ -44,6 +44,15 @@ export function GlobalAIToolbar({
   
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { data: isSubscribed } = useSubscription();
+
+  const getActiveTones = (cat: typeof category): ToneOption[] => {
+    switch (cat) {
+      case "Life Story": return LIFE_STORY_TONES;
+      case "Yearbook": return YEARBOOK_TONES;
+      case "Business": return BUSINESS_TONES;
+      default: return LIFE_STORY_TONES;
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -86,7 +95,7 @@ export function GlobalAIToolbar({
             <Wand2 className="w-4 h-4 mr-2 text-luxury-gold" />
             AI Rewrite
         </Button>
-
+ 
         <AnimatePresence>
             {showToneSelector && (
                 <motion.div 
@@ -105,7 +114,7 @@ export function GlobalAIToolbar({
                                 setShowToneSelector(false);
                                 onRewriteSelect(tone);
                             }}
-                            tones={category === "Business" ? BUSINESS_TONES : MEMOIR_TONES}
+                            tones={getActiveTones(category)}
                         />
                     </motion.div>
             )}

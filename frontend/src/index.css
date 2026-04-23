@@ -148,6 +148,11 @@
         }
     }
 
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+
     .bg-noise::before {
         content: "";
         position: absolute;

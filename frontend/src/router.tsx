@@ -41,7 +41,7 @@ function ProtectedRoute() {
   }
 
   if (!user) {
-    return <Navigate to="/login" />
+    return <Navigate to="/signup" />
   }
 
   return <><Outlet /></>

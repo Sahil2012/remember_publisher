@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ToneSelector } from "./ToneSelector";
 import { TiptapEditor } from "./TiptapEditor";
 import { CategorySelector, type Category } from "./CategorySelector";
-import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
+import { LIFE_STORY_TONES, BUSINESS_TONES, YEARBOOK_TONES } from "@/config/tones";
 
 import { useRevampText } from "@/api/revamp/hooks";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -52,19 +52,29 @@ export function TextRevamp() {
     const [outputText, setOutputText] = useState("");
     const { data: isSubscribed } = useSubscription();
 
-    // Default to Memoir
-    const [selectedCategory, setSelectedCategory] = useState<Category>("Memoir");
+    // Default to Life Story
+    const [selectedCategory, setSelectedCategory] = useState<Category>("Life Story");
+    
+    // Get active tones based on category
+    const getActiveTones = (cat: Category) => {
+        switch (cat) {
+            case "Life Story": return LIFE_STORY_TONES;
+            case "Yearbook": return YEARBOOK_TONES;
+            case "Business": return BUSINESS_TONES;
+            default: return LIFE_STORY_TONES;
+        }
+    };
+
+    const activeTones = getActiveTones(selectedCategory);
+
     // Default tone: First one of the list
-    const [selectedTone, setSelectedTone] = useState<string>(MEMOIR_TONES[0].id);
+    const [selectedTone, setSelectedTone] = useState<string>(activeTones[0].id);
 
     const [isLoading, setIsLoading] = useState(false);
     const [showOutput, setShowOutput] = useState(false);
     const [copied, setCopied] = useState(false);
 
     const revampMutation = useRevampText();
-
-    // Get active tones based on category
-    const activeTones = selectedCategory === "Memoir" ? MEMOIR_TONES : BUSINESS_TONES;
 
     // Reset tone when category changes
     useEffect(() => {

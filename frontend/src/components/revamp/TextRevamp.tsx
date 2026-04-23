@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ToneSelector } from "./ToneSelector";
 import { Editor } from "./Editor";
 import { CategorySelector, type Category } from "./CategorySelector";
-import { MEMOIR_TONES, BUSINESS_TONES } from "@/config/tones";
+import { LIFE_STORY_TONES, BUSINESS_TONES, YEARBOOK_TONES } from "@/config/tones";
 import { useAPIClient } from "@/api/useAPIClient";
 import { useDictation } from "@/hooks/useDictation";
 import { useNavigate } from "react-router-dom";
@@ -63,8 +63,18 @@ export function TextRevamp() {
     const [inputText, setInputText] = useState("");
     const [outputText, setOutputText] = useState("");
 
-    const [selectedCategory, setSelectedCategory] = useState<Category>("Memoir");
-    const activeTones = selectedCategory === "Memoir" ? MEMOIR_TONES : BUSINESS_TONES;
+    const [selectedCategory, setSelectedCategory] = useState<Category>("Life Story");
+    
+    const getActiveTones = (category: Category) => {
+        switch (category) {
+            case "Life Story": return LIFE_STORY_TONES;
+            case "Yearbook": return YEARBOOK_TONES;
+            case "Business": return BUSINESS_TONES;
+            default: return LIFE_STORY_TONES;
+        }
+    };
+
+    const activeTones = getActiveTones(selectedCategory);
     const [selectedTone, setSelectedTone] = useState<string>(activeTones[0].id);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -175,38 +185,116 @@ export function TextRevamp() {
         <div className="min-h-screen bg-[#FAFAFA] dark:bg-black/5 py-12 px-4 font-sans text-foreground">
 
             {/* Free Gift Banner */}
-            <div className="mx-auto max-w-5xl mb-6">
+            <div className="mx-auto max-w-5xl mb-8">
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: -16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1e2326] to-[#2e3538] px-6 py-5 shadow-lg"
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="relative overflow-hidden rounded-3xl shadow-md"
+                    style={{
+                        background: "hsl(var(--card))",
+                        border: "1px solid hsl(45 40% 50% / 0.35)",
+                        boxShadow: "0 4px 32px hsl(45 40% 50% / 0.1), 0 1px 4px hsl(220 10% 15% / 0.06)",
+                    }}
                 >
-                    <div className="absolute inset-0 opacity-5 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#a88a4b] to-transparent pointer-events-none" />
-                    <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="flex items-start gap-4">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#a88a4b]/20 text-[#a88a4b] shrink-0 mt-0.5">
-                                <Gift className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-semibold text-white mb-1">
-                                    This is our gift to you — completely free, no strings attached.
-                                </h3>
-                                <p className="text-xs text-white/60 leading-relaxed max-w-lg">
-                                    Try the RP Editor once, on us. No sign-up required, no conditions. If you love it and want full access to Remember Press — including unlimited books, PDF generation, and your personal archive — you can explore our plans below.
-                                </p>
+                    {/* Gold shimmer top bar */}
+                    <div
+                        className="h-1.5 w-full"
+                        style={{
+                            background: "linear-gradient(90deg, hsl(45 40% 50% / 0.3), hsl(45 40% 55%), hsl(45 40% 65%), hsl(45 40% 55%), hsl(45 40% 50% / 0.3))",
+                        }}
+                    />
+
+                    {/* Radial gold glow from top */}
+                    <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                            background: "radial-gradient(ellipse at top, hsl(45 40% 50% / 0.07) 0%, transparent 65%)",
+                        }}
+                    />
+
+                    <div className="relative px-8 py-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                        {/* Left: icon + text */}
+                        <div className="flex items-start gap-5">
+                            {/* Animated icon */}
+                            <motion.div
+                                initial={{ rotate: -12, scale: 0.8 }}
+                                animate={{ rotate: 0, scale: 1 }}
+                                transition={{ type: "spring", damping: 14, stiffness: 200, delay: 0.1 }}
+                                className="relative shrink-0"
+                            >
+                                <div
+                                    className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                                    style={{
+                                        background: "linear-gradient(135deg, hsl(45 40% 50% / 0.2), hsl(45 40% 50% / 0.06))",
+                                        border: "1px solid hsl(45 40% 50% / 0.3)",
+                                        boxShadow: "0 4px 20px hsl(45 40% 50% / 0.15)",
+                                    }}
+                                >
+                                    <Gift className="h-6 w-6" style={{ color: "hsl(45 40% 45%)" }} />
+                                </div>
+                                <span
+                                    className="absolute -top-1 -right-1"
+                                    style={{ animation: "spin 8s linear infinite" }}
+                                >
+                                    <Sparkles className="w-3.5 h-3.5" style={{ color: "hsl(45 40% 50%)" }} />
+                                </span>
+                            </motion.div>
+
+                            {/* Text */}
+                            <div className="space-y-1.5">
+                                <motion.p
+                                    initial={{ opacity: 0, y: 4 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.15 }}
+                                    className="text-[10px] font-bold uppercase tracking-widest"
+                                    style={{ color: "hsl(45 40% 45%)" }}
+                                >
+                                    Welcome Gift — No strings attached
+                                </motion.p>
+                                <motion.h3
+                                    initial={{ opacity: 0, y: 4 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="text-lg font-semibold leading-snug text-foreground"
+                                >
+                                    This is our gift to you — completely free.
+                                </motion.h3>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 4 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.25 }}
+                                    className="text-sm text-muted-foreground leading-relaxed max-w-lg"
+                                >
+                                    Try the RP Editor once, on us. No sign-up required, no conditions. Love it? Explore unlimited books, PDF generation, and your personal archive with a full plan.
+                                </motion.p>
                             </div>
                         </div>
-                        <Button
-                            onClick={() => setIsPricingModalOpen(true)}
-                            size="sm"
-                            className="rounded-full bg-[#a88a4b] hover:bg-[#a88a4b]/90 text-white shadow-md shrink-0 transition-all hover:scale-105"
+
+                        {/* CTA button */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="shrink-0"
                         >
-                            See Full Plans
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
+                            <button
+                                onClick={() => setIsPricingModalOpen(true)}
+                                className="flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
+                                style={{
+                                    background: "hsl(45 40% 50%)",
+                                    color: "hsl(220 10% 12%)",
+                                    boxShadow: "0 4px 16px hsl(45 40% 50% / 0.3)",
+                                }}
+                            >
+                                See Full Plans
+                                <ArrowRight className="h-4 w-4" />
+                            </button>
+                        </motion.div>
                     </div>
                 </motion.div>
             </div>
+
 
             <div className="mx-auto max-w-5xl space-y-8">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/40 pb-6 mb-8">
