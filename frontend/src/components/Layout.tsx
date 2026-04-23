@@ -17,7 +17,7 @@ export function Layout() {
                         <img src={rbPressLogo} alt="Remember Press" className="h-14 w-auto object-contain" />
                     </Link>
 
-                    <nav className="flex items-center gap-6">
+                    <nav className="flex items-center gap-3 md:gap-6">
                         <Link
                             to="/"
                             className={cn(
@@ -26,7 +26,7 @@ export function Layout() {
                             )}
                         >
                             <Library className="w-4 h-4" />
-                            Library
+                            <span className="hidden md:inline">Library</span>
                         </Link>
                         <Link
                             to="/guides"
@@ -36,7 +36,7 @@ export function Layout() {
                             )}
                         >
                             <BookOpen className="w-4 h-4" />
-                            Writing Guides
+                            <span className="hidden md:inline">Writing Guides</span>
                         </Link>
                         <Link
                             to="/billing"
@@ -45,7 +45,8 @@ export function Layout() {
                                 location.pathname === "/billing" ? "text-foreground" : "text-muted-foreground"
                             )}
                         >
-                            <span className="text-sm">Billing</span>
+                            <span className="text-sm md:hidden">💳</span>
+                            <span className="hidden md:inline">Billing</span>
                         </Link>
                         <SignedIn>
                             <UserButton />

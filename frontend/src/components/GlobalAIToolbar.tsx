@@ -69,10 +69,10 @@ export function GlobalAIToolbar({
   }, [showToneSelector, setShowToneSelector]);
 
   return (
-    <div className="relative z-50 bg-white/85 backdrop-blur-2xl border border-white/60 py-3 px-6 mb-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] ring-1 ring-stone-900/5 flex items-center justify-between transition-all">
+    <div className="relative z-50 bg-white/85 backdrop-blur-2xl border border-white/60 py-2.5 px-3 md:py-3 md:px-6 mb-4 md:mb-8 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] ring-1 ring-stone-900/5 flex flex-wrap items-center justify-between gap-3 transition-all">
       
       {/* Left side: AI Tools */}
-      <div className="flex items-center gap-4 relative" ref={toolbarRef}>
+      <div className="flex items-center gap-2 md:gap-4 relative" ref={toolbarRef}>
         <Button
             onClick={(e) => {
               e.preventDefault();
@@ -90,10 +90,11 @@ export function GlobalAIToolbar({
               }
               setShowToneSelector(true);
             }}
-            className="bg-stone-900 hover:bg-black text-white border-none shadow-md font-medium"
+            size="sm"
+            className="bg-stone-900 hover:bg-black text-white border-none shadow-md font-medium h-9 md:h-10 px-3 md:px-4"
         >
-            <Wand2 className="w-4 h-4 mr-2 text-luxury-gold" />
-            AI Rewrite
+            <Wand2 className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 text-luxury-gold" />
+            <span className="text-xs md:text-sm">AI Rewrite</span>
         </Button>
  
         <AnimatePresence>
@@ -102,7 +103,7 @@ export function GlobalAIToolbar({
                     initial={{ opacity: 0, y: -10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        className="absolute top-full mt-2 left-0 bg-white border border-stone-200 p-3 rounded-xl shadow-2xl z-[9999] w-[300px] sm:w-[340px] origin-top-left cursor-default text-stone-900 flex flex-col gap-2"
+                        className="absolute top-full mt-2 left-0 bg-white border border-stone-200 p-3 rounded-xl shadow-2xl z-[9999] w-[280px] sm:w-[340px] origin-top-left cursor-default text-stone-900 flex flex-col gap-2"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="text-[10px] text-stone-500 mb-2 font-bold uppercase tracking-wider flex justify-between items-center">
@@ -122,14 +123,14 @@ export function GlobalAIToolbar({
       </div>
 
       {/* Center: Interim Text (if dictating) */}
-      <div className="flex-1 px-8 overflow-hidden pointer-events-none flex justify-center">
+      <div className="flex-1 min-w-[120px] px-2 md:px-8 overflow-hidden pointer-events-none flex justify-center order-3 md:order-2 w-full md:w-auto">
         <AnimatePresence>
           {isRecording && interimText && (
             <motion.div 
                 initial={{ opacity: 0, y: 5 }} 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="text-stone-600 font-serif italic line-clamp-1 truncate text-lg"
+                className="text-stone-600 font-serif italic line-clamp-1 truncate text-sm md:text-lg text-center"
             >
                 "{interimText}"{!isPaused && <span className="animate-pulse ml-1 text-luxury-gold font-sans">...</span>}
             </motion.div>
@@ -138,7 +139,7 @@ export function GlobalAIToolbar({
       </div>
 
       {/* Right side: Dictation Controls */}
-      <div className="flex flex-col items-end gap-1 relative">
+      <div className="flex flex-col items-end gap-1 relative order-2 md:order-3">
         {errorState && (
             <div className="text-red-500 text-[11px] font-medium absolute -bottom-5 right-0 whitespace-nowrap bg-red-50 px-2 py-0.5 rounded">
                 {errorState}

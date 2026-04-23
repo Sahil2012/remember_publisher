@@ -315,7 +315,7 @@ export function TextRevamp() {
                     <CategorySelector selectedCategory={selectedCategory} onSelect={setSelectedCategory} disabled={isLoading} />
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8 items-stretch h-[600px]">
+                <div className="grid lg:grid-cols-2 gap-8 items-stretch lg:h-[600px]">
                     {/* Left Column: Input */}
                     <div className="flex flex-col gap-4 h-full">
                         <div className="flex items-center justify-between h-6">
@@ -325,12 +325,12 @@ export function TextRevamp() {
                             </span>
                         </div>
 
-                        <div className={`flex-1 flex flex-col gap-4 min-h-0 relative rounded-2xl border ${isOverLimit ? 'border-red-500 ring-2 ring-red-500/20' : 'border-border/60 focus-within:ring-2 focus-within:ring-luxury-gold/10 hover:border-luxury-gold/30'} bg-white dark:bg-card shadow-sm transition-all overflow-hidden`}>
+                        <div className={`flex-1 flex flex-col min-h-[300px] lg:min-h-0 relative rounded-2xl border ${isOverLimit ? 'border-red-500 ring-2 ring-red-500/20' : 'border-border/60 focus-within:ring-2 focus-within:ring-luxury-gold/10 hover:border-luxury-gold/30'} bg-white dark:bg-card shadow-sm transition-all overflow-hidden`}>
                             <Editor
                                 value={inputText}
                                 onChange={setInputText}
                                 placeholder={`Start writing or use the dictation button to speak your ${selectedCategory.toLowerCase()} into words...`}
-                                className="absolute inset-0 border-none"
+                                className="h-full border-none"
                             />
                         </div>
 
@@ -402,7 +402,7 @@ export function TextRevamp() {
                             )}
                         </div>
 
-                        <div className={`relative flex-1 rounded-2xl border transition-all overflow-hidden flex flex-col ${showOutput ? "bg-white dark:bg-card border-border shadow-sm" : "bg-muted/5 border-dashed border-border hover:border-luxury-gold/30"}`}>
+                        <div className={`relative flex-1 min-h-[300px] lg:min-h-0 rounded-2xl border transition-all overflow-hidden flex flex-col ${showOutput ? "bg-white dark:bg-card border-border shadow-sm" : "bg-muted/5 border-dashed border-border hover:border-luxury-gold/30"}`}>
                             {showOutput ? (
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col h-full">
                                     <Editor value={outputText} onChange={setOutputText} readOnly={false} className="h-full flex-1" />

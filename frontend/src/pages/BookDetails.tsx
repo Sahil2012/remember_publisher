@@ -193,24 +193,26 @@ export function BookDetails() {
 
                 {/* Chapters Section */}
                 <div className="space-y-8">
-                    <div className="flex items-center justify-between">
-                        <h2 className="font-serif text-3xl font-medium">Chapters</h2>
-                        <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <h2 className="font-serif text-2xl md:text-3xl font-medium">Chapters</h2>
+                        <div className="flex flex-wrap items-center gap-2 md:gap-4 w-full sm:w-auto">
                             {miscChapter && (
                                 <Button
                                     onClick={() => navigate(`/book/${id}/chapter/${miscChapter.id}`)}
                                     variant="outline"
-                                    className="rounded-full border-foreground/20 hover:bg-foreground/5 shadow-sm transition-all"
+                                    size="sm"
+                                    className="flex-1 sm:flex-none rounded-full border-foreground/20 hover:bg-foreground/5 shadow-sm transition-all text-xs md:text-sm"
                                 >
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    Open ScratchPad
+                                    <FileText className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                                    ScratchPad
                                 </Button>
                             )}
                             <Button
                                 onClick={handleAddChapter}
-                                className="rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all"
+                                size="sm"
+                                className="flex-1 sm:flex-none rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all text-xs md:text-sm"
                             >
-                                <Plus className="mr-2 h-4 w-4" />
+                                <Plus className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                                 New Chapter
                             </Button>
                         </div>

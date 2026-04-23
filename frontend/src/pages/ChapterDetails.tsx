@@ -302,8 +302,8 @@ export function ChapterDetails() {
             <header className={cn(
                 "sticky top-0 z-20 transition-all duration-300",
                 viewMode === 'focus' && isReadingMode
-                    ? "bg-[#fdfbf7]/90 border-transparent h-14"
-                    : "border-b border-stone-200/50 bg-[#f8f5f2]/80 h-16"
+                    ? "bg-[#fdfbf7]/90 border-transparent h-12 md:h-14"
+                    : "border-b border-stone-200/50 bg-[#f8f5f2]/80 h-14 md:h-16"
                 , "backdrop-blur-md"
             )}>
                 <div className="container mx-auto max-w-6xl px-8 h-full flex items-center justify-between">
@@ -324,7 +324,7 @@ export function ChapterDetails() {
                         </Button>
 
                         {(!isReadingMode || viewMode === 'grid') && (
-                            <h1 className="font-serif text-lg font-medium text-stone-800 truncate max-w-md animate-in fade-in slide-in-from-left-2">
+                            <h1 className="font-serif text-base md:text-lg font-medium text-stone-800 truncate max-w-[150px] md:max-w-md animate-in fade-in slide-in-from-left-2">
                                 {chapter.order === -1 ? 'ScratchPad' : chapter.title}
                             </h1>
                         )}
@@ -489,7 +489,7 @@ export function ChapterDetails() {
 
                             <div
                                 className={cn(
-                                    "p-12 md:p-16 h-full",
+                                    "p-6 md:p-16 h-full",
                                     !isReadingMode && "cursor-text"
                                 )}
                                 onClick={() => {
@@ -514,11 +514,12 @@ export function ChapterDetails() {
                         <div className="flex items-center justify-between w-full max-w-[800px] px-4 pt-4 pb-20">
                             <Button
                                 variant="ghost"
+                                size="sm"
                                 onClick={() => navigatePage('prev')}
                                 disabled={activePageIndex === 0}
-                                className={cn("text-stone-500 hover:text-stone-900", activePageIndex === 0 && "opacity-0 pointer-events-none")}
+                                className={cn("text-stone-500 hover:text-stone-900 px-2 md:px-4", activePageIndex === 0 && "opacity-0 pointer-events-none")}
                             >
-                                <ArrowLeft className="mr-2 h-4 w-4" /> Previous Page
+                                <ArrowLeft className="mr-1 md:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Previous Page</span><span className="sm:hidden">Prev</span>
                             </Button>
 
                             {!isReadingMode && (
@@ -533,11 +534,12 @@ export function ChapterDetails() {
 
                             <Button
                                 variant="ghost"
+                                size="sm"
                                 onClick={() => navigatePage('next')}
                                 disabled={activePageIndex === orderedPages.length - 1}
-                                className={cn("text-stone-500 hover:text-stone-900", activePageIndex === orderedPages.length - 1 && "opacity-0 pointer-events-none")}
+                                className={cn("text-stone-500 hover:text-stone-900 px-2 md:px-4", activePageIndex === orderedPages.length - 1 && "opacity-0 pointer-events-none")}
                             >
-                                Next Page <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                                <span className="hidden sm:inline">Next Page</span><span className="sm:hidden">Next</span> <ArrowLeft className="ml-1 md:ml-2 h-4 w-4 rotate-180" />
                             </Button>
                         </div>
                     </div>

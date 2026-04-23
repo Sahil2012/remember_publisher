@@ -136,7 +136,7 @@ export function TextRevamp() {
                             </div>
                         </div>
 
-                        <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-foreground">
+                        <h1 className="text-3xl md:text-5xl font-serif font-medium tracking-tight text-foreground">
                             Refine your story.
                         </h1>
                         <p className="text-lg text-muted-foreground/80 font-light max-w-lg">
@@ -162,12 +162,12 @@ export function TextRevamp() {
 
                         <div className="flex-1 flex flex-col gap-4 relative">
                             {/* Input Card - Paper feel */}
-                            <div className="flex-1 bg-white rounded-2xl border border-foreground/5 shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-luxury-gold/20 transition-all hover:shadow-md relative group">
+                            <div className="flex-1 bg-white rounded-2xl border border-foreground/5 shadow-sm overflow-hidden focus-within:ring-1 focus-within:ring-luxury-gold/20 transition-all hover:shadow-md relative group min-h-[350px] md:min-h-[400px]">
                                 <TiptapEditor
                                     content={inputText}
                                     onChange={setInputText}
                                     placeholder="Start typing or paste your content here..."
-                                    className="h-full min-h-[400px]"
+                                    className="h-full"
                                     bookId={bookId || ""}
                                 />
 
@@ -252,7 +252,7 @@ export function TextRevamp() {
                                         />
                                     </motion.div>
                                 ) : (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-12 text-center">
                                         {isLoading ? (
                                             <div className="space-y-8 max-w-xs w-full flex flex-col items-center">
                                                 <div className="relative">

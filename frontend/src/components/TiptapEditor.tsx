@@ -213,7 +213,7 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
         editorProps: {
             attributes: {
                 class: cn(
-                    "prose prose-lg prose-stone max-w-none focus:outline-none min-h-[150px]",
+                    "prose prose-base md:prose-lg prose-stone max-w-none focus:outline-none min-h-[150px]",
                     // We are now using global CSS (.ProseMirror h1, etc) for precise control
                     readOnly && "pointer-events-none"
                 ),
