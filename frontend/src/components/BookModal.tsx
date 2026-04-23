@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, Book, Upload, Loader2 } from "lucide-react";
+import { X, Check, Book, Upload, Loader2, GraduationCap, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUploadFile } from "@/api/upload/hooks";
@@ -16,10 +16,9 @@ interface BookModalProps {
 }
 
 const BOOK_TYPES = [
-    { id: "memoir", label: "Memoir", description: "Capture your life story." },
-    { id: "business", label: "Business", description: "Share your professional expertise." },
-    { id: "fiction", label: "Fiction", description: "Craft a new world." },
-    { id: "non-fiction", label: "Non-Fiction", description: "Explore real-world topics." },
+    { id: "Life Story", backendId: "MEMOIR", label: "Life Story", description: "Capture a life journey.", icon: Book },
+    { id: "Yearbook", backendId: "YEARBOOK", label: "Yearbook", description: "Commemorate a school year.", icon: GraduationCap },
+    { id: "Business", backendId: "BUSINESS", label: "Business", description: "Share professional expertise.", icon: Briefcase },
 ];
 
 const COVER_COLORS = [
@@ -34,7 +33,15 @@ const COVER_COLORS = [
 export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }: BookModalProps) {
     const [title, setTitle] = useState(book?.title || "");
     const [description, setDescription] = useState(book?.description || "");
-    const [type, setType] = useState(BOOK_TYPES[0].id); // Type not in Book interface yet
+    
+    // Map backend category back to frontend ID if editing
+    const getInitialType = () => {
+        if (!book?.category) return BOOK_TYPES[0].id;
+        const found = BOOK_TYPES.find(t => t.backendId === book.category || t.id === book.category);
+        return found ? found.id : BOOK_TYPES[0].id;
+    };
+
+    const [type, setType] = useState(getInitialType());
     const [coverColor, setCoverColor] = useState(book?.coverColor || COVER_COLORS[0].hex);
     const [coverImage, setCoverImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +52,7 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
             if (book) {
                 setTitle(book.title);
                 setDescription(book.description);
-                // Type is not currently persisted in backend Book model
+                setType(getInitialType());
                 setCoverColor(book.coverColor || COVER_COLORS[0].hex);
                 setCoverImage(book.coverImage || null);
             } else {
@@ -78,10 +85,13 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (isLoading) return;
+        
+        const selectedType = BOOK_TYPES.find(t => t.id === type);
+        
         onSubmit({
             title,
             description,
-            type,
+            category: selectedType?.backendId || "MEMOIR",
             coverColor: coverColor,
             coverImage
         });
@@ -123,7 +133,10 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
 
                                     <div className="relative z-10">
                                         <div className="w-12 h-12 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center mb-6 shadow-sm border border-white/20">
-                                            <Book className="w-6 h-6 text-foreground/80" />
+                                            {(() => {
+                                                const Icon = BOOK_TYPES.find(t => t.id === type)?.icon || Book;
+                                                return <Icon className="w-6 h-6 text-foreground/80" />;
+                                            })()}
                                         </div>
                                         <h2 className={cn("font-serif text-2xl font-medium leading-tight break-words transition-colors",
                                             coverImage ? "text-white drop-shadow-md" : "text-foreground"
@@ -198,7 +211,7 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
                                         {/* Type Selection */}
                                         <div className="space-y-2">
                                             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</label>
-                                            <div className="grid grid-cols-2 gap-2">
+                                            <div className="grid grid-cols-1 gap-2">
                                                 {BOOK_TYPES.map((t) => (
                                                     <button
                                                         key={t.id}
@@ -212,8 +225,18 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
                                                                 : "border-foreground/10 hover:border-foreground/20 bg-white"
                                                         )}
                                                     >
-                                                        <div className="text-sm font-medium text-foreground">{t.label}</div>
-                                                        <div className="text-xs text-muted-foreground line-clamp-1">{t.description}</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={cn(
+                                                                "p-2 rounded-lg transition-colors",
+                                                                type === t.id ? "bg-luxury-gold text-white" : "bg-foreground/5 text-foreground/40 group-hover:bg-foreground/10"
+                                                            )}>
+                                                                <t.icon className="w-4 h-4" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="text-sm font-medium text-foreground">{t.label}</div>
+                                                                <div className="text-xs text-muted-foreground line-clamp-1">{t.description}</div>
+                                                            </div>
+                                                        </div>
 
                                                         {type === t.id && (
                                                             <div className="absolute top-2 right-2 text-luxury-gold">

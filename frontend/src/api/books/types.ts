@@ -45,6 +45,7 @@ export interface CreateBookPayload {
     authorName: string;
     coverImage: string;
     coverColor: string;
+    category?: string;
     status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 }
 
@@ -55,6 +56,7 @@ export interface UpdateBookPayload {
     status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     coverImage?: string;
     coverColor?: string;
+    category?: string;
 }
 
 export interface BookParams {

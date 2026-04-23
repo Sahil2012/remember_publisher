@@ -503,7 +503,7 @@ export function ChapterDetails() {
                                         page={activePage}
                                         onUpdate={(content) => handleUpdatePageContent(activePage.id, content)}
                                         readOnly={isReadingMode}
-                                        category={book?.category as "Memoir" | "Business"}
+                                        category={book?.category as any}
                                         bookId={bookId || ""}
                                     />
                                 </div>
@@ -556,7 +556,7 @@ export function ChapterDetails() {
     );
 }
 
-function PageEditor({ page, onUpdate, readOnly, category, bookId }: { page: Page, onUpdate: (content: string) => void, readOnly?: boolean, category?: "Memoir" | "Business", bookId: string }) {
+function PageEditor({ page, onUpdate, readOnly, category, bookId }: { page: Page, onUpdate: (content: string) => void, readOnly?: boolean, category?: "Life Story" | "Yearbook" | "Business", bookId: string }) {
     const [content, setContent] = useState(page.textContent || "");
     const [isRevamping, setIsRevamping] = useState(false);
     const revampMutation = useRevampText();
@@ -572,7 +572,7 @@ function PageEditor({ page, onUpdate, readOnly, category, bookId }: { page: Page
             // Basic revamp call
             const result = await revampMutation.mutateAsync({
                 bookId,
-                payload: { text: content, tone: "Standard", category: category || "Memoir" }
+                payload: { text: content, tone: "Standard", category: category || "Life Story" }
             });
             // Update local state first to feel instantaneous
             setContent(result);
