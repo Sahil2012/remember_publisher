@@ -40,13 +40,13 @@ interface TiptapEditorProps {
     placeholder?: string;
     onRevamp?: () => void;
     onBlur?: () => void;
-    category?: "Memoir" | "Business";
+    category?: "Life Story" | "Yearbook" | "Business";
     bookId: string;
 }
 
 const MAX_PAGE_HEIGHT = 900; // Simulated A4 printable height constraint inside the editor modal
 
-export function TiptapEditor({ content, onChange, readOnly = false, className, placeholder = "Start writing...", onRevamp, onBlur, category = "Memoir", bookId }: TiptapEditorProps) {
+export function TiptapEditor({ content, onChange, readOnly = false, className, placeholder = "Start writing...", onRevamp, onBlur, category = "Life Story", bookId }: TiptapEditorProps) {
     const { mutateAsync: uploadFile } = useUploadFile();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -148,7 +148,7 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
         try {
             const revampedText = await revampMutation.mutateAsync({
                 bookId,
-                payload: { text: selectedText, tone: toneId, category: category || "Memoir" }
+                payload: { text: selectedText, tone: toneId, category: category || "Life Story" }
             });
             // Replace the selected content
             editor.chain().focus().insertContent(revampedText).run();

@@ -26,7 +26,7 @@ export interface Book {
     authorName: string;
     coverImage?: string;
     coverColor?: string;
-    category?: "MEMOIR" | "BUSINESS" | "YEARBOOK" | "OTHER" | "Memoir" | "Business";
+    category?: "MEMOIR" | "BUSINESS" | "YEARBOOK" | "OTHER" | "Memoir" | "Business" | "Life Story";
     status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     userId: string;
     isPublic?: boolean;

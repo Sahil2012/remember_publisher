@@ -1,7 +1,7 @@
 export interface RevampRequest {
     text: string;
     tone: string;
-    category: "Memoir" | "Business";
+    category: "Life Story" | "Yearbook" | "Business";
 }
 
 export interface RevampResponse {

@@ -1,9 +1,9 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Book, Briefcase } from "lucide-react";
+import { Book, Briefcase, GraduationCap } from "lucide-react";
 
-export type Category = "Memoir" | "Business";
+export type Category = "Life Story" | "Yearbook" | "Business";
 
 interface CategorySelectorProps {
     selectedCategory: Category;
@@ -14,8 +14,9 @@ interface CategorySelectorProps {
 export function CategorySelector({ selectedCategory, onSelect, disabled }: CategorySelectorProps) {
 
     const categories: { id: Category; label: string; icon: any }[] = [
-        { id: "Memoir", label: "Memoir / Personal Story", icon: Book },
-        { id: "Business", label: "Business / Wisdom", icon: Briefcase },
+        { id: "Life Story", label: "Life Story", icon: Book },
+        { id: "Yearbook", label: "Yearbook", icon: GraduationCap },
+        { id: "Business", label: "Business", icon: Briefcase },
     ];
 
     return (
