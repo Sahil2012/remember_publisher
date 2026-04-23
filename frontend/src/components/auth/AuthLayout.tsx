@@ -102,7 +102,7 @@ export function AuthLayout() {
 
         {/* Footer/Copyright */}
         <div className="relative z-10 text-xs text-white/40 font-mono tracking-widest uppercase">
-          © 2021 Remember Press. All rights reserved.
+          © 2026 Remember Press. All rights reserved.
         </div>
       </motion.div>
 

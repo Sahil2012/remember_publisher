@@ -24,8 +24,13 @@ export function SignUpPage() {
                 redirectUrl: "/sso-callback",
                 redirectUrlComplete: "/",
             });
-        } catch (err) {
+        } catch (err: any) {
             console.error("OAuth error:", err);
+            // If Clerk identifies the user already exists during the attempt (though usually happens at callback)
+            if (err.errors?.[0]?.code === "form_identifier_exists") {
+                window.location.href = "/login?message=account_exists";
+                return;
+            }
             setIsLoading(false);
         }
     };

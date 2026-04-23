@@ -1,13 +1,16 @@
 import { useSignIn } from "@clerk/clerk-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AuthContent } from "@/components/auth/AuthLayout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader } from "@/components/ui/loader";
 import { motion } from "framer-motion";
+import { AlertCircle } from "lucide-react";
 
 export function SignInPage() {
     const { isLoaded, signIn } = useSignIn();
     const [isLoading, setIsLoading] = useState(false);
+    const [searchParams] = useSearchParams();
+    const message = searchParams.get("message");
 
     if (!isLoaded) return null;
 
@@ -41,6 +44,29 @@ export function SignInPage() {
                 </p>
             }
         >
+            {/* Message Banner */}
+            {message === "account_exists" && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-xl flex items-start gap-3 mb-6"
+                    style={{ 
+                        background: "hsl(45 40% 50% / 0.1)",
+                        border: "1px solid hsl(45 40% 50% / 0.3)"
+                    }}
+                >
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "hsl(45 40% 45%)" }} />
+                    <div className="space-y-1">
+                        <p className="text-sm font-semibold" style={{ color: "hsl(45 40% 45%)" }}>
+                            Account already exists
+                        </p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                            An account with this email already exists. Please sign in to your account.
+                        </p>
+                    </div>
+                </motion.div>
+            )}
+
             {/* Heading */}
             <div className="space-y-1.5">
                 <motion.h1
