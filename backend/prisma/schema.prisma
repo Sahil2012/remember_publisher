@@ -37,6 +37,10 @@ model AppUser {
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
 
+  dailyLlmCount        Int      @default(0)
+  dailyDictationSeconds Int     @default(0)
+  lastUsageResetDate   String? 
+
   books           Book[]
   transactions    Transaction[]
   aiRevampRecords AiRevampRecord[]
