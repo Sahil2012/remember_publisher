@@ -155,9 +155,15 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
             // Trigger onChange so the parent explicitly receives the new HTML
             onChange(editor.getHTML());
             toast.success("Text rewritten successfully");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Rewrite failed:", error);
-            toast.error("Failed to rewrite text");
+            if (error?.response?.status === 402) {
+                toast.error("You have already used your complimentary session. Subscribe to continue.");
+                subscriptionModal.open();
+            } else {
+                const errorMessage = error?.response?.data?.message || "Failed to rewrite text";
+                toast.error(errorMessage);
+            }
         } finally {
             setIsRewriting(false);
         }

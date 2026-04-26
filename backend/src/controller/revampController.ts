@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { RevampService } from "../services/RevampService.js";
 import { revampSchema } from "../schemas/revampSchema.js";
+import { UsageService, UsageFeature } from "../services/UsageService.js";
+import { HttpError } from "../exception/HttpError.js";
 
 import { PrismaClient } from "@prisma/client";
 
@@ -11,6 +13,8 @@ export const revampText = async (req: Request, res: Response): Promise<void> => 
     try {
         const validatedData = revampSchema.parse(req.body);
 
+         // 1. Usage & Subscription Guard
+        await UsageService.checkAndIncrement(req.user!.id, UsageFeature.LLM);
         const result = await revampService.revampText({
             text: validatedData.text,
             category: validatedData.category,
@@ -24,6 +28,19 @@ export const revampText = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
+         if (error instanceof HttpError) {
+            // Handle trial/subscription specific status for the frontend
+            if (error.status === 403) {
+                res.status(402).json({ 
+                    message: error.message, 
+                    redirectBilling: true 
+                });
+                return;
+            }
+            res.status(error.status).json({ message: error.message });
+            return;
+        }
+
         console.error("RevampController Error:", error);
         res.status(500).json({ message: error.message || "An error occurred while revamping the text." });
     }
@@ -33,10 +50,8 @@ export const standaloneRevampText = async (req: Request, res: Response): Promise
     try {
         const user = req.user!;
         
-        if (user.hasUsedAiRewrite && !user.isSubscribed) {
-            res.status(402).json({ message: "Subscription required. You have already used your free trial.", redirectBilling: true });
-            return;
-        }
+        // 1. Usage & Subscription Guard
+        await UsageService.checkAndIncrement(user.id, UsageFeature.LLM);
 
         const validatedData = revampSchema.parse(req.body);
 
@@ -66,6 +81,19 @@ export const standaloneRevampText = async (req: Request, res: Response): Promise
     } catch (error: any) {
         if (error.name === "ZodError") {
             res.status(400).json({ message: "Validation error", errors: error.errors });
+            return;
+        }
+
+        if (error instanceof HttpError) {
+            // Handle trial/subscription specific status for the frontend
+            if (error.status === 403) {
+                res.status(402).json({ 
+                    message: error.message, 
+                    redirectBilling: true 
+                });
+                return;
+            }
+            res.status(error.status).json({ message: error.message });
             return;
         }
 
