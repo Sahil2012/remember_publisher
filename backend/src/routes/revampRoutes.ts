@@ -7,6 +7,6 @@ import { requireSubscription } from "../middleware/requireSubscription.js";
 
 const router = Router();
 
-router.post("/:bookId", requireAuth, resolveUser, requireSubscription, verifyBookOwner, revampText);
+router.post("/:bookId", requireAuth, resolveUser, verifyBookOwner, revampText);
 
 export default router;

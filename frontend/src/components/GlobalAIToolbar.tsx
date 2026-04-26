@@ -76,10 +76,6 @@ export function GlobalAIToolbar({
         <Button
             onClick={(e) => {
               e.preventDefault();
-              if (!isSubscribed) {
-                  subscriptionModal.open();
-                  return;
-              }
               if (showToneSelector) {
                   setShowToneSelector(false);
                   return;

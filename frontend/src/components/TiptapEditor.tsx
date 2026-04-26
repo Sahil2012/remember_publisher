@@ -128,11 +128,6 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
     }, [isRewriting]);
 
     const handleInlineRewrite = async (toneId: string) => {
-        if (!isSubscribed) {
-            subscriptionModal.open();
-            return;
-        }
-
         if (!editor) return;
         const selectedText = editor.state.doc.textBetween(
             editor.state.selection.from,

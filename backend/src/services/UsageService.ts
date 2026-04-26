@@ -62,10 +62,13 @@ export class UsageService {
 
         // 1. Subscription & Trial Check
         const now = new Date();
-        const subscriptionExpired = !user.stripeCurrentPeriodEnd || now > user.stripeCurrentPeriodEnd;
+        // If they are marked as subscribed but we don't have a date, we trust the boolean as a fallback
+        // but ideally we should always have a date.
+        const subscriptionExpired = user.stripeCurrentPeriodEnd ? now > user.stripeCurrentPeriodEnd : false;
         const isCurrentlySubscribed = user.isSubscribed && !subscriptionExpired;
 
         if (!isCurrentlySubscribed) {
+            console.log(`[UsageService] User ${user.id} is NOT considered subscribed. isSubscribed: ${user.isSubscribed}, PeriodEnd: ${user.stripeCurrentPeriodEnd}, Expired: ${subscriptionExpired}`);
             // Allow if they haven't exhausted their trial yet (3 uses allowed for LLM feature)
             if (feature === UsageFeature.LLM) {
                 const trialCount = await prisma.aiRevampRecord.count({ where: { userId } });

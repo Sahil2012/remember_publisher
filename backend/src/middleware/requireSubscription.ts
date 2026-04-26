@@ -16,7 +16,7 @@ export const requireSubscription = (
         return next(new ForbiddenError("This feature requires an active subscription.", ErrorCode.FORBIDDEN));
     }
 
-    // Optional: check if stripeCurrentPeriodEnd is in the past
+    // Optional: check if stripeCurrentPeriodEnd is in the past (only if it exists)
     if (req.user.stripeCurrentPeriodEnd && new Date(req.user.stripeCurrentPeriodEnd) < new Date()) {
         return next(new ForbiddenError("Your subscription has expired.", ErrorCode.FORBIDDEN));
     }

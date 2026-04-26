@@ -139,14 +139,28 @@ export const stripeWebhookHandler = async (
             case 'checkout.session.completed': {
                 const session = event.data.object as any;
                 const userId = session.client_reference_id;
+                const customerId = session.customer as string;
 
-                if (userId) {
+                console.log(`[Stripe Webhook] Checkout session completed. User: ${userId}, Customer: ${customerId}, Mode: ${session.mode}`);
+
+                if (userId || customerId) {
+                    const user = userId 
+                        ? await prisma.appUser.findUnique({ where: { id: userId } })
+                        : await prisma.appUser.findUnique({ where: { stripeCustomerId: customerId } });
+
+                    if (!user) {
+                        console.error(`[Stripe Webhook] User not found for userId: ${userId} or customerId: ${customerId}`);
+                        break;
+                    }
+
+                    const targetUserId = user.id;
+
                     if (session.mode === 'subscription') {
                         const subscriptionId = session.subscription as string;
                         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
                         await prisma.appUser.update({
-                            where: { id: userId },
+                            where: { id: targetUserId },
                             data: {
                                 isSubscribed: true,
                                 stripeSubscriptionId: subscriptionId,
@@ -154,6 +168,7 @@ export const stripeWebhookHandler = async (
                                 stripePriceId: subscription.items.data[0]?.price.id,
                             },
                         });
+                        console.log(`[Stripe Webhook] Subscription fulfilled for user ${targetUserId}`);
                     } else if (session.mode === 'payment') {
                         // For one-time yearly payments, set access for 1 year
                         const oneYearFromNow = new Date();
@@ -164,20 +179,21 @@ export const stripeWebhookHandler = async (
                         const priceId = process.env.STRIPE_YEARLY_PRICE_ID;
 
                         await prisma.appUser.update({
-                            where: { id: userId },
+                            where: { id: targetUserId },
                             data: {
                                 isSubscribed: true,
                                 stripeCurrentPeriodEnd: oneYearFromNow,
                                 stripePriceId: priceId,
-                                stripeSubscriptionId: null, // Ensure no active subscription ID for one-time payments
+                                stripeSubscriptionId: null,
                             },
                         });
+                        console.log(`[Stripe Webhook] One-time payment (Yearly) fulfilled for user ${targetUserId}. New Period End: ${oneYearFromNow}`);
                     }
 
                     // Log transaction
                     await prisma.transaction.create({
                         data: {
-                            userId: userId,
+                            userId: targetUserId,
                             stripeEventId: event.id,
                             amount: session.amount_total ? session.amount_total / 100 : 0,
                             currency: session.currency || "aud",
