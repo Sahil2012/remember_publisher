@@ -120,7 +120,7 @@ export function SignUpPage() {
                             transition={{ delay: 0.25 }}
                             className="text-sm font-semibold text-foreground leading-snug"
                         >
-                            Try the RP Editor free of cost. Get one complimentary session just by signing up — no upfront payment required.
+                            Try the RP Editor free of cost. Get three complimentary sessions just by signing up — no upfront payment required.
                         </motion.p>
                     </div>
                 </div>

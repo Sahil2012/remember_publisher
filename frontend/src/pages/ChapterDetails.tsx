@@ -291,6 +291,23 @@ export function ChapterDetails() {
         );
     }
 
+    const mapCategory = (cat?: string): "Life Story" | "Yearbook" | "Business" => {
+        switch (cat) {
+            case "MEMOIR":
+            case "Memoir":
+            case "Life Story":
+                return "Life Story";
+            case "BUSINESS":
+            case "Business":
+                return "Business";
+            case "YEARBOOK":
+            case "Yearbook":
+                return "Yearbook";
+            default:
+                return "Life Story";
+        }
+    };
+
     const activePage = orderedPages[activePageIndex];
 
     return (
@@ -503,7 +520,7 @@ export function ChapterDetails() {
                                         page={activePage}
                                         onUpdate={(content) => handleUpdatePageContent(activePage.id, content)}
                                         readOnly={isReadingMode}
-                                        category={book?.category as any}
+                                        category={mapCategory(book?.category)}
                                         bookId={bookId || ""}
                                     />
                                 </div>

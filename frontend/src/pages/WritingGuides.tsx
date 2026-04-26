@@ -14,15 +14,45 @@ interface Guide {
 
 const GUIDES: Guide[] = [
   {
-    id: "writing-guide-3-markets",
-    title: "Remember Press Writing Guides for Our 3 Markets",
+    id: "writing-guide-big",
+    title: "The Ultimate Writing Guide",
     description:
-      "A comprehensive writing guide covering best practices, style standards, and market-specific advice across all three Remember Press publishing markets. Essential reading before you start your first book.",
-    market: "All Markets",
+      "Our most comprehensive resource. A full book of tips, techniques, and inspiration to help you master the craft of storytelling from start to finish.",
+    market: "All Authors",
+    pages: "Book",
+    lastUpdated: "May 2026",
+    url: "https://fsppruololkkduvvuikl.supabase.co/storage/v1/object/public/PageImage/WritingGuides/big_writing_guide.pdf",
+    badge: "Featured",
+  },
+  {
+    id: "writing-guide-memoir",
+    title: "Memoir & Personal Story",
+    description:
+      "A specialized guide for those writing memoirs. Learn how to structure your memories into a compelling narrative that resonates with readers.",
+    market: "Memoir",
     pages: "PDF",
-    lastUpdated: "April 2026",
-    url: "https://fsppruololkkduvvuikl.supabase.co/storage/v1/object/public/PageImage/WritingGuides/Remember%20Press%20Writing%20Guides%20for%20our%203%20markets.pdf",
-    badge: "Essential",
+    lastUpdated: "May 2026",
+    url: "https://fsppruololkkduvvuikl.supabase.co/storage/v1/object/public/PageImage/WritingGuides/Memoir.pdf",
+  },
+  {
+    id: "writing-guide-business",
+    title: "Business & Wisdom",
+    description:
+      "Focused on business yearbooks and wisdom books. Strategies for documenting corporate history, values, and professional legacy.",
+    market: "Business",
+    pages: "PDF",
+    lastUpdated: "May 2026",
+    url: "https://fsppruololkkduvvuikl.supabase.co/storage/v1/object/public/PageImage/WritingGuides/Business.pdf",
+  },
+  {
+    id: "writing-guide-authors",
+    title: "Guide for Published Authors",
+    description:
+      "Advanced advice for authors looking to professionalize their work and prepare their manuscript for the highest standards of publishing.",
+    market: "Authors",
+    pages: "PDF",
+    lastUpdated: "May 2026",
+    url: "https://fsppruololkkduvvuikl.supabase.co/storage/v1/object/public/PageImage/WritingGuides/PublishedAuthors.pdf",
   },
 ];
 
@@ -88,24 +118,11 @@ export function WritingGuides() {
         ))}
       </div>
 
-      {/* Coming Soon Placeholder */}
+      {/* Divider */}
       <div
-        className="rounded-2xl border border-dashed p-8 flex flex-col items-center justify-center text-center gap-3"
-        style={{ borderColor: "hsl(220 5% 90%)" }}
-      >
-        <div
-          className="w-12 h-12 rounded-full flex items-center justify-center"
-          style={{ background: "hsl(40 10% 94%)" }}
-        >
-          <FileText className="w-5 h-5 text-muted-foreground" />
-        </div>
-        <div className="space-y-1">
-          <p className="font-medium text-foreground">More guides coming soon</p>
-          <p className="text-sm text-muted-foreground">
-            We're working on market-specific style sheets and chapter planning templates.
-          </p>
-        </div>
-      </div>
+        className="h-px w-full opacity-50"
+        style={{ background: "linear-gradient(to right, hsl(45 40% 50% / 0.4), transparent)" }}
+      />
     </div>
   );
 }

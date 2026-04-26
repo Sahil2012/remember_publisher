@@ -30,16 +30,17 @@ export class UsageService {
 
     private static async ensureDailyReset(user: AppUser): Promise<AppUser> {
         const currentDate = this.getAESTDateString();
-        const isNewDay = user.lastUsageResetDate !== currentDate;
+        const isNewDay = (user as any).lastUsageResetDate !== currentDate;
 
         if (isNewDay) {
+            console.log(`[UsageService] New day detected for user ${user.id}. Resetting daily limits. Old date: ${(user as any).lastUsageResetDate}, New date: ${currentDate}`);
             return await prisma.appUser.update({
                 where: { id: user.id },
                 data: {
                     dailyLlmCount: 0,
                     dailyDictationSeconds: 0,
                     lastUsageResetDate: currentDate
-                }
+                } as any
             });
         }
         return user;
@@ -65,12 +66,20 @@ export class UsageService {
         const isCurrentlySubscribed = user.isSubscribed && !subscriptionExpired;
 
         if (!isCurrentlySubscribed) {
-            // Allow if they haven't used their trial yet (only for LLM feature)
-            if (feature === UsageFeature.LLM && !user.hasUsedAiRewrite) {
-                // Proceed to trial usage
+            // Allow if they haven't exhausted their trial yet (3 uses allowed for LLM feature)
+            if (feature === UsageFeature.LLM) {
+                const trialCount = await prisma.aiRevampRecord.count({ where: { userId } });
+                if (trialCount < 3) {
+                    // Proceed to trial usage
+                } else {
+                    throw new ForbiddenError(
+                        "Complimentary trial sessions (3) exhausted. Active subscription required to continue.",
+                        ErrorCode.FORBIDDEN
+                    );
+                }
             } else {
                 throw new ForbiddenError(
-                    "Active subscription required to use this feature.", 
+                    "Active subscription required to use this feature.",
                     ErrorCode.FORBIDDEN
                 );
             }
@@ -81,7 +90,7 @@ export class UsageService {
 
         // 3. Limit Check & Increment
         if (feature === UsageFeature.LLM) {
-            if (user.dailyLlmCount >= this.LLM_LIMIT_PER_DAY) {
+            if ((user as any).dailyLlmCount >= this.LLM_LIMIT_PER_DAY) {
                 throw new RateLimitExceededError(
                     `Daily LLM limit of ${this.LLM_LIMIT_PER_DAY} reached. Resets at midnight AEST.`,
                     ErrorCode.RATE_LIMIT_EXCEEDED
@@ -89,10 +98,10 @@ export class UsageService {
             }
             await prisma.appUser.update({
                 where: { id: userId },
-                data: { dailyLlmCount: user.dailyLlmCount + 1 }
+                data: { dailyLlmCount: ((user as any).dailyLlmCount || 0) + 1 } as any
             });
         } else if (feature === UsageFeature.DICTATION) {
-            if (user.dailyDictationSeconds >= this.DICTATION_SECONDS_LIMIT) {
+            if ((user as any).dailyDictationSeconds >= this.DICTATION_SECONDS_LIMIT) {
                 throw new RateLimitExceededError(
                     `Daily Dictation limit of ${this.DICTATION_SECONDS_LIMIT / 60} minutes reached. Resets at midnight AEST.`,
                     ErrorCode.RATE_LIMIT_EXCEEDED
@@ -111,7 +120,7 @@ export class UsageService {
 
         await prisma.appUser.update({
             where: { id: userId },
-            data: { dailyDictationSeconds: user.dailyDictationSeconds + Math.ceil(secondsIncr) }
+            data: { dailyDictationSeconds: ((user as any).dailyDictationSeconds || 0) + Math.ceil(secondsIncr) } as any
         });
     }
 }

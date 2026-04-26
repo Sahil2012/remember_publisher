@@ -68,21 +68,30 @@ export function Hero() {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                            className="flex flex-col sm:flex-row items-center gap-5 w-full"
+                            className="flex flex-col sm:flex-row items-center gap-4 w-full"
                         >
                             <Link target="_blank" href="https://app.rememberpress.com/">
                                 <Button
                                     size="lg"
-                                    className="cursor-pointer rounded-full px-10 h-14 text-lg font-medium bg-foreground text-background hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto"
+                                    className="cursor-pointer rounded-full px-8 h-14 text-lg font-medium bg-foreground text-background hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 w-full sm:w-auto"
                                 >
                                     {hero.primaryCta}
+                                </Button>
+                            </Link>
+                            <Link target="_blank" href="https://calendly.com/chriswritenow/story-brief?month=2025-10">
+                                <Button
+                                    size="lg"
+                                    variant="outline"
+                                    className="cursor-pointer rounded-full px-8 h-14 text-lg font-medium border-foreground/20 hover:border-foreground hover:bg-transparent transition-all w-full sm:w-auto"
+                                >
+                                    Book a Clarity Call
                                 </Button>
                             </Link>
                             <Link href="#process">
                                 <Button
                                     variant="link"
                                     size="lg"
-                                    className="text-lg text-foreground/80 font-medium hover:text-foreground hover:no-underline group w-full sm:w-auto justify-start"
+                                    className="text-base text-foreground/80 font-medium hover:text-foreground hover:no-underline group w-full sm:w-auto justify-start px-2"
                                 >
                                     {hero.secondaryCta} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </Button>

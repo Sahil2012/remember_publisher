@@ -1,48 +1,35 @@
 
 export const pricingTiers = [
     {
-        name: "The Legacy Collection",
-        price: "$49 per month",
-        description: "Perfect for creating a timeless digital archive to share your story with friends, family, and future generations.",
+        name: "Monthly Membership",
+        price: "$49",
+        unit: "per month",
+        description: "Perfect for taking your time and enjoying the writing process at your own pace.",
         features: [
-            "Bi-weekly newsletters with tips, tricks and great wisdom on how to shape your story",
-            "Access to our incredible system of story recording, building, and shaping into a beautiful document",
-            "Digital E-Book (PDF)",
-            "Shareable Online Link",
-            "3-Month Backup Retention",
+            "Full access to the RP Editor suite",
+            "Unlimited memoir & business books",
+            "Professional PDF generation",
+            "Exclusive writing guides & tips",
+            "Cancel or pause anytime",
+        ],
+        mostPopular: false,
+        cta: "Start Monthly",
+    },
+    {
+        name: "Yearly Legacy",
+        price: "$294",
+        unit: "per year",
+        description: "The complete gift. Save 50% with 6 months free access to finish your masterpiece.",
+        features: [
+            "Everything in the Monthly plan",
+            "50% discount ($24.50/mo effective)",
+            "Priority support & feedback",
+            "12-month access guaranteed",
+            "Our most popular choice",
         ],
         mostPopular: true,
-        cta: "Start Your Story",
+        cta: "Save with Yearly",
     },
-    // {
-    //     name: "The Digital Edition",
-    //     price: "$129",
-    //     description: "Perfect for creating a timeless digital archive to share your story with friends, family, and future generations.",
-    //     features: [
-    //         "Bi-weekly newsletters with tips, tricks and great wisdom on how to shape your story",
-    //         "Access to our incredible system of story recording, building, and shaping into a beautiful document",
-    //         "Digital E-Book (PDF)",
-    //         "Shareable Online Link",
-    //         "3-Month Backup Retention",
-    //     ],
-    //     mostPopular: false,
-    //     cta: "Start Your Story",
-    // },
-    // {
-    //     name: "The Legacy Collection",
-    //     price: "$599",
-    //     description: "The ultimate package for preserving your family history or launching your professional authority as a published author.",
-    //     features: [
-    //         "Everything in the Digital Edition",
-    //         "An in-depth interview session with an editor to get you started, or help with your progress",
-    //         "Professional Photo Restoration",
-    //         "An add-on choice of hard cover or soft cover book, and a small print run at a very reasonable price",
-    //         "Lifetime Digital Archive",
-    //         "And if you need it, access to a personal editor or ghostwriter, at an additional cost.",
-    //     ],
-    //     mostPopular: true,
-    //     cta: "Preserve Your Legacy",
-    // },
 ];
 
 

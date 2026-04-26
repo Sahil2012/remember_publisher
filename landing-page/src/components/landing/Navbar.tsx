@@ -57,6 +57,11 @@ export function Navbar() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-4 z-50">
+                        <Link target="_blank" href="https://calendly.com/chriswritenow/story-brief?month=2025-10" className="hidden md:block">
+                            <Button size="sm" variant="outline" className="cursor-pointer rounded-full px-6 h-10 font-sans font-medium border-foreground/20 hover:border-foreground hover:bg-transparent transition-colors">
+                                Book a Clarity Call
+                            </Button>
+                        </Link>
 
                         <Link href="https://app.rememberpress.com/" className="hidden md:block">
                             <Button size="sm" className="cursor-pointer rounded-full px-6 h-10 font-sans font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors shadow-md">
@@ -117,12 +122,17 @@ export function Navbar() {
                             ))}
 
                             <motion.div
-                                className="pt-8 w-full flex justify-center"
+                                className="pt-8 w-full flex flex-col items-center gap-4"
                                 variants={{
                                     open: { opacity: 1, y: 0 },
                                     closed: { opacity: 0, y: 20 }
                                 }}
                             >
+                                <Link target="_blank" href="https://calendly.com/chriswritenow/story-brief?month=2025-10" onClick={() => setIsMenuOpen(false)} className="w-full max-w-xs">
+                                    <Button size="lg" variant="outline" className="w-full rounded-full h-14 text-lg font-medium border-foreground/20">
+                                        Book a Clarity Call
+                                    </Button>
+                                </Link>
                                 <Link href="https://app.rememberpress.com/" onClick={() => setIsMenuOpen(false)} className="w-full max-w-xs">
                                     <Button size="lg" className="w-full rounded-full h-14 text-lg font-medium shadow-xl">
                                         Get Started

@@ -149,7 +149,7 @@ export function TextRevamp() {
         } catch (error: any) {
             console.error("Failed to revamp text:", error);
             if (error.response?.status === 402) {
-                toast.error("You have already used your complimentary session. Subscribe to continue.");
+                toast.error("You have already used your 3 complimentary trial sessions. Subscribe to continue.");
                 setIsPricingModalOpen(true);
             } else {
                 const errorMessage = error.response?.data?.message || "Failed to process your draft. Please try again.";
@@ -266,7 +266,7 @@ export function TextRevamp() {
                                     transition={{ delay: 0.25 }}
                                     className="text-sm text-muted-foreground leading-relaxed max-w-lg"
                                 >
-                                    Try the RP Editor once, on us. No sign-up required, no conditions. Love it? Explore unlimited books, PDF generation, and your personal archive with a full plan.
+                                    Try the RP Editor free for 3 sessions, on us. No sign-up required, no conditions. Love it? Explore unlimited books, PDF generation, and your personal archive with a full plan.
                                 </motion.p>
                             </div>
                         </div>
@@ -309,7 +309,7 @@ export function TextRevamp() {
                             </span>
                         </div>
                         <p className="text-muted-foreground text-sm">
-                            Paste or dictate your draft below — the RP Editor will reshape the tone and style to bring your story to life. One free use, no conditions.
+                            Paste or dictate your draft below — the RP Editor will reshape the tone and style to bring your story to life. Three free uses, no conditions.
                         </p>
                     </div>
                     <CategorySelector selectedCategory={selectedCategory} onSelect={setSelectedCategory} disabled={isLoading} />

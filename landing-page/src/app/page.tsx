@@ -19,8 +19,8 @@ export default function Home() {
       <Hero />
       <Features />
       <HowItWorks />
-      <Philosophy />
       <QRSection />
+      <Philosophy />
       <Stories />
       <Testimonials />
       <Pricing />
