@@ -46,11 +46,14 @@ export function GlobalAIToolbar({
   const { data: isSubscribed } = useSubscription();
 
   const getActiveTones = (cat: typeof category): ToneOption[] => {
+    console.log(`[GlobalAIToolbar] Getting tones for category: "${cat}"`);
     switch (cat) {
       case "Life Story": return LIFE_STORY_TONES;
       case "Yearbook": return YEARBOOK_TONES;
       case "Business": return BUSINESS_TONES;
-      default: return LIFE_STORY_TONES;
+      default: 
+        console.warn(`[GlobalAIToolbar] Unknown category: "${cat}", falling back to Life Story`);
+        return LIFE_STORY_TONES;
     }
   };
 

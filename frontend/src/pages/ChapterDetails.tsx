@@ -521,8 +521,10 @@ export function ChapterDetails() {
                                     }
                                 }}
                             >
-                                <div id={`page-${activePage.id}`}>
+                                 <div id={`page-${activePage.id}`}>
+                                    {/* Force re-mount of editor if category changes to ensure toolbar sync */}
                                     <PageEditor
+                                        key={`${activePage.id}-${mapCategory(book?.category)}`}
                                         page={activePage}
                                         onUpdate={(content) => handleUpdatePageContent(activePage.id, content)}
                                         readOnly={isReadingMode}
