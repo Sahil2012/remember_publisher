@@ -102,8 +102,8 @@ export function GlobalAIToolbar({
                         className="absolute top-full mt-2 left-0 bg-white border border-stone-200 p-3 rounded-xl shadow-2xl z-[9999] w-[280px] sm:w-[340px] origin-top-left cursor-default text-stone-900 flex flex-col gap-2"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="text-[10px] text-stone-500 mb-2 font-bold uppercase tracking-wider flex justify-between items-center">
-                            <span>Rewrite highlighted text</span>
+                        <div className="text-[10px] text-stone-500 mb-2 font-bold uppercase tracking-wider flex justify-between items-center border-b border-stone-100 pb-2">
+                            <span>Rewriting for {category}</span>
                         </div>
                         <ToneSelector
                             selectedTone=""

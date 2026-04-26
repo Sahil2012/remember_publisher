@@ -291,19 +291,25 @@ export function ChapterDetails() {
         );
     }
 
-    const mapCategory = (cat?: string): "Life Story" | "Yearbook" | "Business" => {
-        switch (cat) {
+    const mapCategory = (cat: string | undefined): "Life Story" | "Yearbook" | "Business" => {
+        if (!cat) return "Life Story";
+        
+        const normalized = cat.toUpperCase();
+        switch (normalized) {
             case "MEMOIR":
-            case "Memoir":
-            case "Life Story":
+            case "LIFE STORY":
+            case "LIFESTORY":
+            case "LIFE-STORY":
                 return "Life Story";
             case "BUSINESS":
-            case "Business":
                 return "Business";
             case "YEARBOOK":
-            case "Yearbook":
                 return "Yearbook";
             default:
+                // Handle cases where it might already be the mapped string
+                if (cat === "Life Story") return "Life Story";
+                if (cat === "Business") return "Business";
+                if (cat === "Yearbook") return "Yearbook";
                 return "Life Story";
         }
     };
