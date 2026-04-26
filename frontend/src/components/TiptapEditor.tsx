@@ -379,6 +379,7 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
 
     const toolbarEl = !readOnly && (
         <GlobalAIToolbar 
+            key={category}
             editor={editor}
             isRecording={isRecording}
             isPaused={isPaused}

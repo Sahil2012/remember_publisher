@@ -129,6 +129,29 @@ function PageCardOverlay({ page, index }: { page: Page, index: number }) {
     );
 }
 
+const mapCategory = (cat: string | undefined): "Life Story" | "Yearbook" | "Business" => {
+    if (!cat) return "Life Story";
+    
+    const normalized = cat.toUpperCase();
+    switch (normalized) {
+        case "MEMOIR":
+        case "LIFE STORY":
+        case "LIFESTORY":
+        case "LIFE-STORY":
+            return "Life Story";
+        case "BUSINESS":
+            return "Business";
+        case "YEARBOOK":
+            return "Yearbook";
+        default:
+            // Handle cases where it might already be the mapped string
+            if (cat === "Life Story") return "Life Story";
+            if (cat === "Business") return "Business";
+            if (cat === "Yearbook") return "Yearbook";
+            return "Life Story";
+    }
+};
+
 export function ChapterDetails() {
     const { bookId, chapterId } = useParams<{ bookId: string; chapterId: string }>();
     const navigate = useNavigate();
@@ -272,6 +295,8 @@ export function ChapterDetails() {
         }
     };
 
+    console.log(`[ChapterDetails] Book Category: ${book?.category} -> Mapped: ${mapCategory(book?.category)}`);
+
     if (isChapterLoading || isPagesLoading) {
         return (
             <div className="flex h-screen items-center justify-center bg-[#fdfbf7]">
@@ -291,28 +316,6 @@ export function ChapterDetails() {
         );
     }
 
-    const mapCategory = (cat: string | undefined): "Life Story" | "Yearbook" | "Business" => {
-        if (!cat) return "Life Story";
-        
-        const normalized = cat.toUpperCase();
-        switch (normalized) {
-            case "MEMOIR":
-            case "LIFE STORY":
-            case "LIFESTORY":
-            case "LIFE-STORY":
-                return "Life Story";
-            case "BUSINESS":
-                return "Business";
-            case "YEARBOOK":
-                return "Yearbook";
-            default:
-                // Handle cases where it might already be the mapped string
-                if (cat === "Life Story") return "Life Story";
-                if (cat === "Business") return "Business";
-                if (cat === "Yearbook") return "Yearbook";
-                return "Life Story";
-        }
-    };
 
     const activePage = orderedPages[activePageIndex];
 
