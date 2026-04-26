@@ -1,9 +1,11 @@
 import { useState, useRef, useCallback } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 
 export function useDictation(
   onTransientText: (text: string) => void,
   onFinalText: (text: string) => void
 ) {
+  const { getToken } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [errorState, setErrorState] = useState<string | null>(null);
@@ -12,16 +14,25 @@ export function useDictation(
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const backoffRef = useRef(1000);
+  const isFatalErrorRef = useRef(false);
 
-  const connectWebSocket = useCallback((stream: MediaStream) => {
+  const connectWebSocket = useCallback(async (stream: MediaStream) => {
     try {
       if (socketRef.current?.readyState === WebSocket.OPEN) return;
 
       const apiUrl = import.meta.env.VITE_BACKEND_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8082/api';
       const defaultWs = apiUrl.replace(/^http/, 'ws').replace(/\/api$/, '') + '/api/dictate';
-      const wsUrl = import.meta.env.VITE_WS_URL || defaultWs;
-      
-      console.log("[Frontend Dictation] 🔄 Attempting WebSocket connection to:", wsUrl);
+      const baseWsUrl = import.meta.env.VITE_WS_URL || defaultWs;
+
+      // Fetch a fresh Clerk session token. WebSocket upgrades bypass Express
+      // middleware, so the backend cannot use clerkMiddleware — it verifies
+      // the token passed as a query param instead.
+      const token = await getToken();
+      if (!token) {
+        setErrorState('Authentication error: could not get session token.');
+        return;
+      }
+      const wsUrl = `${baseWsUrl}?token=${encodeURIComponent(token)}`;
       const socket = new WebSocket(wsUrl);
       socketRef.current = socket;
 
@@ -30,6 +41,7 @@ export function useDictation(
         setIsRecording(true);
         setIsPaused(false);
         setErrorState(null);
+        isFatalErrorRef.current = false;
         backoffRef.current = 1000;
 
         if (!mediaRecorderRef.current || mediaRecorderRef.current.state === "inactive") {
@@ -54,7 +66,10 @@ export function useDictation(
           
           if (payload.error) {
             console.error("[Frontend Dictation] ❌ Backend returned error:", payload.error);
+            isFatalErrorRef.current = true;
             setErrorState(payload.error);
+            // We can actively close or let the backend close it, but ensure we return.
+            socketRef.current?.close();
             return;
           }
 
@@ -83,6 +98,12 @@ export function useDictation(
 
         // Auto reconnect logic if not explicitly stopped
         if (!mediaRecorderRef.current) return;
+        
+        // Don't auto-reconnect or overwrite the error state if it was a fatal limit/auth error
+        if (isFatalErrorRef.current) {
+            console.warn("[Frontend Dictation] 🛑 Fatal error occurred. Skipping auto-reconnect.");
+            return;
+        }
 
         setErrorState("Connection lost. Reconnecting...");
         reconnectTimeoutRef.current = setTimeout(() => {
@@ -106,7 +127,7 @@ export function useDictation(
       console.log("[Frontend Dictation] Requesting microphone access from Browser...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       console.log("[Frontend Dictation] 🎙️ Microphone access granted!");
-      connectWebSocket(stream);
+      await connectWebSocket(stream);
     } catch (err) {
       console.error("[Frontend Dictation] ❌ Microphone access denied:", err);
       setErrorState("Microphone access denied or error: " + err);

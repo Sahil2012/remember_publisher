@@ -2,6 +2,9 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { DeepgramClient } from '@deepgram/sdk';
 import http from 'http';
 import { configDotenv } from 'dotenv';
+import { verifyToken } from '@clerk/backend';
+import { UsageService, UsageFeature } from "./services/UsageService.js";
+import prisma from "./api/prismaClient.js";
 
 configDotenv();
 
@@ -11,8 +14,47 @@ export function setupWebSocket(server: http.Server) {
     
     let deepgram: DeepgramClient;
     
-    wss.on('connection', async (ws: WebSocket) => {
+    wss.on('connection', async (ws: WebSocket, req: http.IncomingMessage) => {
         console.log('[Backend WS] 🟢 New client connected to WebSocket Proxy.');
+
+        // WebSocket upgrades bypass Express middleware, so clerkMiddleware never runs.
+        // We extract the session token from the query string and verify it directly.
+        let appUserId: string | null = null;
+        let dictationStartTime: number | null = null;
+        try {
+            const url = new URL(req.url || '', `http://${req.headers.host}`);
+            const token = url.searchParams.get('token');
+
+            if (!token) {
+                throw new Error('No session token provided.');
+            }
+
+            const payload = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY });
+            const clerkUserId = payload.sub; // Clerk user ID (authUserId in our DB)
+
+            const user = await prisma.appUser.findUnique({ where: { authUserId: clerkUserId } });
+            if (!user) throw new Error('User not found in database.');
+
+            appUserId = user.id;
+        } catch (authErr: any) {
+            console.error('[Backend WS] ❌ Auth failed:', authErr.message);
+            ws.send(JSON.stringify({ error: 'Unauthorized: ' + authErr.message }));
+            ws.close();
+            return;
+        }
+
+        try {
+            // Check usage limit for Dictation
+            await UsageService.checkAndIncrement(appUserId, UsageFeature.DICTATION);
+            
+            // Mark start time if user is allowed
+            dictationStartTime = Date.now();
+        } catch (error: any) {
+            console.error('[Backend WS] ❌ Usage limit or subscription error:', error.message);
+            ws.send(JSON.stringify({ error: error.message }));
+            ws.close();
+            return;
+        }
         
         if (!process.env.DEEPGRAM_API_KEY) {
             console.error('[Backend WS] ❌ ERROR: DEEPGRAM_API_KEY is not set in .env!');
@@ -88,11 +130,22 @@ export function setupWebSocket(server: http.Server) {
                 connection.socket?.send(chunk);
             }
             
-            ws.on('close', () => {
+            ws.on('close', async () => {
                 console.log('[Backend WS] 🔴 React Client disconnected from proxy. Tearing down Deepgram connection...');
                 try {
                     if (connection.socket) { connection.socket.close(); }
                 } catch(e) {}
+                
+                // Track usage
+                if (dictationStartTime && appUserId) {
+                    const durationSeconds = (Date.now() - dictationStartTime) / 1000;
+                    console.log(`[Backend WS] ⏱️ Dictation session ended. Duration: ${durationSeconds.toFixed(2)}s`);
+                    try {
+                        await UsageService.addDictationTime(appUserId, durationSeconds);
+                    } catch (e) {
+                        console.error('[Backend WS] ❌ Error saving dictation time:', e);
+                    }
+                }
             });
 
         } catch (error) {
