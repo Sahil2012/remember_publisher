@@ -120,8 +120,8 @@ export function WelcomeGiftModal({ isOpen, onClose }: WelcomeGiftModalProps) {
                   transition={{ delay: 0.25 }}
                   className="text-sm text-muted-foreground leading-relaxed"
                 >
-                  We've put together an exclusive Writing Guide covering our three
-                  publishing markets — yours to keep, completely free.
+                  We've put together an exclusive bundle of 4 Writing Guides covering
+                  our publishing markets — yours to keep, completely free.
                 </motion.p>
               </div>
             </div>
@@ -151,7 +151,7 @@ export function WelcomeGiftModal({ isOpen, onClose }: WelcomeGiftModalProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-foreground truncate">
-                  Writing Guides for Our 3 Markets
+                  Bundle of 4 Writing Guides
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Remember Press · April 2026

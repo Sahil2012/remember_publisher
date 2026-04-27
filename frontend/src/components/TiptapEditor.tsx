@@ -76,10 +76,10 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                 let triggerBreak = false;
 
                 // Deepgram dictation literals fallback (sometimes outputted with dictation:true)
-                htmlToInsert = htmlToInsert.replace(/<\\n\\n>/g, '<p></p>');
-                htmlToInsert = htmlToInsert.replace(/<\n\n>/g, '<p></p>');
-                htmlToInsert = htmlToInsert.replace(/<\\n>/g, '<br>');
-                htmlToInsert = htmlToInsert.replace(/<\n>/g, '<br>');
+                htmlToInsert = htmlToInsert.replace(/<\\n\\n>/g, '<br>');
+                htmlToInsert = htmlToInsert.replace(/<\n\n>/g, '<br>');
+                htmlToInsert = htmlToInsert.replace(/<\\n>/g, ' ');
+                htmlToInsert = htmlToInsert.replace(/<\n>/g, ' ');
                 htmlToInsert = htmlToInsert.replace(/<period>/g, '.');
                 htmlToInsert = htmlToInsert.replace(/<comma>/g, ',');
                 htmlToInsert = htmlToInsert.replace(/<question_mark>/g, '?');

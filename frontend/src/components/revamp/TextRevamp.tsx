@@ -96,7 +96,21 @@ export function TextRevamp() {
     }, []);
 
     const onFinalText = useCallback((text: string) => {
-        setInputText(prev => prev + (prev.trim() ? " " : "") + text);
+        setInputText(prev => {
+            const trimmed = text.trim();
+            if (!trimmed) return prev;
+
+            // If the content ends with </p>, we append the new text INSIDE that paragraph
+            // to avoid creating a new one with extra vertical space.
+            if (prev.endsWith("</p>")) {
+                const content = prev.slice(0, -4);
+                // Add a space if the paragraph already has content and doesn't end in one or a tag
+                const spacing = (content.length > 3 && !content.endsWith(">") && !content.endsWith(" ")) ? " " : "";
+                return content + spacing + trimmed + "</p>";
+            }
+            // Fallback for non-paragraph or empty content
+            return prev + (prev.trim() ? " " : "") + trimmed;
+        });
     }, []);
 
     const dictation = useDictation(onTransientText, onFinalText);
