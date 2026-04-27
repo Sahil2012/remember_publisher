@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, Book, Upload, Loader2, GraduationCap, Briefcase } from "lucide-react";
+import { X, Check, Book, Upload, Loader2, GraduationCap, Briefcase, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUploadFile } from "@/api/upload/hooks";
@@ -42,9 +42,22 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
     };
 
     const [type, setType] = useState(getInitialType());
+    const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
     const [coverColor, setCoverColor] = useState(book?.coverColor || COVER_COLORS[0].hex);
     const [coverImage, setCoverImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const typeDropdownRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (typeDropdownRef.current && !typeDropdownRef.current.contains(event.target as Node)) {
+                setIsTypeDropdownOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     // Sync state with book prop when it changes or modal opens
     useEffect(() => {
@@ -119,7 +132,7 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
                             className="w-full max-w-2xl pointer-events-auto"
                         >
-                            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-2xl border border-foreground/5 overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+                            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-2xl border border-foreground/5 overflow-hidden flex flex-col md:flex-row min-h-[400px]">
                                 {/* Left visual spine/cover preview */}
                                 <div className={cn(
                                     "w-full md:w-1/3 p-8 flex flex-col justify-between relative transition-all duration-500 bg-cover bg-center",
@@ -165,7 +178,7 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
                                 </div>
 
                                 {/* Right form content */}
-                                <div className="flex-1 p-8 flex flex-col bg-white overflow-y-auto max-h-[80vh] md:max-h-full">
+                                <div className="flex-1 p-6 flex flex-col bg-white overflow-y-auto max-h-[80vh] md:max-h-full">
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
                                             <h3 className="text-xl font-serif font-medium text-foreground">
@@ -180,7 +193,7 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
                                         </Button>
                                     </div>
 
-                                    <div className="space-y-6 flex-1">
+                                    <div className="space-y-4 flex-1">
                                         {/* Title Input - Underline Style */}
                                         <div className="space-y-2">
                                             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Book Title</label>
@@ -208,44 +221,69 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
                                             />
                                         </div>
 
-                                        {/* Type Selection */}
-                                        <div className="space-y-2">
+                                        {/* Type Selection - Dropdown */}
+                                        <div className="space-y-2 relative" ref={typeDropdownRef}>
                                             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</label>
-                                            <div className="grid grid-cols-1 gap-2">
-                                                {BOOK_TYPES.map((t) => (
-                                                    <button
-                                                        key={t.id}
-                                                        type="button"
-                                                        disabled={isLoading}
-                                                        onClick={() => setType(t.id)}
-                                                        className={cn(
-                                                            "text-left p-3 rounded-xl border transition-all relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed",
-                                                            type === t.id
-                                                                ? "border-luxury-gold bg-luxury-gold/5"
-                                                                : "border-foreground/10 hover:border-foreground/20 bg-white"
-                                                        )}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={cn(
-                                                                "p-2 rounded-lg transition-colors",
-                                                                type === t.id ? "bg-luxury-gold text-white" : "bg-foreground/5 text-foreground/40 group-hover:bg-foreground/10"
-                                                            )}>
-                                                                <t.icon className="w-4 h-4" />
-                                                            </div>
-                                                            <div className="flex-1">
-                                                                <div className="text-sm font-medium text-foreground">{t.label}</div>
-                                                                <div className="text-xs text-muted-foreground line-clamp-1">{t.description}</div>
-                                                            </div>
-                                                        </div>
+                                            <button
+                                                type="button"
+                                                disabled={isLoading}
+                                                onClick={() => setIsTypeDropdownOpen(!isTypeDropdownOpen)}
+                                                className={cn(
+                                                    "w-full flex items-center justify-between p-3 rounded-xl border transition-all bg-white disabled:opacity-50",
+                                                    isTypeDropdownOpen ? "border-luxury-gold ring-1 ring-luxury-gold/20" : "border-foreground/10 hover:border-foreground/20"
+                                                )}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-1.5 rounded-lg bg-luxury-gold/10 text-luxury-gold">
+                                                        {(() => {
+                                                            const Icon = BOOK_TYPES.find(t => t.id === type)?.icon || Book;
+                                                            return <Icon className="w-4 h-4" />;
+                                                        })()}
+                                                    </div>
+                                                    <div className="text-sm font-medium text-foreground">
+                                                        {BOOK_TYPES.find(t => t.id === type)?.label}
+                                                    </div>
+                                                </div>
+                                                {isTypeDropdownOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                                            </button>
 
-                                                        {type === t.id && (
-                                                            <div className="absolute top-2 right-2 text-luxury-gold">
-                                                                <Check className="w-3.5 h-3.5" />
-                                                            </div>
-                                                        )}
-                                                    </button>
-                                                ))}
-                                            </div>
+                                            <AnimatePresence>
+                                                {isTypeDropdownOpen && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -4 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -4 }}
+                                                        className="absolute z-[60] top-full left-0 right-0 mt-2 bg-white border border-foreground/10 rounded-xl shadow-xl overflow-hidden"
+                                                    >
+                                                        {BOOK_TYPES.map((t) => (
+                                                            <button
+                                                                key={t.id}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setType(t.id);
+                                                                    setIsTypeDropdownOpen(false);
+                                                                }}
+                                                                className={cn(
+                                                                    "w-full text-left p-3 flex items-center gap-3 hover:bg-luxury-gold/5 transition-colors",
+                                                                    type === t.id && "bg-luxury-gold/5"
+                                                                )}
+                                                            >
+                                                                <div className={cn(
+                                                                    "p-1.5 rounded-lg transition-colors",
+                                                                    type === t.id ? "bg-luxury-gold text-white" : "bg-foreground/5 text-foreground/40"
+                                                                )}>
+                                                                    <t.icon className="w-4 h-4" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="text-sm font-medium text-foreground">{t.label}</div>
+                                                                    <div className="text-[10px] text-muted-foreground">{t.description}</div>
+                                                                </div>
+                                                                {type === t.id && <Check className="w-4 h-4 text-luxury-gold" />}
+                                                            </button>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
 
                                         {/* Cover Selection: Color or Image */}
@@ -315,7 +353,7 @@ export function BookModal({ isOpen, onClose, onSubmit, book, isLoading = false }
                                     </div>
 
                                     {/* Footer Actions */}
-                                    <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-foreground/5">
+                                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-foreground/5">
                                         <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
                                             Cancel
                                         </Button>

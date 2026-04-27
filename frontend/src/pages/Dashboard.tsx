@@ -27,6 +27,7 @@ export function Dashboard() {
                     payload: {
                         title: bookData.title,
                         description: bookData.description,
+                        category: bookData.category,
                         coverImage: bookData.coverImage,
                         coverColor: bookData.coverColor,
                         // Preserve existing status or other fields if needed
@@ -37,6 +38,7 @@ export function Dashboard() {
                 const newBook = await createBook.mutateAsync({
                     title: bookData.title,
                     description: bookData.description || "",
+                    category: bookData.category || "MEMOIR",
                     authorName: "My Author Name",
                     coverImage: bookData.coverImage || "",
                     coverColor: bookData.coverColor || "",

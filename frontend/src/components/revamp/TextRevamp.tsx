@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { PricingModal } from "./PricingModal";
 import { Sparkles, ArrowRight } from "lucide-react";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 const LOADING_MESSAGES = [
     "Reading your draft...",
@@ -82,8 +83,12 @@ export function TextRevamp() {
     const [copied, setCopied] = useState(false);
     const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
 
+    const { data: user } = useAuthUser();
+    const usedDictationSeconds = user?.dailyDictationSeconds || 0;
+    const isSubscribed = user?.isSubscribed;
+
     const [isRecording, setIsRecording] = useState(false);
-    const [timeRemaining, setTimeRemaining] = useState(180);
+    const [timeRemaining, setTimeRemaining] = useState(300);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const onTransientText = useCallback((_text: string) => {
@@ -100,13 +105,18 @@ export function TextRevamp() {
     useEffect(() => {
         if (dictation.isRecording) {
             setIsRecording(true);
-            setTimeRemaining(180); // 3 minutes = 180 seconds
+            // If subscribed, they have 3 mins per session limit here (frontend only)
+            // If trial, they have 5 mins total limit.
+            // If subscribed, they have 3 mins per session limit here (frontend only)
+            // If trial, they have 5 mins total limit.
+            const initialTime = isSubscribed ? 180 : Math.max(0, 300 - usedDictationSeconds);
+            setTimeRemaining(initialTime); 
             timerRef.current = setInterval(() => {
                 setTimeRemaining(prev => {
                     if (prev <= 1) {
                         dictation.stopRecording();
                         setIsRecording(false);
-                        toast("Recording stopped: 3 minutes limit reached.");
+                        toast(`Recording stopped: ${isSubscribed ? '3 minutes' : 'Trial'} limit reached.`);
                         return 0;
                     }
                     return prev - 1;
@@ -266,7 +276,7 @@ export function TextRevamp() {
                                     transition={{ delay: 0.25 }}
                                     className="text-sm text-muted-foreground leading-relaxed max-w-lg"
                                 >
-                                    Try the RP Editor free for 3 sessions, on us. No sign-up required, no conditions. Love it? Explore unlimited books, PDF generation, and your personal archive with a full plan.
+                                    Try the RP Editor free for 3 sessions and 5 minutes of voice-to-text, on us. No conditions. Love it? Explore unlimited books, PDF generation, and your personal archive with a full plan.
                                 </motion.p>
                             </div>
                         </div>
@@ -309,7 +319,7 @@ export function TextRevamp() {
                             </span>
                         </div>
                         <p className="text-muted-foreground text-sm">
-                            Paste or dictate your draft below — the RP Editor will reshape the tone and style to bring your story to life. Three free uses, no conditions.
+                            Paste or dictate your draft below — the RP Editor will reshape the tone and style to bring your story to life. Three free uses and 5 minutes of voice-to-text trial included.
                         </p>
                     </div>
                     <CategorySelector selectedCategory={selectedCategory} onSelect={setSelectedCategory} disabled={isLoading} />
@@ -366,6 +376,13 @@ export function TextRevamp() {
                                             </>
                                         )}
                                     </Button>
+
+                                    {dictation.errorState && (
+                                        <div className="flex items-center gap-2 text-[11px] text-red-500 mt-1 font-medium bg-red-50 px-2 py-0.5 rounded border border-red-100">
+                                            <AlertCircle className="h-3 w-3" />
+                                            <span>{dictation.errorState}</span>
+                                        </div>
+                                    )}
 
                                     <Button
                                         size="lg"

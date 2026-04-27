@@ -12,6 +12,7 @@ export enum UsageFeature {
 export class UsageService {
     private static LLM_LIMIT_PER_DAY = 40;
     public static DICTATION_SECONDS_LIMIT = 3600 * 2; // 2 hours
+    public static DICTATION_TRIAL_LIMIT = 300; // 5 minutes
 
     /**
      * Gets the current date string in AEST (Australian Eastern Standard Time).
@@ -33,12 +34,19 @@ export class UsageService {
         const isNewDay = (user as any).lastUsageResetDate !== currentDate;
 
         if (isNewDay) {
-            console.log(`[UsageService] New day detected for user ${user.id}. Resetting daily limits. Old date: ${(user as any).lastUsageResetDate}, New date: ${currentDate}`);
+            const now = new Date();
+            const subscriptionExpired = user.stripeCurrentPeriodEnd ? now > user.stripeCurrentPeriodEnd : false;
+            const isCurrentlySubscribed = user.isSubscribed && !subscriptionExpired;
+
+            console.log(`[UsageService] New day detected for user ${user.id}. Resetting daily limits. (Subscribed: ${isCurrentlySubscribed})`);
+            
             return await prisma.appUser.update({
                 where: { id: user.id },
                 data: {
                     dailyLlmCount: 0,
-                    dailyDictationSeconds: 0,
+                    // For trial users (non-subscribers), we don't reset dictation seconds; it acts as a lifetime trial limit.
+                    // For active subscribers, we reset it daily to allow their full daily quota.
+                    dailyDictationSeconds: isCurrentlySubscribed ? 0 : (user as any).dailyDictationSeconds || 0,
                     lastUsageResetDate: currentDate
                 } as any
             });
@@ -62,30 +70,43 @@ export class UsageService {
 
         // 1. Subscription & Trial Check
         const now = new Date();
-        // If they are marked as subscribed but we don't have a date, we trust the boolean as a fallback
-        // but ideally we should always have a date.
         const subscriptionExpired = user.stripeCurrentPeriodEnd ? now > user.stripeCurrentPeriodEnd : false;
         const isCurrentlySubscribed = user.isSubscribed && !subscriptionExpired;
 
         if (!isCurrentlySubscribed) {
-            console.log(`[UsageService] User ${user.id} is NOT considered subscribed. isSubscribed: ${user.isSubscribed}, PeriodEnd: ${user.stripeCurrentPeriodEnd}, Expired: ${subscriptionExpired}`);
-            // Allow if they haven't exhausted their trial yet (3 uses allowed for LLM feature)
+            if (feature === UsageFeature.DICTATION) {
+                const DICTATION_TRIAL_LIMIT = 300; // 5 minutes lifetime trial
+                const usedTrialSeconds = (user as any).dailyDictationSeconds || 0;
+                
+                if (usedTrialSeconds < DICTATION_TRIAL_LIMIT) {
+                    console.log(`[UsageService] User ${user.id} using DICTATION trial. Used: ${usedTrialSeconds}s / ${DICTATION_TRIAL_LIMIT}s`);
+                    return; // Allow trial usage
+                } else {
+                    console.log(`[UsageService] User ${user.id} DICTATION trial exhausted: ${usedTrialSeconds}s`);
+                    throw new ForbiddenError(
+                        `Complimentary voice-to-text trial (5 minutes) exhausted. Active subscription required to continue.`,
+                        ErrorCode.FORBIDDEN
+                    );
+                }
+            }
+
+            // Original logic for LLM trial
             if (feature === UsageFeature.LLM) {
                 const trialCount = await prisma.aiRevampRecord.count({ where: { userId } });
                 if (trialCount < 3) {
-                    // Proceed to trial usage
+                    return; // Allow trial usage
                 } else {
                     throw new ForbiddenError(
                         "Complimentary trial sessions (3) exhausted. Active subscription required to continue.",
                         ErrorCode.FORBIDDEN
                     );
                 }
-            } else {
-                throw new ForbiddenError(
-                    "Active subscription required to use this feature.",
-                    ErrorCode.FORBIDDEN
-                );
             }
+
+            throw new ForbiddenError(
+                "Active subscription required to use this feature.",
+                ErrorCode.FORBIDDEN
+            );
         }
 
         // 2. Daily Reset 

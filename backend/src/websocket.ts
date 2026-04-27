@@ -11,9 +11,9 @@ configDotenv();
 export function setupWebSocket(server: http.Server) {
     console.log('[Backend WS] Initializing WebSocket server on /api/dictate');
     const wss = new WebSocketServer({ server, path: '/api/dictate' });
-    
+
     let deepgram: DeepgramClient;
-    
+
     wss.on('connection', async (ws: WebSocket, req: http.IncomingMessage) => {
         console.log('[Backend WS] 🟢 New client connected to WebSocket Proxy.');
 
@@ -46,7 +46,7 @@ export function setupWebSocket(server: http.Server) {
         try {
             // Check usage limit for Dictation
             await UsageService.checkAndIncrement(appUserId, UsageFeature.DICTATION);
-            
+
             // Mark start time if user is allowed
             dictationStartTime = Date.now();
         } catch (error: any) {
@@ -55,7 +55,7 @@ export function setupWebSocket(server: http.Server) {
             ws.close();
             return;
         }
-        
+
         if (!process.env.DEEPGRAM_API_KEY) {
             console.error('[Backend WS] ❌ ERROR: DEEPGRAM_API_KEY is not set in .env!');
             ws.send(JSON.stringify({ error: 'Deepgram API key not configured on server. Please add it to backend/.env' }));
@@ -65,43 +65,65 @@ export function setupWebSocket(server: http.Server) {
 
         if (!deepgram) {
             console.log('[Backend WS] Instantiating Deepgram Client...');
-            deepgram = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });
+            deepgram = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY } as any);
         }
 
         try {
             console.log('[Backend WS] 🔄 Opening Live stream to Deepgram (nova-2)...');
             const connection = await deepgram.listen.v1.connect({
-                // @ts-ignore
-                Authorization: `Token ${process.env.DEEPGRAM_API_KEY}`,
                 model: 'nova-2',
                 language: 'en',
-                smart_format: "true",
-                interim_results: "true",
-                dictation: "true",
-                punctuate: "true",
-            });
+                smart_format: true,
+                interim_results: true,
+                dictation: true,
+                punctuate: true,
+                token: process.env.DEEPGRAM_API_KEY,
+            } as any);
 
             const preBuffer: Buffer[] = [];
             let isReady = false;
+            let keepAliveInterval: any;
 
             ws.on('message', (audioChunk) => {
                 const chunk = audioChunk as Buffer;
                 if (!isReady || !connection.socket || connection.socket.readyState !== 1) {
-                    console.log(`[Backend WS] ⏳ Buffering chunk of size ${chunk.length} (Deepgram not ready yet)...`);
-                    preBuffer.push(chunk);
+                    if (preBuffer.length < 50) { // Safety limit for buffering
+                        console.log(`[Backend WS] ⏳ Buffering chunk of size ${chunk.length} (Deepgram not ready yet)...`);
+                        preBuffer.push(chunk);
+                    }
                 } else {
-                    connection.socket.send(chunk);
+                    (connection as any).send(chunk);
                 }
             });
 
             connection.on("open", () => {
                 console.log('[Backend WS] 🟢 Deepgram connection successfully established.');
+
+                // Mark ready and flush the buffer!
+                isReady = true;
+                console.log(`[Backend WS] 🚀 Flushing ${preBuffer.length} buffered chunks to Deepgram...`);
+                while (preBuffer.length > 0) {
+                    const chunk = preBuffer.shift();
+                    if (chunk) (connection as any).send(chunk);
+                }
+
+                // KeepAlive interval
+                keepAliveInterval = setInterval(() => {
+                    if (connection.socket?.readyState === 1) {
+                        // Use the SDK method if it exists, otherwise send manual JSON
+                        if (typeof (connection as any).keepAlive === 'function') {
+                            (connection as any).keepAlive();
+                        } else {
+                            connection.socket.send(JSON.stringify({ type: 'KeepAlive' }));
+                        }
+                    }
+                }, 5000);
             });
 
             connection.on("message", (data: any) => {
                 // Log the raw type
                 if (data.type !== "Results") {
-                    console.log(`[Backend WS] ℹ️ Non-result message from Deepgram: ${data.type}`);
+                    console.log(`[Backend WS] ℹ️ Message from Deepgram:`, JSON.stringify(data));
                 }
                 const results = data?.channel?.alternatives?.[0];
                 if (results?.transcript) {
@@ -112,30 +134,32 @@ export function setupWebSocket(server: http.Server) {
 
             connection.on("error", (error: any) => {
                 console.error('[Backend WS] ❌ Deepgram API error:', error);
-                ws.send(JSON.stringify({ error: 'Deepgram API error: ' + error.message }));
+                ws.send(JSON.stringify({ error: 'Deepgram API error: ' + (error.message || 'Unknown error') }));
             });
 
-            connection.on("close", () => {
-                console.log('[Backend WS] 🔴 Deepgram upstream connection closed.');
+            connection.on("close", (event: any) => {
+                console.log('[Backend WS] 🔴 Deepgram upstream connection closed.', event);
+                isReady = false;
+                if (keepAliveInterval) clearInterval(keepAliveInterval);
             });
 
-            // Connect to Deepgram
+            // Initiate the connection
             connection.connect();
-            await connection.waitForOpen();
-            
-            // Mark ready and flush the buffer!
-            isReady = true;
-            console.log(`[Backend WS] 🚀 Flushing ${preBuffer.length} buffered chunks to Deepgram...`);
-            for (const chunk of preBuffer) {
-                connection.socket?.send(chunk);
-            }
-            
+
+            // Wait for the connection to be ready (with a timeout)
+            const openPromise = connection.waitForOpen();
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Deepgram connection timeout')), 10000)
+            );
+
+            await Promise.race([openPromise, timeoutPromise]);
+
             ws.on('close', async () => {
                 console.log('[Backend WS] 🔴 React Client disconnected from proxy. Tearing down Deepgram connection...');
                 try {
                     if (connection.socket) { connection.socket.close(); }
-                } catch(e) {}
-                
+                } catch (e) { }
+
                 // Track usage
                 if (dictationStartTime && appUserId) {
                     const durationSeconds = (Date.now() - dictationStartTime) / 1000;

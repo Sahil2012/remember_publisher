@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { ToneSelector } from "./ToneSelector";
 import { BUSINESS_TONES, LIFE_STORY_TONES, YEARBOOK_TONES, type ToneOption } from "@/config/tones";
 import { useEffect, useRef } from "react";
-import { useSubscription } from "@/hooks/useSubscription";
+import { useAuthUser } from "@/hooks/useAuthUser";
 import { subscriptionModal } from "@/store/subscriptionModalStore";
 
 interface GlobalAIToolbarProps {
@@ -43,7 +43,9 @@ export function GlobalAIToolbar({
 }: GlobalAIToolbarProps) {
   
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const { data: isSubscribed } = useSubscription();
+  const { data: user } = useAuthUser();
+  const isSubscribed = user?.isSubscribed;
+  const usedDictationSeconds = user?.dailyDictationSeconds || 0;
 
   const getActiveTones = (cat: typeof category): ToneOption[] => {
     console.log(`[GlobalAIToolbar] Getting tones for category: "${cat}"`);
@@ -151,16 +153,22 @@ export function GlobalAIToolbar({
                     variant="outline"
                     onClick={(e) => { 
                         e.preventDefault(); 
-                        if (!isSubscribed) {
+                        const canUseDictation = isSubscribed || usedDictationSeconds < 300;
+                        if (!canUseDictation) {
                             subscriptionModal.open();
                             return;
                         }
                         onStartDictation(); 
                     }}
-                    className="border-stone-200 bg-white text-stone-600 hover:text-luxury-gold hover:border-luxury-gold min-w-[140px] shadow-sm font-medium"
+                    className="border-stone-200 bg-white text-stone-600 hover:text-luxury-gold hover:border-luxury-gold min-w-[140px] shadow-sm font-medium relative"
                 >
                     <Mic className="w-4 h-4 mr-2" />
                     Start Dictation
+                    {!isSubscribed && usedDictationSeconds < 300 && (
+                        <div className="text-[9px] text-luxury-gold font-bold uppercase tracking-tighter absolute -bottom-5 right-0 bg-white/50 px-1 rounded backdrop-blur-sm">
+                            {Math.max(0, Math.floor((300 - usedDictationSeconds) / 60))}m {Math.max(0, Math.ceil(300 - usedDictationSeconds) % 60)}s trial
+                        </div>
+                    )}
                 </Button>
             ) : (
                 <motion.div 
