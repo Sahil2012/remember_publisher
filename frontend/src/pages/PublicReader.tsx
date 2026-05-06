@@ -131,7 +131,7 @@ export function PublicReader() {
             </main>
             
             <footer className="py-12 text-center border-t border-stone-100 bg-white mt-12">
-                <p className="text-stone-400 text-sm">Published via Remember Publisher</p>
+                <p className="text-stone-400 text-sm">Published via Remember Press</p>
             </footer>
 
             <ExportBookModal

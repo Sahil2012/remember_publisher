@@ -16,8 +16,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    title: "Remember Publisher - Turn Memories Into Lasting Books",
-    description: "Upload your voice, photos, and words – Remember Publisher helps you transform them into beautifully designed storybooks.",
+    title: "Remember Press - Turn Memories Into Lasting Books",
+    description: "Upload your voice, photos, and words – Remember Press helps you transform them into beautifully designed storybooks.",
     icons: {
         icon: "/remember-press.png",
     },

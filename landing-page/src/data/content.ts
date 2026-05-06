@@ -111,7 +111,7 @@ export const content = {
             },
             {
                 title: "Our Promise",
-                subtitle: "Remember Publisher",
+                subtitle: "Remember Press",
                 description: "We are dedicated to turning your life's journey into a timeless heirloom. Your story matters.",
                 // Using direct Google Drive stream link (uc?export=download&id=...)
                 src: "https://www.youtube.com/watch?v=6fIyAKYINWY"

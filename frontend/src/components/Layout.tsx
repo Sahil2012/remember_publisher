@@ -69,7 +69,7 @@ export function Layout() {
 
             <footer className="border-t border-foreground/5 py-8 mt-auto">
                 <div className="container mx-auto max-w-6xl px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-                    <p>© 2026 Remember Publisher. All rights reserved.</p>
+                    <p>© 2026 Remember Press. All rights reserved.</p>
                     <div className="flex gap-4">
                         <a href="#" className="hover:text-foreground">Privacy</a>
                         <a href="#" className="hover:text-foreground">Terms</a>
