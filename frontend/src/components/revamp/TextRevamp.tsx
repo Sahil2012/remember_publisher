@@ -290,7 +290,7 @@ export function TextRevamp() {
                                     transition={{ delay: 0.25 }}
                                     className="text-sm text-muted-foreground leading-relaxed max-w-lg"
                                 >
-                                    Try the RP Editor free for 3 sessions and 5 minutes of voice-to-text, on us. No conditions. Love it? Explore unlimited books, PDF generation, and your personal archive with a full plan.
+                                    Try the RP Editor free for up to 3 tests (maximum 300 words per test) and 5 minutes of voice-to-text, on us. No conditions. Love it? Explore unlimited books, PDF generation, and your personal archive with a full plan.
                                 </motion.p>
                             </div>
                         </div>
@@ -333,7 +333,7 @@ export function TextRevamp() {
                             </span>
                         </div>
                         <p className="text-muted-foreground text-sm">
-                            Paste or dictate your draft below — the RP Editor will reshape the tone and style to bring your story to life. Three free uses and 5 minutes of voice-to-text trial included.
+                            Paste or dictate your draft below — the RP Editor will reshape the tone and style to bring your story to life. Three free tests (up to 300 words per test) and 5 minutes of voice-to-text trial included.
                         </p>
                     </div>
                     <CategorySelector selectedCategory={selectedCategory} onSelect={setSelectedCategory} disabled={isLoading} />
