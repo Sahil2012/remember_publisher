@@ -5,12 +5,19 @@ import { useState, useEffect } from "react";
 import { Loader } from "@/components/ui/loader";
 import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function SignInPage() {
-    const { isLoaded, signIn } = useSignIn();
+    const { isLoaded, signIn, setActive } = useSignIn();
     const [isLoading, setIsLoading] = useState(false);
     const [searchParams] = useSearchParams();
     const message = searchParams.get("message");
+    
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMsg, setErrorMsg] = useState("");
 
     if (!isLoaded) return null;
 
@@ -24,6 +31,41 @@ export function SignInPage() {
             });
         } catch (err) {
             console.error("OAuth error:", err);
+            setIsLoading(false);
+        }
+    };
+
+    const handleEmailSignIn = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setErrorMsg("");
+
+        try {
+            const attempt = await signIn.create({ identifier: email });
+            const oauthFactor = attempt.supportedFirstFactors?.find(f => f.strategy.startsWith("oauth_"));
+            const hasPassword = attempt.supportedFirstFactors?.some(f => f.strategy === "password");
+
+            if (!hasPassword && oauthFactor) {
+                const provider = oauthFactor.strategy.replace("oauth_", "");
+                const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
+                toast.error(`You have an account using ${providerName}. Please sign in with ${providerName}.`);
+                setErrorMsg(`Please continue with ${providerName}`);
+                setIsLoading(false);
+                return;
+            }
+
+            const finalResult = await signIn.attemptFirstFactor({ strategy: "password", password });
+            
+            if (finalResult.status === "complete") {
+                await setActive({ session: finalResult.createdSessionId });
+                window.location.href = "/";
+            } else {
+                setErrorMsg("Sign in failed. Please try again.");
+            }
+        } catch (err: any) {
+            console.error("Sign in error:", err);
+            setErrorMsg(err.errors?.[0]?.message || "Invalid email or password.");
+        } finally {
             setIsLoading(false);
         }
     };
@@ -85,6 +127,54 @@ export function SignInPage() {
                 >
                     Sign in to continue immortalising your memories.
                 </motion.p>
+            </div>
+
+            {/* Error Banner for Email Login */}
+            {errorMsg && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                    {errorMsg}
+                </div>
+            )}
+
+            <motion.form 
+                onSubmit={handleEmailSignIn}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-4"
+            >
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Email</label>
+                    <Input 
+                        type="email" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        placeholder="Enter your email" 
+                        required 
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Password</label>
+                    <Input 
+                        type="password" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        placeholder="Enter your password" 
+                        required 
+                    />
+                </div>
+                <Button disabled={isLoading} type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800 h-11 rounded-xl">
+                    {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : "Sign in"}
+                </Button>
+            </motion.form>
+
+            <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
             </div>
 
             {/* Google Sign In Button */}

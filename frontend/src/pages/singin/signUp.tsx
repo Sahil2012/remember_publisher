@@ -1,18 +1,31 @@
-import { useSignUp } from "@clerk/clerk-react";
+import { useSignUp, useSignIn } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 import { AuthContent } from "@/components/auth/AuthLayout";
 import { useState } from "react";
 import { Loader } from "@/components/ui/loader";
 import { motion } from "framer-motion";
 import { Gift, Sparkles, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const PERKS = [
     "Complimentary RP Editor session (Try it free!)",
 ];
 
 export function SignUpPage() {
-    const { isLoaded, signUp } = useSignUp();
+    const { isLoaded, signUp, setActive } = useSignUp();
+    const { signIn } = useSignIn();
     const [isLoading, setIsLoading] = useState(false);
+    
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    
+    const [pendingVerification, setPendingVerification] = useState(false);
+    const [code, setCode] = useState("");
+    const [errorMsg, setErrorMsg] = useState("");
 
     if (!isLoaded) return null;
 
@@ -31,6 +44,81 @@ export function SignUpPage() {
                 window.location.href = "/login?message=account_exists";
                 return;
             }
+            setIsLoading(false);
+        }
+    };
+
+    const handleEmailSignUp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setErrorMsg("");
+
+        if (password !== confirmPassword) {
+            setErrorMsg("Passwords do not match");
+            return;
+        }
+
+        setIsLoading(true);
+
+        const names = fullName.trim().split(" ");
+        const firstName = names[0] || "";
+        const lastName = names.slice(1).join(" ");
+
+        try {
+            await signUp.create({
+                firstName,
+                lastName,
+                emailAddress: email,
+                password,
+            });
+
+            await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+            setPendingVerification(true);
+        } catch (err: any) {
+            console.error("Sign up error:", err);
+            
+            if (err.errors?.[0]?.code === "form_identifier_exists") {
+                try {
+                    const attempt = await signIn?.create({ identifier: email });
+                    const oauthFactor = attempt?.supportedFirstFactors?.find(f => f.strategy.startsWith("oauth_"));
+                    if (oauthFactor) {
+                        const provider = oauthFactor.strategy.replace('oauth_', '');
+                        const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
+                        toast.error(`You already have an account using ${providerName}. Please sign in with ${providerName}.`);
+                        setErrorMsg(`Account exists. Please log in with ${providerName}.`);
+                    } else {
+                        setErrorMsg("An account with this email already exists. Please log in.");
+                    }
+                } catch (e) {
+                    setErrorMsg("An account with this email already exists. Please log in.");
+                }
+            } else {
+                setErrorMsg(err.errors?.[0]?.message || "Sign up failed.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleVerify = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setErrorMsg("");
+
+        try {
+            const completeSignUp = await signUp.attemptEmailAddressVerification({
+                code,
+            });
+
+            if (completeSignUp.status === "complete") {
+                await setActive({ session: completeSignUp.createdSessionId });
+                window.location.href = "/";
+            } else {
+                setErrorMsg("Verification failed. Please try again.");
+            }
+        } catch (err: any) {
+            console.error("Verification error:", err);
+            setErrorMsg(err.errors?.[0]?.message || "Invalid verification code.");
+        } finally {
             setIsLoading(false);
         }
     };
@@ -175,8 +263,97 @@ export function SignUpPage() {
                 ))}
             </motion.ul>
 
-            {/* Google Sign Up Button */}
-            <motion.div
+            {errorMsg && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                    {errorMsg}
+                </div>
+            )}
+
+            {pendingVerification ? (
+                <motion.form 
+                    onSubmit={handleVerify}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-4 mt-6"
+                >
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Verification Code</label>
+                        <Input 
+                            value={code} 
+                            onChange={(e) => setCode(e.target.value)} 
+                            placeholder="Enter the code sent to your email" 
+                            required 
+                        />
+                    </div>
+                    <Button disabled={isLoading} type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800 h-11 rounded-xl">
+                        {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : "Verify Email"}
+                    </Button>
+                </motion.form>
+            ) : (
+                <>
+                    <motion.form 
+                        onSubmit={handleEmailSignUp}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="space-y-4 mt-6"
+                    >
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Full Name</label>
+                            <Input 
+                                value={fullName} 
+                                onChange={(e) => setFullName(e.target.value)} 
+                                placeholder="Enter your full name" 
+                                required 
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Email</label>
+                            <Input 
+                                type="email" 
+                                value={email} 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                placeholder="Enter your email" 
+                                required 
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Password</label>
+                            <Input 
+                                type="password" 
+                                value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                placeholder="Create a password" 
+                                required 
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Confirm Password</label>
+                            <Input 
+                                type="password" 
+                                value={confirmPassword} 
+                                onChange={(e) => setConfirmPassword(e.target.value)} 
+                                placeholder="Confirm your password" 
+                                required 
+                            />
+                        </div>
+                        <Button disabled={isLoading} type="submit" className="w-full bg-stone-900 text-white hover:bg-stone-800 h-11 rounded-xl">
+                            {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : "Create account"}
+                        </Button>
+                    </motion.form>
+
+                    <div className="relative my-4">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground">Or</span>
+                        </div>
+                    </div>
+
+                    {/* Google Sign Up Button */}
+                    <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45 }}
@@ -215,7 +392,10 @@ export function SignUpPage() {
                 </button>
             </motion.div>
 
-            <p className="text-center text-xs text-muted-foreground/60 -mt-2">
+                </>
+            )}
+
+            <p className="text-center text-xs text-muted-foreground/60 mt-4">
                 By signing up, you agree to our terms of service and privacy policy.
             </p>
         </AuthContent>
