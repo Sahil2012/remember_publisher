@@ -32,6 +32,27 @@ import { GlobalAIToolbar } from "./GlobalAIToolbar";
 import { useSubscription } from "@/hooks/useSubscription";
 import { subscriptionModal } from "@/store/subscriptionModalStore";
 
+import heic2any from "heic2any";
+
+async function processImageFile(file: File): Promise<File> {
+    if (file.type === "image/heic" || file.type === "image/heif" || file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif")) {
+        try {
+            const blob = await heic2any({
+                blob: file,
+                toType: "image/jpeg",
+                quality: 0.8,
+            });
+            const resultBlob = Array.isArray(blob) ? blob[0] : blob;
+            const newName = file.name.replace(/\.(heic|heif)$/i, ".jpg");
+            return new File([resultBlob], newName, { type: "image/jpeg" });
+        } catch (error) {
+            console.error("Failed to convert HEIC image:", error);
+            return file;
+        }
+    }
+    return file;
+}
+
 interface TiptapEditorProps {
     content: string;
     onChange: (content: string) => void;
@@ -42,14 +63,16 @@ interface TiptapEditorProps {
     onBlur?: () => void;
     category?: "Life Story" | "Yearbook" | "Business";
     bookId: string;
+    onOverflow?: () => void;
 }
 
 const MAX_PAGE_HEIGHT = 900; // Simulated A4 printable height constraint inside the editor modal
 
-export function TiptapEditor({ content, onChange, readOnly = false, className, placeholder = "Start writing...", onRevamp, onBlur, category = "Life Story", bookId }: TiptapEditorProps) {
+export function TiptapEditor({ content, onChange, readOnly = false, className, placeholder = "Start writing...", onRevamp, onBlur, category = "Life Story", bookId, onOverflow }: TiptapEditorProps) {
     const { mutateAsync: uploadFile } = useUploadFile();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const overflowFiredRef = useRef(false);
     
     // Layout-Aware Constraints
     const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -230,7 +253,7 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                         // Actually, view.posAtCoords works.
                         const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
 
-                        uploadFile(file).then(url => {
+                        processImageFile(file).then(processedFile => uploadFile(processedFile)).then(url => {
                             if (url) {
                                 const { schema } = view.state;
                                 const node = schema.nodes.image.create({ src: url });
@@ -256,7 +279,7 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
                     const file = item.getAsFile();
                     if (file) {
                         event.preventDefault();
-                        uploadFile(file).then(url => {
+                        processImageFile(file).then(processedFile => uploadFile(processedFile)).then(url => {
                             if (url) {
                                 const { schema } = view.state;
                                 const node = schema.nodes.image.create({ src: url });
@@ -286,8 +309,13 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
             if (proseMirrorDiv) {
                 if (proseMirrorDiv.scrollHeight > MAX_PAGE_HEIGHT) {
                     setIsOverflowing(true);
+                    if (!overflowFiredRef.current && !readOnly && onOverflow) {
+                        overflowFiredRef.current = true;
+                        onOverflow();
+                    }
                 } else {
                     setIsOverflowing(false);
+                    overflowFiredRef.current = false;
                 }
             }
         };
@@ -339,7 +367,8 @@ export function TiptapEditor({ content, onChange, readOnly = false, className, p
         if (file) {
             console.log("Uploading image...", file.name);
             try {
-                const url = await uploadFile(file);
+                const processedFile = await processImageFile(file);
+                const url = await uploadFile(processedFile);
                 console.log("Image uploaded, URL:", url);
                 if (url) {
                     editor?.chain().focus().setImage({ src: url }).run();

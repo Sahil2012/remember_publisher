@@ -18,6 +18,9 @@ const modules = {
         ["link"],
         ["clean"],
     ],
+    clipboard: {
+        matchVisual: false,
+    },
 };
 
 const formats = [
@@ -34,7 +37,7 @@ const formats = [
 
 export function Editor({ value, onChange, placeholder, readOnly, className }: EditorProps) {
     return (
-        <div className={cn("flex flex-col", className)}>
+        <div className={cn("flex flex-col min-h-0", className)}>
             <ReactQuill
                 theme="snow"
                 value={value}
@@ -44,7 +47,7 @@ export function Editor({ value, onChange, placeholder, readOnly, className }: Ed
                 placeholder={placeholder}
                 readOnly={readOnly}
                 className={cn(
-                    "flex flex-col h-full",
+                    "flex flex-col h-full min-h-0",
 
                     // Toolbar
                     "[&_.ql-toolbar]:shrink-0 [&_.ql-toolbar]:border-none [&_.ql-toolbar]:bg-muted/40 [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-border/40 [&_.ql-toolbar]:rounded-t-lg",

@@ -86,7 +86,7 @@ export function GlobalAIToolbar({
                   return;
               }
               if (editor.state.selection.empty) {
-                  toast.info("Please highlight some text first to let AI rewrite it!");
+                  toast.info("Please highlight some text first to use RP Rewrite!");
                   return;
               }
               setShowToneSelector(true);
@@ -95,7 +95,7 @@ export function GlobalAIToolbar({
             className="bg-stone-900 hover:bg-black text-white border-none shadow-md font-medium h-9 md:h-10 px-3 md:px-4"
         >
             <Wand2 className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 text-luxury-gold" />
-            <span className="text-xs md:text-sm">AI Rewrite</span>
+            <span className="text-xs md:text-sm">RP Rewrite</span>
         </Button>
  
         <AnimatePresence>

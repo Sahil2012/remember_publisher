@@ -493,6 +493,29 @@ export function ChapterDetails() {
                             )}
                         </div>
 
+                        {!isReadingMode && (
+                            <div className="w-full px-4 mb-2 mt-4">
+                                <div className="bg-[#fcfaf8] border border-luxury-gold/30 p-4 sm:p-5 rounded-lg shadow-sm flex flex-col items-start gap-3 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-luxury-gold" />
+                                    
+                                    <p className="text-base sm:text-lg text-stone-800 font-medium leading-snug flex items-center gap-2">
+                                        <span className="text-xl leading-none">✨</span> Editor Instructions
+                                    </p>
+                                    
+                                    <ul className="space-y-3 text-sm sm:text-base text-stone-600 ml-1">
+                                        <li className="flex items-start gap-2">
+                                            <span className="mt-0.5 text-luxury-gold font-bold">•</span>
+                                            <span><strong>Add a photo:</strong> Click on an empty line in your story below, then click the <Plus className="inline w-5 h-5 p-0.5 bg-white border border-stone-300 rounded-md text-stone-600 align-text-bottom shadow-sm mx-0.5" /> icon that appears on the left.</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="mt-0.5 text-luxury-gold font-bold">•</span>
+                                            <span><strong>RP Rewrite & Font Styles:</strong> First, highlight (select) the text you want to change. This will reveal the formatting menu and the <strong>RP Rewrite</strong> tool!</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+
                         <div id="ai-toolbar-portal" className="w-full sticky top-16 z-[60] mb-2 pointer-events-none *:pointer-events-auto" />
 
                         <motion.div
@@ -533,6 +556,14 @@ export function ChapterDetails() {
                                         readOnly={isReadingMode}
                                         category={mapCategory(book?.category)}
                                         bookId={bookId || ""}
+                                        onOverflow={() => {
+                                            toast.info("Adding new page due to extra text");
+                                            if (activePageIndex === orderedPages.length - 1) {
+                                                handleAddPage();
+                                            } else {
+                                                navigatePage('next');
+                                            }
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -586,7 +617,7 @@ export function ChapterDetails() {
     );
 }
 
-function PageEditor({ page, onUpdate, readOnly, category, bookId }: { page: Page, onUpdate: (content: string) => void, readOnly?: boolean, category?: "Life Story" | "Yearbook" | "Business", bookId: string }) {
+function PageEditor({ page, onUpdate, readOnly, category, bookId, onOverflow }: { page: Page, onUpdate: (content: string) => void, readOnly?: boolean, category?: "Life Story" | "Yearbook" | "Business", bookId: string, onOverflow?: () => void }) {
     const [content, setContent] = useState(page.textContent || "");
     const [isRevamping, setIsRevamping] = useState(false);
     const revampMutation = useRevampText();
@@ -623,6 +654,7 @@ function PageEditor({ page, onUpdate, readOnly, category, bookId }: { page: Page
             onChange={setContent}
             category={category}
             bookId={bookId}
+            onOverflow={onOverflow}
             onBlur={() => {
                 if (content !== page.textContent && !readOnly) {
                     onUpdate(content);
