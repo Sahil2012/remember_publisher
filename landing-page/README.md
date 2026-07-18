@@ -2,7 +2,7 @@
 
 Part of [RememberPress](../README.md) · see also: [backend](../backend/README.md) · [frontend](../frontend/README.md)
 
-Next.js 15 site for [rememberpress.com](https://rememberpress.com/): hero, offerings (memoir / yearbook / business book), how-it-works, founder story videos, pricing, and a QR section for print collateral. Deployed on Vercel.
+Next.js 15 site for [rememberpress.com](https://landing.rememberpress.com/): hero, offerings (memoir / yearbook / business book), how-it-works, founder story videos, pricing, and a QR section for print collateral. Deployed on Vercel.
 
 ## Structure
 

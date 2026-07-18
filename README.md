@@ -2,7 +2,7 @@
 
 > Most people who want to write a book aren't writers. RememberPress is a book-writing platform for them: retirees preserving a life story, founders writing an authority book, families making a yearbook. You talk or type, live dictation turns speech into pages, AI polishes the prose in your book's voice — and what you see in the editor is exactly what prints.
 
-**Live:** [rememberpress.com](https://rememberpress.com/) · **App:** [app.rememberpress.com](https://app.rememberpress.com/)
+**Live:** [rememberpress.com](https://landing.rememberpress.com/) · **App:** [app.rememberpress.com](https://app.rememberpress.com/)
 
 <!-- TODO(media): screenshots go in docs/media/ — suggested row: editor with dictation overlay · library · public reader -->
 <!-- <p align="center">
