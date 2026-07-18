@@ -11,7 +11,7 @@
 
 ## Why this exists
 
-The people with the best stories are usually the least equipped to publish them. A 70-year-old with a lifetime of memories doesn't fight with Word margins or hire a ghostwriter — the story just never gets written. RememberPress removes the two real barriers: *getting words out* (speak instead of type, with live transcription) and *making it look like a real book* (a page-true editor that exports print-ready PDF). Built for a founder-led publishing business serving the Australian market — real paying subscribers, not a demo.
+The people with the best stories are usually the least equipped to publish them. A 70-year-old with a lifetime of memories doesn't fight with Word margins or hire a ghostwriter — the story just never gets written. RememberPress removes the two real barriers: *getting words out* (speak instead of type, with live transcription) and *making it look like a real book* (a page-true editor that exports print-ready PDF).
 
 ## How it works
 
